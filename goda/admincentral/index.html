@@ -936,13 +936,13 @@ function perbaruiBadge() {
 function bukaHal(nama, tanpaHash) {
   if (!HALAMAN[nama]) nama = 'ringkasan';
   S.hal = nama;
-  $('#nav a').forEach(function (a) {
+  $$('#nav a').forEach(function (a) {
     if (a.classList.contains('sub-link')) return;
     if (a.dataset.hal === nama) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   if (nama === 'karyawan') {
     $('#grupNavKaryawan').classList.add('buka');
-    $('#subKaryawan .sub-link').forEach(function (sl) {
+    $$('#subKaryawan .sub-link').forEach(function (sl) {
       sl.classList.toggle('aktif', (sl.dataset.area || '') === (S.k.area || ''));
     });
   }
@@ -954,7 +954,7 @@ function bukaHal(nama, tanpaHash) {
   window.scrollTo(0, 0);
 }
 window.addEventListener('popstate', function () { var n = (location.hash || '').replace('#', ''); if (S.token && HALAMAN[n]) bukaHal(n, true); });
-$('#nav a').forEach(function (a) {
+$$('#nav a').forEach(function (a) {
   a.onclick = function (e) {
     e.preventDefault();
     if (a.id === 'navKaryawanUtama') {
@@ -998,12 +998,12 @@ function renderSubmenuKaryawan() {
     return '<a href="#karyawan" data-hal="karyawan" data-area="' + esc(a) + '" class="sub-link' + aktif + '">' +
       '<span class="titik-sub"></span><span class="sub-teks">' + esc(a) + '</span><span class="sub-cnt">' + areaMap[a] + '</span></a>';
   }).join('');
-  $('#subKaryawan .sub-link').forEach(function (a) {
+  $$('#subKaryawan .sub-link').forEach(function (a) {
     a.onclick = function (e) {
       e.preventDefault();
       S.k.area = this.dataset.area || '';
       S.k.hal = 1;
-      $('#subKaryawan .sub-link').forEach(function (l) { l.classList.remove('aktif'); });
+      $$('#subKaryawan .sub-link').forEach(function (l) { l.classList.remove('aktif'); });
       this.classList.add('aktif');
       if ($('#kArea')) $('#kArea').value = S.k.area;
       bukaHal('karyawan');
@@ -1097,17 +1097,17 @@ function renderKaryawan() {
       '<label class="sr" for="kMasalah">Saring</label><select class="input" id="kMasalah"><option value="">Semua kondisi</option><option value="belum">PKWT belum TTD</option><option value="sudah">PKWT sudah TTD</option><option value="gaji">PKWT tertahan (gaji kosong)</option><option value="nik">NIK KTP tidak sah</option></select>' +
       '<button class="btn tipis garis" type="button" id="kReset" hidden>Reset filter</button><span class="jumlah" id="kHit"></span></div><div class="kartu"><div class="tabel-bungkus" id="kTabel"></div><div class="lagi" id="kLagi"></div></div>';
     $('#kCari').oninput = tunda(function () { S.k.cari = this.value.trim(); S.k.hal = 1; isiTabelKaryawan(); }, 180);
-    $('#kStatus .chip').forEach(function (c) { c.onclick = function () { S.k.status = c.dataset.v; S.k.hal = 1; isiTabelKaryawan(); }; });
+    $$('#kStatus .chip').forEach(function (c) { c.onclick = function () { S.k.status = c.dataset.v; S.k.hal = 1; isiTabelKaryawan(); }; });
     $('#kArea').onchange = function () {
       S.k.area = this.value; S.k.hal = 1;
-      $('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', (sl.dataset.area || '') === S.k.area); });
+      $$('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', (sl.dataset.area || '') === S.k.area); });
       isiTabelKaryawan();
     };
     $('#kJenis').onchange = function () { S.k.jenis = this.value; S.k.hal = 1; isiTabelKaryawan(); };
     $('#kMasalah').onchange = function () { S.k.masalah = this.value; S.k.hal = 1; isiTabelKaryawan(); };
     $('#kReset').onclick = function () {
       S.k = { cari: '', status: 'AKTIF', area: '', jenis: '', masalah: '', perHal: 15, hal: 1 };
-      $('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', !sl.dataset.area); });
+      $$('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', !sl.dataset.area); });
       renderKaryawan();
     };
   }
@@ -1121,7 +1121,7 @@ function gulirKeTabel() {
 }
 
 function isiTabelKaryawan() {
-  $('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
+  $$('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
   var daftar = saringKaryawan();
   var total = daftar.length;
   var adaFilter = !!(S.k.cari || S.k.status !== 'AKTIF' || S.k.area || S.k.jenis || S.k.masalah);
@@ -1154,7 +1154,7 @@ function isiTabelKaryawan() {
         '<td class="aksi-sel"><button class="btn tipis garis" type="button" data-i="' + globalIdx + '">Detail' + ic('kanan', 1) + '</button></td></tr>';
     }).join('') + '</tbody></table>';
 
-  $('tr.klik', t).forEach(function (tr) { tr.onclick = function () { bukaKaryawan(daftar[+tr.dataset.i]); }; });
+  $$('tr.klik', t).forEach(function (tr) { tr.onclick = function () { bukaKaryawan(daftar[+tr.dataset.i]); }; });
 
   var infoTeks = S.k.perHal === 'maks'
     ? 'Menampilkan semua <b>' + angka(total) + '</b> karyawan'
@@ -1194,7 +1194,7 @@ function isiTabelKaryawan() {
 
   if ($('#pPrev')) $('#pPrev').onclick = function () { if (S.k.hal > 1) { S.k.hal--; isiTabelKaryawan(); gulirKeTabel(); } };
   if ($('#pNext')) $('#pNext').onclick = function () { if (S.k.hal < maxHal) { S.k.hal++; isiTabelKaryawan(); gulirKeTabel(); } };
-  $('.pag-num').forEach(function (btn) {
+  $$('.pag-num').forEach(function (btn) {
     btn.onclick = function () { S.k.hal = +this.dataset.p; isiTabelKaryawan(); gulirKeTabel(); };
   });
   if ($('#pPerHal')) $('#pPerHal').onchange = function () {
