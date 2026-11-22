@@ -19,11 +19,12 @@
   color-scheme:light;
   --navy:#0B1A4A;--navy-2:#132463;--navy-3:#2453D4;--navy-tint:#EBF0FE;
   --orange:#FF8801;--orange-hover:#FF9A26;--orange-press:#E67700;--orange-ink:#9A5200;--orange-tint:#FFF3E0;
-  --bg:#EEF2F8;--surface:#FFFFFF;--surface-2:#F7F9FD;--ink:#0F172E;--ink-2:#39445E;--ink-3:#5F6B86;
+  --bg:#EEF2F8;--surface:#FFFFFF;--surface-2:#F7F9FD;--surface-3:#EEF2F9;--ink:#0F172E;--ink-2:#39445E;--ink-3:#5F6B86;
   --line:#E2E7F1;--line-strong:#CBD4E4;
   --ok:#0F7B4B;--ok-tint:#E3F5EC;--warn:#9A6205;--warn-tint:#FCF3E0;--bad:#B42318;--bad-tint:#FDECEF;
   --header:#091540;--r:16px;
   --shadow:0 1px 2px rgba(15,23,46,.05),0 8px 24px -10px rgba(15,23,46,.14);
+  --shadow-2:0 20px 48px -12px rgba(15,23,46,.24),0 4px 12px -4px rgba(15,23,46,.08);
   --fh:'Space Grotesk','Plus Jakarta Sans',system-ui,sans-serif;
   --fb:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --fm:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,monospace;
@@ -32,18 +33,20 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --bg:#090D1A;--surface:#121A2D;--surface-2:#162037;--ink:#E8EDF7;--ink-2:#BCC6DA;--ink-3:#8F9BB4;
+    --bg:#090D1A;--surface:#121A2D;--surface-2:#162037;--surface-3:#1B2742;--ink:#E8EDF7;--ink-2:#BCC6DA;--ink-3:#8F9BB4;
     --line:#233150;--line-strong:#2E3D61;--navy-tint:#1A2750;--orange-tint:#2D210E;--orange-ink:#FFB54C;
     --ok:#3FC18A;--ok-tint:#0F2D22;--warn:#F0BB57;--warn-tint:#2D2412;--bad:#FF8199;--bad-tint:#331520;--header:#070E28;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -10px rgba(0,0,0,.65);
+    --shadow-2:0 22px 50px -12px rgba(0,0,0,.72);
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#090D1A;--surface:#121A2D;--surface-2:#162037;--ink:#E8EDF7;--ink-2:#BCC6DA;--ink-3:#8F9BB4;
+  --bg:#090D1A;--surface:#121A2D;--surface-2:#162037;--surface-3:#1B2742;--ink:#E8EDF7;--ink-2:#BCC6DA;--ink-3:#8F9BB4;
   --line:#233150;--line-strong:#2E3D61;--navy-tint:#1A2750;--orange-tint:#2D210E;--orange-ink:#FFB54C;
   --ok:#3FC18A;--ok-tint:#0F2D22;--warn:#F0BB57;--warn-tint:#2D2412;--bad:#FF8199;--bad-tint:#331520;--header:#070E28;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -10px rgba(0,0,0,.65);
+  --shadow-2:0 22px 50px -12px rgba(0,0,0,.72);
 }
 *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
 *::-webkit-scrollbar{width:6px;height:6px}
@@ -84,11 +87,13 @@ svg.i.s{width:16px;height:16px}
 .btn.penuh{width:100%}
 .btn.tipis{min-height:38px;font-size:13.5px;padding:0 13px;border-radius:10px}
 .btn[disabled]{opacity:.52;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.btn-persen[disabled]{opacity:.95}
 .putar{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:putar .8s linear infinite;display:inline-block}
 @keyframes putar{to{transform:rotate(360deg)}}
 .btn-persen{position:relative;overflow:hidden}
-.btn-persen .isi-persen{position:absolute;left:0;top:0;bottom:0;background:rgba(9,17,46,.16);transition:width .25s linear}
-.btn-persen span{position:relative}
+.btn-persen .isi-persen{position:absolute;left:0;top:0;bottom:0;background:rgba(9,17,46,.18);border-right:2px solid rgba(9,17,46,.35);transition:width .2s linear;pointer-events:none}
+.btn-persen .isi-persen::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#091540;opacity:.45}
+.btn-persen span{position:relative;z-index:1}
 
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.55;border:1px solid transparent}
 .tag.ok{background:var(--ok-tint);color:var(--ok);border-color:rgba(15,123,75,.18)}
@@ -211,11 +216,24 @@ details.grup .isi{padding:14px 16px 6px;border-top:1px solid var(--line)}
 .proses .jalur{height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin:14px 0 8px}
 .proses .jalur i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s linear}
 .proses b{font-family:var(--fh);font-size:28px}
-.toast-wadah{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:80;display:grid;gap:8px;width:min(480px,calc(100% - 32px))}
+.toast-wadah{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:90;display:grid;gap:8px;width:min(480px,calc(100% - 32px))}
 .toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:14px;font-weight:600;animation:masuk var(--t) var(--ease)}
 .toast.bad{background:var(--bad);color:#fff}
-.memuat{display:flex;align-items:center;gap:10px;padding:28px 4px;color:var(--ink-2);font-size:14px}
-.memuat .putar{width:18px;height:18px;border-width:2.5px;color:var(--navy-3)}
+
+.memuat-latar{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;background:rgba(238,242,248,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:16px}
+:root[data-theme="dark"] .memuat-latar{background:rgba(9,13,26,.68)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .memuat-latar{background:rgba(9,13,26,.68)}}
+.memuat-latar.buka{display:flex}
+.memuat-kartu{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-2);padding:22px}
+.memuat-kartu .judul{font-family:var(--fh);font-weight:700;font-size:15.5px;color:var(--ink)}
+.memuat-kartu .ket-m{color:var(--ink-3);font-size:12.5px;margin-top:4px;min-height:19px}
+.memuat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 22px;margin:12px 0}
+.memuat .judul{font-family:var(--fh);font-weight:700;font-size:14.5px;color:var(--ink)}
+.memuat .ket-m{color:var(--ink-3);font-size:12.5px;margin-top:3px}
+.memuat-baris{display:flex;align-items:center;gap:12px;margin-top:14px}
+.memuat-baris .jalur{flex:1;height:7px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.memuat-baris .jalur span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--navy-3),var(--orange));border-radius:999px;transition:width .18s linear}
+.memuat-baris b{font-family:var(--fh);font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:700;width:42px;text-align:right;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -291,6 +309,7 @@ details.grup .isi{padding:14px 16px 6px;border-top:1px solid var(--line)}
   </div>
 </div>
 <div class="toast-wadah" id="toast" aria-live="polite"></div>
+<div id="layarMemuat" class="memuat-latar"><div class="memuat-kartu" role="status" aria-live="polite"><div class="judul" id="memuatJudul">Menyiapkan data karyawan</div><div class="ket-m" id="memuatTahap">Menghubungkan ke server HRD...</div><div class="memuat-baris"><div class="jalur"><span id="memuatIsi"></span></div><b id="memuatPersen">0%</b></div></div></div>
 <div class="tirai" id="tiraiProses" hidden><div class="proses" role="status" aria-live="polite"><h2 class="fh" style="font-size:18px" id="prosesJudul">Memproses</h2><div class="jalur"><i id="prosesJalur"></i></div><b id="prosesPersen">0%</b><p class="muted kecil" id="prosesKet">Jangan tutup halaman ini.</p></div></div>
 
 <script>
@@ -310,7 +329,49 @@ function tanpaMandarin(s) { var x = String(s === null || s === undefined ? '' : 
 function simpan(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
 function baca(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function salam() { var j = new Date().getHours(); return j < 11 ? 'pagi' : (j < 15 ? 'siang' : (j < 18 ? 'sore' : 'malam')); }
-function memuat(t) { return '<div class="memuat" role="status"><span class="putar" aria-hidden="true"></span>' + esc(t || 'Memuat...') + '</div>'; }
+function kurvaWaktu(ms, tau) { return 95 * (1 - Math.exp(-ms / tau)); }
+var TAHAP_EMP = [[0, 'Menghubungkan ke server HRD...'], [0.18, 'Membaca data Anda di Master Data...'], [0.5, 'Memeriksa status PKWT & pengkinian...'], [0.8, 'Menyiapkan tampilan portal...']];
+var LME = { t: null, mulai: 0, n: 0, perkiraan: 4200, teksManual: '' };
+function memuatMulai(teks, judul) {
+  LME.mulai = Date.now(); LME.n = 0; LME.teksManual = teks || '';
+  if ($('#memuatJudul')) $('#memuatJudul').textContent = judul || 'Menyiapkan data karyawan';
+  if (teks && $('#memuatTahap')) $('#memuatTahap').textContent = teks;
+  LME.perkiraan = Math.min(20000, Math.max(2000, +(baca('durasi_emp') || 4200)));
+  if ($('#layarMemuat')) $('#layarMemuat').classList.add('buka');
+  clearInterval(LME.t);
+  var gambar = function () {
+    var ms = Date.now() - LME.mulai;
+    LME.n = Math.max(LME.n, kurvaWaktu(ms, LME.perkiraan / 2));
+    var pct = LME.n.toFixed(1) + '%', bulat = Math.floor(LME.n) + '%';
+    if ($('#memuatIsi')) $('#memuatIsi').style.width = pct;
+    if ($('#memuatPersen')) $('#memuatPersen').textContent = bulat;
+    $$('.emp-muat-isi').forEach(function (e) { e.style.width = pct; });
+    $$('.emp-muat-pct').forEach(function (e) { e.textContent = bulat; });
+    if (!LME.teksManual && $('#memuatTahap')) {
+      var f = ms / LME.perkiraan, th = TAHAP_EMP[0][1];
+      TAHAP_EMP.forEach(function (x) { if (f >= x[0]) th = x[1]; });
+      $('#memuatTahap').textContent = th;
+    }
+  };
+  gambar();
+  LME.t = setInterval(gambar, 90);
+}
+function memuatSelesai() {
+  clearInterval(LME.t);
+  simpan('durasi_emp', String(Date.now() - LME.mulai));
+  if ($('#memuatTahap')) $('#memuatTahap').textContent = 'Selesai.';
+  var tunggu = setInterval(function () {
+    LME.n = Math.min(100, LME.n + 10);
+    if ($('#memuatIsi')) $('#memuatIsi').style.width = LME.n + '%';
+    if ($('#memuatPersen')) $('#memuatPersen').textContent = Math.floor(LME.n) + '%';
+    if (LME.n >= 100) { clearInterval(tunggu); setTimeout(function () { if ($('#layarMemuat')) $('#layarMemuat').classList.remove('buka'); }, 140); }
+  }, 26);
+}
+function memuatBatal() { clearInterval(LME.t); if ($('#layarMemuat')) $('#layarMemuat').classList.remove('buka'); }
+function memuat(t) {
+  memuatMulai(t);
+  return '<div class="memuat" role="status"><div class="judul">Menyiapkan data</div><div class="ket-m">' + esc(t || 'Memuat...') + '</div><div class="memuat-baris"><div class="jalur"><span class="emp-muat-isi" style="width:5%"></span></div><b class="emp-muat-pct">0%</b></div></div>';
+}
 function galatHtml(m) { return '<div class="banner warn">' + ic('awas') + '<div>' + esc(m) + '</div></div>'; }
 function toast(m, j) { var el = document.createElement('div'); el.className = 'toast ' + (j || ''); el.setAttribute('role', j === 'bad' ? 'alert' : 'status'); el.textContent = m; $('#toast').appendChild(el); setTimeout(function () { el.remove(); }, j === 'bad' ? 7000 : 4000); }
 function tautan(url, teks, kelas, ikon) { if (!url) return ''; return '<a class="btn ' + (kelas || 'garis') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (ikon ? ic(ikon, 1) : '') + esc(teks) + '</a>'; }
@@ -342,9 +403,10 @@ function panggil(fn, args) {
 }
 function api(aksi, data) {
   return panggil('empApi', [S.token, aksi, data || {}]).then(function (r) {
-    if (!r || !r.ok) { if (r && r.sesiHabis) keluarLokal(r.pesan); throw new Error(r && r.pesan ? r.pesan : 'Server tidak memberi jawaban.'); }
+    if (!r || !r.ok) { memuatBatal(); if (r && r.sesiHabis) keluarLokal(r.pesan); throw new Error(r && r.pesan ? r.pesan : 'Server tidak memberi jawaban.'); }
+    if (aksi !== 'pkwt_ttd') memuatSelesai();
     return r.data;
-  });
+  }).catch(function (e) { memuatBatal(); throw e; });
 }
 
 function terapkanTema(t) {
@@ -467,7 +529,7 @@ function renderAjukan() {
       return '<details class="kartu grup" data-g="' + i + '"' + (i === 0 || (fokus && g.isi.some(function (f) { return f.kunci === fokus; })) ? ' open' : '') + '><summary><span>' + esc(g.judul) + '</span><span class="n-ubah" hidden></span>' + ic('kanan') + '</summary><div class="isi">' + g.isi.map(medan).join('') + '</div></details>';
     }).join('') +
     '<div class="field"><label for="fCatatan">Catatan untuk HRD <span class="cnt">opsional</span></label><textarea class="input" id="fCatatan" maxlength="300" placeholder="Misal: rekening lama sudah ditutup"></textarea></div>' +
-    '<div class="galat" id="fGalat" hidden></div><button class="btn oranye penuh" type="submit" id="fKirim" disabled>Belum ada perubahan</button></form>' +
+    '<div class="galat" id="fGalat" hidden></div><button class="btn oranye penuh btn-persen" type="submit" id="fKirim" disabled><i class="isi-persen" style="width:0"></i><span id="fKirimTeks">Belum ada perubahan</span></button></form>' +
     '<div class="judul-bag">Riwayat & status pengajuan</div><div class="kartu" id="fRiwayat">' + riwayatHtml(S.form.riwayat) + '</div>';
   var hitung = function () {
     var n = 0;
@@ -475,7 +537,7 @@ function renderAjukan() {
       var m = 0; $$('[data-k]', d).forEach(function (i) { var beda = i.value.trim() !== String(i.dataset.awal).trim(); i.classList.toggle('diubah', beda); if (beda) m++; });
       var t = $('.n-ubah', d); t.hidden = !m; t.textContent = m + ' diubah'; n += m;
     });
-    var b = $('#fKirim'); b.disabled = !n; b.textContent = n ? 'Kirim pengajuan (' + n + ' perubahan)' : 'Belum ada perubahan';
+    var b = $('#fKirim'), tx = $('#fKirimTeks'); b.disabled = !n; if (tx) tx.textContent = n ? 'Kirim pengajuan (' + n + ' perubahan)' : 'Belum ada perubahan';
   };
   $$('#fAjukan [data-k]').forEach(function (i) { i.addEventListener('input', hitung); i.addEventListener('change', hitung); if (i.getAttribute('inputmode') === 'numeric') i.addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); }); });
   if (fokus && $('#f_' + fokus)) setTimeout(function () { $('#f_' + fokus).focus(); $('#f_' + fokus).scrollIntoView({ block: 'center' }); }, 80);
@@ -484,11 +546,12 @@ function renderAjukan() {
     var ubah = {}; $$('#fAjukan [data-k]').forEach(function (i) { if (i.value.trim() !== String(i.dataset.awal).trim()) ubah[i.dataset.k] = i.value.trim(); });
     var g = $('#fGalat'), b = $('#fKirim'); g.hidden = true;
     if (!Object.keys(ubah).length) return;
-    b.disabled = true; b.innerHTML = '<span class="putar" aria-hidden="true"></span> Mengirim...';
+    var tx = $('#fKirimTeks'); persenMulai(b, tx, 'Mengirim');
     api('pengkinian_kirim', { ubah: ubah, catatan: $('#fCatatan').value.trim() }).then(function (r) {
+      persenSelesai(b, tx, 'Terkirim', true);
       toast('Pengajuan No. ' + r.no + ' terkirim (' + r.jumlah + ' data). Menunggu verifikasi HRD.');
       S.form = null; S.beranda = null; renderAjukan(); $('#titikAjukan').hidden = false;
-    }).catch(function (err) { g.textContent = err.message; g.hidden = false; hitung(); });
+    }).catch(function (err) { persenSelesai(b, tx, 'Kirim pengajuan', false); g.textContent = err.message; g.hidden = false; hitung(); });
   };
 }
 function riwayatHtml(L) {
