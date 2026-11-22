@@ -1465,7 +1465,7 @@ function gulirKeTabel() {
 }
 
 function isiTabelKaryawan() {
-  $$$('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
+  $$('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
   var daftar = saringKaryawan();
   var total = daftar.length;
   var adaFilter = !!(S.k.cari || S.k.status !== 'AKTIF' || S.k.area || S.k.jenis || S.k.masalah);
@@ -2387,7 +2387,7 @@ function renderSlipHasil() {
   var dl = '<datalist id="dlSlipKar">' + (S.data && S.data.karyawan || []).map(function (o) { return '<option value="' + esc(o.nama + ' | ID ' + o.id) + '">' + (o.status === 'AKTIF' ? '' : 'Resign') + '</option>'; }).join('') + '</datalist>';
   var infoPer = s.mode === 'manual'
     ? '<div class="banner info">' + ic('info') + '<div>Periode dipilih manual: <b>' + esc(label || 'belum dipilih') + '</b>' + (s.periode ? ' (terbaca di slip: ' + esc(s.periode.label) + ')' : '') + '.</div></div>'
-    : (s.periode ? '<div class="banner info">' + ic('info') + '<div>Periode terbaca dari slip: <b>' + esc(s.periode.label) + '</b>' + (s.jenisPeriode > 1 ? '. <b>Perhatian:</b> beberapa halaman menulis periode berbeda; semua disimpan ke ' + esc(s.periode.label) + '. Ganti ke "Pilih bulan sendiri" bila perlu.' : '.') + ' Disimpan ke folder <b>' + esc(per + ' ' + label) + '</b>.</div></div>'
+    : (s.periode ? '<div class="banner info">' + ic('info') + '<div>Periode terbaca dari slip: <b>' + esc(s.periode.label) + '</b>' + (s.jenisPeriode > 1 ? '. <b>Perhatian:</b> beberapa halaman menulis periode berbeda; semua disimpan ke ' + esc(s.periode.label) + '. Ganti ke "Pilih bulan sendiri" bila perlu.' : '.') + ' Disimpan ke folder <b>' + esc(label) + '</b>.</div></div>'
       : '<div class="banner warn">' + ic('awas') + '<div>Periode tidak terbaca dari slip. Pilih bulan slip di atas.</div></div>');
   var tabs = [['semua', 'Semua'], ['cocok', 'Cocok'], ['cek', 'Perlu dicek'], ['belum', 'Belum cocok'], ['selesai', 'Terunggah']];
   el.innerHTML = '<div class="kartu" style="margin-top:16px"><div class="kartu-h"><h2>Hasil baca: ' + s.hal.length + ' halaman dari ' + s.berkas.length + ' file</h2><span class="muted kecil">' + esc(s.berkas.map(function (b) { return b.nama; }).join(', ')) + '</span></div>' +
@@ -2454,7 +2454,7 @@ function slipUnggah() {
   if (!antre.length || !per) return;
   var label = SlipMesin.labelPeriode(per), ganti = 0;
   antre.forEach(function (h) { if (s.sudahAda[String(h.pilihId).replace(/^0+/, '')]) ganti++; });
-  konfirmasi('Unggah ' + antre.length + ' slip ' + label + '?', 'Tiap slip disimpan sebagai PDF terpisah di folder Drive <b>SLIP GAJI / ' + esc(per + ' ' + label) + '</b> (folder dibuat otomatis bila belum ada) dan langsung bisa dilihat karyawan di Portal Karyawan.' +
+  konfirmasi('Unggah ' + antre.length + ' slip ' + label + '?', 'Tiap slip disimpan sebagai PDF terpisah di folder Drive <b>SLIP GAJI / ' + esc(label) + '</b> (folder dibuat otomatis bila belum ada) dan langsung bisa dilihat karyawan di Portal Karyawan.' +
     (ganti ? '<br><br>' + ganti + ' karyawan sudah punya slip bulan ini: ' + (s.ganti ? 'slip lama ditandai DIGANTI dan nama filenya diberi awalan <b>replaced_</b> (tidak dihapus).' : 'slip lama tetap ada (karyawan melihat keduanya).') : ''), 'Ya, unggah').then(function (ya) {
     if (!ya) return;
     s.proses = true;

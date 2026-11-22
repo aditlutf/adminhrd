@@ -1028,7 +1028,7 @@ function renderSlip() {
   var L = S.slip.daftar;
   el.innerHTML = '<div class="banner info">' + ic('kunci') + '<div>Slip gaji bersifat pribadi. Hanya Anda yang bisa membukanya setelah masuk dengan NIK KTP dan ID Karyawan.</div></div>' +
     (L.length ? '<div class="judul-bag" style="margin-top:4px">Slip gaji Anda</div><div class="kartu">' + L.map(function (x, i) {
-      return '<a class="tugas" href="#slip" data-slip="' + i + '"><span class="d ' + (i === 0 ? 'o' : 'n') + '">' + ic('slip') + '</span><div><b>Slip Gaji ' + esc(x.label) + '</b><span>' + (i === 0 ? 'Terbaru &middot; ' : '') + ukuranEmp(x.ukuran) + (x.waktu ? ' &middot; diunggah ' + esc(String(x.waktu).slice(0, 10)) : '') + '</span></div><span class="kanan">' + ic('kanan') + '</span></a>';
+      return '<a class="tugas" href="#slip" data-slip="' + i + '"><span class="d ' + (i === 0 ? 'o' : 'n') + '">' + ic('slip') + '</span><div><b>Slip Gaji ' + esc(x.label) + '</b><span>' + (i === 0 ? 'Terbaru &middot; ' : '') + 'PDF ' + ukuranEmp(x.ukuran) + '</span></div><span class="kanan">' + ic('kanan') + '</span></a>';
     }).join('') + '</div>'
     : '<div class="kartu pad" style="text-align:center"><b class="fh" style="font-size:16px;display:block">Belum ada slip gaji</b><p class="muted" style="margin-top:6px">Slip gaji muncul di sini setelah HRD mengunggahnya setiap bulan. Bila slip bulan ini belum ada, hubungi HRD.</p></div>') +
     '<div id="slipLihat"></div>';
