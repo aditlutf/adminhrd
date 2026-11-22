@@ -20,7 +20,7 @@
   --ok:#0F7B4B;--ok-tint:#E3F5EC;--warn:#9A6205;--warn-tint:#FCF3E0;--bad:#B42318;--bad-tint:#FDECEF;
   --chart:#2453D4;--chart-track:#E6EBF5;
   --sisi:#081238;--sisi-2:#132463;--sisi-ink:#C3CBE5;
-  --r:14px;--r-sm:10px;--sb:256px;
+  --r:14px;--r-sm:10px;--sb:252px;
   --shadow:0 1px 2px rgba(15,23,46,.05),0 8px 24px -10px rgba(15,23,46,.12);
   --shadow-2:0 20px 48px -12px rgba(15,23,46,.24),0 4px 12px -4px rgba(15,23,46,.08);
   --fh:'Space Grotesk','Plus Jakarta Sans',system-ui,sans-serif;
@@ -85,8 +85,13 @@ svg.i.s{width:15px;height:15px}
 .btn.tipis{min-height:34px;padding:0 12px;font-size:13px;border-radius:8px}
 .btn.penuh{width:100%}
 .btn[disabled]{opacity:.52;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.btn-persen[disabled]{opacity:.95}
 .btn .putar{width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:putar .75s linear infinite}
 @keyframes putar{to{transform:rotate(360deg)}}
+.btn-persen{position:relative;overflow:hidden}
+.btn-persen .isi-persen{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(9,17,46,.18);border-right:2px solid rgba(9,17,46,.35);transition:width .18s linear;pointer-events:none}
+.btn-persen .isi-persen::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#091540;opacity:.45}
+.btn-persen span,.btn-persen svg{position:relative;z-index:1}
 
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;line-height:1.55;border:1px solid transparent}
 .tag.ok{background:var(--ok-tint);color:var(--ok);border-color:rgba(15,123,75,.18)}
@@ -173,24 +178,21 @@ select.input{padding-right:32px;appearance:none;-webkit-appearance:none;backgrou
 .app{display:grid;grid-template-columns:var(--sb) minmax(0,1fr);min-height:100vh;transition:grid-template-columns var(--t) var(--ease)}
 body.ciut .app{grid-template-columns:72px minmax(0,1fr)}
 .sisi{background:var(--sisi);color:var(--sisi-ink);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:0;overflow:hidden;z-index:30;border-right:1px solid rgba(255,255,255,.07)}
-.sisi .merek{height:64px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);flex:none}
+.sisi .merek{height:60px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.08);flex:none}
 .sisi .merek .sh{height:13px;width:auto}
 .sisi .merek .gd{width:28px;height:28px;border-radius:7px;flex:none}
 .sisi .merek .x{opacity:.45;font-size:12px}
 .sisi .merek b{font-family:var(--fh);font-size:10.5px;font-weight:700;letter-spacing:.06em;margin-left:auto;background:rgba(255,136,1,.18);color:#FFB45C;border:1px solid rgba(255,136,1,.35);padding:2px 7px;border-radius:99px}
-.nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:12px 10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.14) transparent}
-.nav::-webkit-scrollbar{width:5px}
-.nav::-webkit-scrollbar-track{background:transparent}
-.nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:99px;border:0}
-.nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28)}
-.nav-judul{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(195,203,229,.52);padding:14px 10px 6px;white-space:nowrap}
-.nav a{display:flex;align-items:center;gap:11px;min-height:40px;padding:0 11px;border-radius:9px;text-decoration:none;font-weight:500;font-size:13.5px;position:relative;color:var(--sisi-ink);margin-bottom:2px;transition:background var(--cepat),color var(--cepat)}
+.nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 10px;scrollbar-width:none;-ms-overflow-style:none}
+.nav::-webkit-scrollbar{width:0;height:0;display:none}
+.nav-judul{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(195,203,229,.52);padding:10px 10px 4px;white-space:nowrap}
+.nav a{display:flex;align-items:center;gap:11px;min-height:36px;padding:0 11px;border-radius:8px;text-decoration:none;font-weight:500;font-size:13.5px;position:relative;color:var(--sisi-ink);margin-bottom:2px;transition:background var(--cepat),color var(--cepat)}
 .nav a:hover{background:rgba(255,255,255,.06);color:#fff}
 .nav a[aria-current="page"]{background:rgba(255,255,255,.1);color:#fff;font-weight:600}
-.nav a[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:8px;bottom:8px;width:3.5px;background:var(--orange);border-radius:0 4px 4px 0}
+.nav a[aria-current="page"]::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:3.5px;background:var(--orange);border-radius:0 4px 4px 0}
 .nav a[aria-current="page"] svg{color:var(--orange)}
 .nav .badge{margin-left:auto;min-width:20px;height:19px;padding:0 6px;border-radius:999px;background:var(--orange);color:#09112E;font-size:11px;font-weight:700;display:grid;place-items:center;font-family:var(--fh);font-variant-numeric:tabular-nums}
-.sisi .akun{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:12px 14px;display:flex;align-items:center;gap:10px;flex:none;background:rgba(0,0,0,.14)}
+.sisi .akun{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:10px 14px;display:flex;align-items:center;gap:10px;flex:none;background:rgba(0,0,0,.14)}
 .avatar{width:34px;height:34px;border-radius:10px;background:var(--orange);color:#09112E;display:grid;place-items:center;font-family:var(--fh);font-weight:700;font-size:14px;flex:none}
 .akun .nm{color:#fff;font-weight:600;font-size:13px;line-height:1.2}
 .akun .rl{font-size:11.5px;color:rgba(195,203,229,.65)}
@@ -203,7 +205,7 @@ body.ciut .sisi .akun{flex-direction:column;padding:10px 6px;gap:8px}
 body.ciut .akun button{margin-left:0}
 
 .konten{min-width:0;display:flex;flex-direction:column}
-.atas{position:sticky;top:0;z-index:20;background:var(--surface);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 24px;height:64px}
+.atas{position:sticky;top:0;z-index:20;background:var(--surface);background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 24px;height:60px}
 .atas h1{font-size:17px;font-weight:700;white-space:nowrap}
 .atas .sub{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .atas .kanan{margin-left:auto;display:flex;gap:8px;align-items:center}
@@ -337,7 +339,7 @@ table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
 .dialog-isi{padding:16px 20px 8px}
 .dialog-kaki{padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid var(--line);background:var(--surface-2)}
 
-.toast-wadah{position:fixed;bottom:18px;right:18px;z-index:80;display:grid;gap:8px;width:min(420px,calc(100% - 32px))}
+.toast-wadah{position:fixed;bottom:18px;right:18px;z-index:90;display:grid;gap:8px;width:min(420px,calc(100% - 32px))}
 .toast{background:var(--surface);color:var(--ink);padding:12px 15px;border-radius:12px;border:1px solid var(--line);border-left:4px solid var(--ok);box-shadow:var(--shadow-2);display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:600;animation:masukHal var(--t) var(--ease)}
 .toast.bad{border-left-color:var(--bad)}
 .toast.bad svg{color:var(--bad)}
@@ -375,8 +377,21 @@ table.beda{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
 .info-baris{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13.5px;color:var(--ink-2);margin-top:12px}
 .info-baris b{color:var(--ink)}
 pre.hasil{white-space:pre-wrap;font-family:var(--fb);font-size:13.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:14px}
-.memuat{display:flex;align-items:center;gap:10px;padding:28px 18px;color:var(--ink-2);font-size:13.5px}
-.memuat .putar{width:18px;height:18px;border:2.5px solid var(--navy-3);border-right-color:transparent;border-radius:50%;animation:putar .8s linear infinite}
+
+.memuat-latar{position:fixed;inset:0;z-index:85;display:none;align-items:center;justify-content:center;background:rgba(243,245,250,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+:root[data-theme="dark"] .memuat-latar{background:rgba(10,15,29,.68)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .memuat-latar{background:rgba(10,15,29,.68)}}
+.memuat-latar.buka{display:flex}
+.memuat-kartu{width:min(390px,calc(100% - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-2);padding:22px}
+.memuat-kartu .judul{font-family:var(--fh);font-weight:700;font-size:15.5px;color:var(--ink)}
+.memuat-kartu .tahap{color:var(--ink-3);font-size:12.5px;margin-top:4px;min-height:19px}
+.memuat-baris{display:flex;align-items:center;gap:12px;margin-top:14px}
+.memuat-baris .jalur{flex:1;height:7px;background:var(--surface-3);border-radius:999px;overflow:hidden}
+.memuat-baris .jalur span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--navy-3),var(--orange));border-radius:999px;transition:width .18s linear}
+.memuat-baris b{font-family:var(--fh);font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:700;width:42px;text-align:right;color:var(--ink)}
+.memuat{max-width:400px;margin:28px auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px 22px}
+.memuat .judul{font-family:var(--fh);font-weight:700;font-size:14.5px;color:var(--ink)}
+.memuat .tahap{color:var(--ink-3);font-size:12.5px;margin-top:3px}
 
 @media (max-width:1024px){
   .app,body.ciut .app{grid-template-columns:minmax(0,1fr)}
@@ -467,7 +482,7 @@ pre.hasil{white-space:pre-wrap;font-family:var(--fb);font-size:13.5px;background
             </div>
           </div>
           <div class="galat" id="galatMasuk" role="alert" hidden></div>
-          <button class="btn utama penuh" type="submit" id="btnMasuk" style="margin-top:6px">Masuk</button>
+          <button class="btn utama penuh btn-persen" type="submit" id="btnMasuk" style="margin-top:6px"><i class="isi-persen" style="width:0"></i><span id="btnMasukTeks">Masuk</span></button>
         </form>
       </div>
 
@@ -580,6 +595,7 @@ pre.hasil{white-space:pre-wrap;font-family:var(--fb);font-size:13.5px;background
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogJudul" id="dialog"></div>
 </div>
 <div class="toast-wadah" id="toast" aria-live="polite"></div>
+<div id="layarMemuat" class="memuat-latar"><div class="memuat-kartu" role="status" aria-live="polite"><div class="judul" id="memuatJudul">Menyiapkan data personalia</div><div class="tahap" id="memuatTahap">Menghubungkan ke Google Sheets...</div><div class="memuat-baris"><div class="jalur"><span id="memuatIsi"></span></div><b id="memuatPersen">0%</b></div></div></div>
 
 <script>
 var V42 = 'V4.2-ADAPTER';
@@ -653,12 +669,91 @@ function toast(pesan, jenis) {
   $('#toast').appendChild(el);
   setTimeout(function () { el.remove(); }, jenis === 'bad' ? 7000 : 4000);
 }
+function kurvaWaktu(ms, tau) { return 95 * (1 - Math.exp(-ms / tau)); }
+var TAHAP_MUAT = [[0, 'Menghubungkan ke Google Sheets...'], [0.15, 'Membaca sheet Master Data...'], [0.45, 'Menghitung kelengkapan, area & status PKWT...'], [0.75, 'Mengirim data ke browser...'], [1.35, 'Masih memproses, data cukup besar...']];
+var LM = { t: null, mulai: 0, n: 0, perkiraan: 5500, teksManual: '' };
+function memuatMulai(teks, judul) {
+  LM.mulai = Date.now(); LM.n = 0; LM.teksManual = teks || '';
+  if ($('#memuatJudul')) $('#memuatJudul').textContent = judul || 'Menyiapkan data personalia';
+  if (teks && $('#memuatTahap')) $('#memuatTahap').textContent = teks;
+  LM.perkiraan = Math.min(25000, Math.max(2200, +(bacaLokal('durasiMuat') || 5500)));
+  if ($('#layarMemuat')) $('#layarMemuat').classList.add('buka');
+  clearInterval(LM.t);
+  var gambar = function () {
+    var ms = Date.now() - LM.mulai;
+    LM.n = Math.max(LM.n, kurvaWaktu(ms, LM.perkiraan / 2));
+    var pct = LM.n.toFixed(1) + '%', bulat = Math.floor(LM.n) + '%';
+    if ($('#memuatIsi')) $('#memuatIsi').style.width = pct;
+    if ($('#memuatPersen')) $('#memuatPersen').textContent = bulat;
+    $$('.inline-muat-isi').forEach(function (el) { el.style.width = pct; });
+    $$('.inline-muat-pct').forEach(function (el) { el.textContent = bulat; });
+    if (!LM.teksManual && $('#memuatTahap')) {
+      var f = ms / LM.perkiraan, t = TAHAP_MUAT[0][1];
+      TAHAP_MUAT.forEach(function (x) { if (f >= x[0]) t = x[1]; });
+      $('#memuatTahap').textContent = t;
+    }
+  };
+  gambar();
+  LM.t = setInterval(gambar, 90);
+}
+function memuatTahap(p, teks) { LM.n = Math.max(LM.n, p); if (teks) { LM.teksManual = teks; if ($('#memuatTahap')) $('#memuatTahap').textContent = teks; } }
+function memuatSelesai() {
+  clearInterval(LM.t);
+  simpanLokal('durasiMuat', String(Date.now() - LM.mulai));
+  if ($('#memuatTahap')) $('#memuatTahap').textContent = 'Selesai.';
+  var tunggu = setInterval(function () {
+    LM.n = Math.min(100, LM.n + 9);
+    if ($('#memuatIsi')) $('#memuatIsi').style.width = LM.n + '%';
+    if ($('#memuatPersen')) $('#memuatPersen').textContent = Math.floor(LM.n) + '%';
+    if (LM.n >= 100) { clearInterval(tunggu); setTimeout(function () { if ($('#layarMemuat')) $('#layarMemuat').classList.remove('buka'); }, 150); }
+  }, 28);
+}
+function memuatBatal() { clearInterval(LM.t); if ($('#layarMemuat')) $('#layarMemuat').classList.remove('buka'); }
+var _animMasuk = null;
+function persenMulai(btn, teksEl, awalan) {
+  var p = 0, isi = $('.isi-persen', btn); btn.disabled = true;
+  clearInterval(_animMasuk);
+  _animMasuk = setInterval(function () {
+    p = p + Math.max(1, (94 - p) / 13); if (p > 94) p = 94;
+    if (isi) isi.style.width = p.toFixed(1) + '%';
+    if (teksEl) teksEl.textContent = awalan + ' ' + Math.round(p) + '%';
+  }, 110);
+}
+function persenSelesai(btn, teksEl, teks, berhasil) {
+  clearInterval(_animMasuk); var isi = $('.isi-persen', btn);
+  if (berhasil) { if (isi) isi.style.width = '100%'; if (teksEl) teksEl.textContent = '100%'; }
+  setTimeout(function () { if (isi) isi.style.width = '0'; if (teksEl) teksEl.textContent = teks; btn.disabled = false; }, berhasil ? 260 : 0);
+}
 function sibuk(btn, ya, teks) {
   if (!btn) return;
-  if (ya) { btn.dataset.asli = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="putar" aria-hidden="true"></span>' + esc(teks || 'Memproses...'); }
-  else { btn.disabled = false; if (btn.dataset.asli) btn.innerHTML = btn.dataset.asli; }
+  if (btn._tSibuk) { clearInterval(btn._tSibuk); btn._tSibuk = null; }
+  if (ya) {
+    btn.dataset.asli = btn.innerHTML; btn.disabled = true;
+    btn.classList.add('btn-persen');
+    var mulai = Date.now(), label = esc(teks || 'Memproses');
+    var lukis = function () {
+      var n = kurvaWaktu(Date.now() - mulai, 1600);
+      btn.innerHTML = '<i class="isi-persen" style="width:' + n.toFixed(1) + '%"></i><span><span class="putar" aria-hidden="true" style="vertical-align:-3px;margin-right:6px"></span>' + label + ' ' + Math.floor(n) + '%</span>';
+    };
+    lukis();
+    btn._tSibuk = setInterval(lukis, 100);
+  } else {
+    btn.disabled = false; if (btn.dataset.asli) btn.innerHTML = btn.dataset.asli;
+  }
 }
-function memuatHtml(teks) { return '<div class="memuat" role="status"><span class="putar" aria-hidden="true"></span>' + esc(teks || 'Memuat data...') + '</div>'; }
+var _inlineTimer = null;
+function memuatHtml(teks) {
+  var mulai = Date.now();
+  clearInterval(_inlineTimer);
+  _inlineTimer = setInterval(function () {
+    var elIsi = $$('.inline-muat-isi'), elPct = $$('.inline-muat-pct');
+    if (!elIsi.length) { clearInterval(_inlineTimer); return; }
+    var n = kurvaWaktu(Date.now() - mulai, 1800);
+    elIsi.forEach(function (e) { e.style.width = n.toFixed(1) + '%'; });
+    elPct.forEach(function (e) { e.textContent = Math.floor(n) + '%'; });
+  }, 90);
+  return '<div class="memuat" role="status"><div class="judul">Menyiapkan data</div><div class="tahap">' + esc(teks || 'Memuat data...') + '</div><div class="memuat-baris"><div class="jalur"><span class="inline-muat-isi" style="width:4%"></span></div><b class="inline-muat-pct">0%</b></div></div>';
+}
 function kosongHtml(judul, isi) { return '<div class="kosong"><b>' + esc(judul) + '</b>' + esc(isi || '') + '</div>'; }
 
 var fokusSebelum = null;
@@ -710,20 +805,24 @@ $('#lihatSandi').onclick = function () {
   i.type = lihat ? 'text' : 'password'; this.setAttribute('aria-pressed', String(lihat));
   this.setAttribute('aria-label', lihat ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
 };
+var _admPing = false;
+function bangunkanAdmin() { if (_admPing) return; _admPing = true; panggil('portalPing', []).catch(function () { _admPing = false; }); }
+$('#mPengguna').addEventListener('focus', bangunkanAdmin);
+$('#mSandi').addEventListener('focus', bangunkanAdmin);
 $('#formMasuk').onsubmit = function (e) {
   e.preventDefault();
-  var u = $('#mPengguna').value.trim(), p = $('#mSandi').value, g = $('#galatMasuk'), b = $('#btnMasuk');
+  var u = $('#mPengguna').value.trim(), p = $('#mSandi').value, g = $('#galatMasuk'), b = $('#btnMasuk'), tx = $('#btnMasukTeks');
   g.hidden = true;
   if (!u || !p) { g.textContent = 'Isi nama pengguna dan kata sandi.'; g.hidden = false; return; }
-  sibuk(b, true, 'Memeriksa...');
+  persenMulai(b, tx, 'Memeriksa');
   panggil('adminMasuk', [u, p]).then(function (r) {
-    sibuk(b, false);
-    if (!r || !r.ok) { g.textContent = (r && r.pesan) || 'Gagal masuk.'; g.hidden = false; $('#mSandi').select(); return; }
+    if (!r || !r.ok) { persenSelesai(b, tx, 'Masuk', false); g.textContent = (r && r.pesan) || 'Gagal masuk.'; g.hidden = false; $('#mSandi').select(); return; }
+    persenSelesai(b, tx, 'Masuk', true);
     S.token = r.token; S.nama = r.nama;
     simpanLokal('adm_sesi', JSON.stringify({ t: r.token, n: r.nama }));
     $('#mSandi').value = '';
-    masukAplikasi();
-  }).catch(function (err) { sibuk(b, false); g.textContent = err.message; g.hidden = false; });
+    setTimeout(masukAplikasi, 220);
+  }).catch(function (err) { persenSelesai(b, tx, 'Masuk', false); g.textContent = err.message; g.hidden = false; });
 };
 
 function pilihSeg(wadah, tombol) {
@@ -779,10 +878,17 @@ function masukAplikasi() {
 }
 function muatData() {
   $('#hal-ringkasan').innerHTML = S.data ? $('#hal-ringkasan').innerHTML : memuatHtml('Membaca Master Data...');
+  memuatMulai();
   return api('muat').then(function (d) {
+    memuatTahap(90, 'Menyusun tampilan dashboard...');
     S.data = d; S.nama = d.admin || S.nama; $('#namaAdmin').textContent = S.nama;
     perbaruiBadge(); renderHal(S.hal);
-  }).catch(function (e) { $('#hal-ringkasan').innerHTML = '<div class="banner warn">' + ic('awas') + '<div>' + esc(e.message) + '</div></div>'; toast(e.message, 'bad'); });
+    memuatSelesai();
+  }).catch(function (e) {
+    memuatBatal();
+    $('#hal-ringkasan').innerHTML = '<div class="banner warn">' + ic('awas') + '<div>' + esc(e.message) + '</div></div>';
+    toast(e.message, 'bad');
+  });
 }
 function perbaruiBadge() {
   var r = S.data ? S.data.ringkasan : {};
@@ -870,8 +976,8 @@ function renderRingkasan() {
     if (b.dataset.masalah !== undefined || b.dataset.status !== undefined) S.k = { cari: '', status: b.dataset.status !== undefined ? b.dataset.status : 'AKTIF', area: '', jenis: '', masalah: b.dataset.masalah || '', batas: 60 };
     bukaHal(b.dataset.pergi);
   }; });
-  $('.batang .b', el).forEach(function (b) { var pergi = function () { S.k = { cari: '', status: 'AKTIF', area: b.dataset.area, jenis: '', masalah: '', batas: 60 }; bukaHal('karyawan'); }; b.onclick = pergi; b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pergi(); } }; });
-  if ($('#btnFormatSheet', el)) $('#btnFormatSheet', el).onclick = function () { var b = this; sibuk(b, true, 'Memformat sheet...'); api('perbarui_tampilan').then(function () { sibuk(b, false); toast('Template 10 sheet Region, Gaji, Active Employee & Resign berhasil diperbarui.'); }).catch(function (e) { sibuk(b, false); toast(e.message, 'bad'); }); };
+  $$('.batang .b', el).forEach(function (b) { var pergi = function () { S.k = { cari: '', status: 'AKTIF', area: b.dataset.area, jenis: '', masalah: '', batas: 60 }; bukaHal('karyawan'); }; b.onclick = pergi; b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pergi(); } }; });
+  if ($('#btnFormatSheet', el)) $('#btnFormatSheet', el).onclick = function () { var b = this; sibuk(b, true, 'Memformat sheet'); memuatMulai('Memformat 10 sheet Region, Gaji, Active Employee & Resign...', 'Memperbarui Template Sheet'); api('perbarui_tampilan').then(function () { memuatSelesai(); sibuk(b, false); toast('Template 10 sheet Region, Gaji, Active Employee & Resign berhasil diperbarui.'); }).catch(function (e) { memuatBatal(); sibuk(b, false); toast(e.message, 'bad'); }); };
 }
 function tugas(warna, ikon, judul, ket, n, hal, masalah) {
   return '<a class="tugas" href="#' + hal + '" data-pergi="' + hal + '"' + (masalah ? ' data-masalah="' + masalah + '"' : '') + '><span class="d ' + warna + '">' + ic(ikon) + '</span><div><b>' + esc(judul) + '</b><span>' + esc(ket) + '</span></div><span class="angka-t">' + (n === null || n === undefined ? '-' : angka(n)) + '</span></a>';
