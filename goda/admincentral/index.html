@@ -173,8 +173,11 @@ body.ciut .app{grid-template-columns:72px minmax(0,1fr)}
 .sisi .merek .gd{width:28px;height:28px;border-radius:7px;flex:none}
 .sisi .merek .x{opacity:.45;font-size:12px}
 .sisi .merek b{font-family:var(--fh);font-size:10.5px;font-weight:700;letter-spacing:.06em;margin-left:auto;background:rgba(255,136,1,.18);color:#FFB45C;border:1px solid rgba(255,136,1,.35);padding:2px 7px;border-radius:99px}
-.nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 10px;scrollbar-width:none;-ms-overflow-style:none}
-.nav::-webkit-scrollbar{width:0;height:0;display:none}
+.nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 8px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.nav::-webkit-scrollbar{width:4px}
+.nav::-webkit-scrollbar-track{background:transparent}
+.nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:99px}
+.nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.35)}
 .nav-judul{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(195,203,229,.52);padding:10px 10px 4px;white-space:nowrap}
 .nav a{display:flex;align-items:center;gap:11px;min-height:36px;padding:0 11px;border-radius:8px;text-decoration:none;font-weight:500;font-size:13.5px;position:relative;color:var(--sisi-ink);margin-bottom:2px;transition:background var(--cepat),color var(--cepat)}
 .nav a:hover{background:rgba(255,255,255,.06);color:#fff}
@@ -300,7 +303,7 @@ table.tb{width:100%;border-collapse:collapse;font-size:13.5px}
   .tb.kartu-hp td[data-l]::before{content:attr(data-l);display:inline-block;min-width:92px;font-size:12px;color:var(--ink-3);font-weight:600}
   .tb.kartu-hp .aksi-sel{text-align:left;padding-top:8px}
 }
-.lagi{display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 var(--r) var(--r)}
+.lagi{display:flex;flex-direction:column;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 var(--r) var(--r);padding:0}
 
 .laci-latar{position:fixed;inset:0;background:rgba(8,14,32,.52);backdrop-filter:blur(3px);z-index:50;display:flex;justify-content:flex-end}
 .laci{background:var(--surface);width:min(640px,100%);height:100%;display:flex;flex-direction:column;animation:laciMasuk var(--t) var(--ease);box-shadow:var(--shadow-2)}
@@ -413,9 +416,13 @@ pre.hasil{white-space:pre-wrap;font-family:var(--fb);font-size:13.5px;background
 .nav-induk{display:flex;align-items:center;gap:12px;cursor:pointer;position:relative}
 .panah-sub{margin-left:auto;width:15px;height:15px;transition:transform var(--cepat) var(--ease);opacity:.65}
 .nav-grup.buka .panah-sub{transform:rotate(180deg);opacity:1}
-.nav-sub{display:none;flex-direction:column;gap:1px;padding:2px 0 6px 34px}
+.nav-sub{display:none;flex-direction:column;gap:2px;padding:4px 6px 6px 12px;max-height:220px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent;border-left:2px solid rgba(255,255,255,.08);margin:2px 0 6px 22px}
+.nav-sub::-webkit-scrollbar{width:4px}
+.nav-sub::-webkit-scrollbar-track{background:transparent}
+.nav-sub::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px}
+.nav-sub::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.4)}
 .nav-grup.buka .nav-sub{display:flex}
-.sub-link{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:8px;font-size:12.5px;color:var(--sisi-ink);text-decoration:none;transition:background var(--cepat),color var(--cepat)}
+.sub-link{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;font-size:12px;color:var(--sisi-ink);text-decoration:none;min-height:28px;transition:background var(--cepat),color var(--cepat)}
 .sub-link:hover{background:rgba(255,255,255,.08);color:#fff}
 .sub-link.aktif{background:rgba(255,136,1,.18);color:var(--orange);font-weight:700}
 .titik-sub{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.65;flex-shrink:0}
@@ -593,7 +600,7 @@ body.ciut .panah-sub{display:none}
     </nav>
     <div class="akun">
       <div class="avatar" id="avatar" aria-hidden="true">A</div>
-      <div><div class="nm" id="namaAdmin">Admin</div><div class="rl">Tim HRD</div></div>
+      <div><div class="nm" id="namaAdmin">Admin</div><div class="rl">Relation Officer GODA</div></div>
       <button type="button" id="btnKeluar" aria-label="Keluar"><svg class="i" aria-hidden="true"><use href="#i-keluar"></use></svg></button>
     </div>
   </aside>
@@ -958,8 +965,12 @@ $$('#nav a').forEach(function (a) {
   a.onclick = function (e) {
     e.preventDefault();
     if (a.id === 'navKaryawanUtama') {
-      $('#grupNavKaryawan').classList.toggle('buka');
-      bukaHal('karyawan');
+      if (S.hal === 'karyawan') {
+        $('#grupNavKaryawan').classList.toggle('buka');
+      } else {
+        $('#grupNavKaryawan').classList.add('buka');
+        bukaHal('karyawan');
+      }
       return;
     }
     if (a.classList.contains('sub-link')) return;
@@ -1138,13 +1149,13 @@ function isiTabelKaryawan() {
   if ($('#kReset')) $('#kReset').hidden = !adaFilter;
   if ($('#kHit')) $('#kHit').textContent = angka(total) + ' orang';
 
-  var per = S.k.perHal === 'maks' ? total : (+S.k.perHal || 15);
-  var maxHal = S.k.perHal === 'maks' ? 1 : Math.max(1, Math.ceil(total / (per || 1)));
+  var per = (S.k.perHal === 'all' || S.k.perHal === 'maks') ? total : (+S.k.perHal || 15);
+  var maxHal = (S.k.perHal === 'all' || S.k.perHal === 'maks') ? 1 : Math.max(1, Math.ceil(total / (per || 1)));
   S.k.hal = (+S.k.hal && +S.k.hal >= 1) ? Math.min(+S.k.hal, maxHal) : 1;
-  S.k.perHal = S.k.perHal === 'maks' ? 'maks' : per;
+  S.k.perHal = (S.k.perHal === 'all' || S.k.perHal === 'maks') ? 'all' : per;
 
-  var awalIdx = S.k.perHal === 'maks' ? 0 : (S.k.hal - 1) * per;
-  var akhirIdx = S.k.perHal === 'maks' ? total : Math.min(total, awalIdx + per);
+  var awalIdx = (S.k.perHal === 'all' || S.k.perHal === 'maks') ? 0 : (S.k.hal - 1) * per;
+  var akhirIdx = (S.k.perHal === 'all' || S.k.perHal === 'maks') ? total : Math.min(total, awalIdx + per);
   var tampil = daftar.slice(awalIdx, akhirIdx);
 
   var t = $('#kTabel');
@@ -1166,7 +1177,7 @@ function isiTabelKaryawan() {
 
   $$('tr.klik', t).forEach(function (tr) { tr.onclick = function () { bukaKaryawan(daftar[+tr.dataset.i]); }; });
 
-  var infoTeks = S.k.perHal === 'maks'
+  var infoTeks = (S.k.perHal === 'all' || S.k.perHal === 'maks')
     ? 'Menampilkan semua <b>' + angka(total) + '</b> karyawan'
     : 'Menampilkan <b>' + (awalIdx + 1) + ' - ' + akhirIdx + '</b> dari <b>' + angka(total) + '</b> karyawan';
 
@@ -1188,10 +1199,10 @@ function isiTabelKaryawan() {
     btnNav += '<button type="button" class="btn tipis garis pag-btn" id="pNext"' + (S.k.hal >= maxHal ? ' disabled' : '') + '>Berikutnya' + ic('kanan', 1) + '</button>';
   }
 
-  var opsiP = [15, 25, 50, 'maks'];
+  var opsiP = [5, 10, 15, 20, 25, 50, 100, 'all'];
   var opsiHtml = '<div class="pag-pilih"><label for="pPerHal">Per halaman:</label><select class="input" id="pPerHal">' +
     opsiP.map(function (n) {
-      var lbl = n === 'maks' ? 'Maks (Semua)' : n;
+      var lbl = (n === 'all' || n === 'maks') ? 'All (Semua)' : n;
       var sel = String(S.k.perHal) === String(n) ? ' selected' : '';
       return '<option value="' + n + '"' + sel + '>' + lbl + '</option>';
     }).join('') + '</select></div>';
@@ -1208,7 +1219,7 @@ function isiTabelKaryawan() {
     btn.onclick = function () { S.k.hal = +this.dataset.p; isiTabelKaryawan(); gulirKeTabel(); };
   });
   if ($('#pPerHal')) $('#pPerHal').onchange = function () {
-    S.k.perHal = this.value === 'maks' ? 'maks' : (+this.value || 15);
+    S.k.perHal = (this.value === 'all' || this.value === 'maks') ? 'all' : (+this.value || 15);
     S.k.hal = 1;
     isiTabelKaryawan();
     gulirKeTabel();
