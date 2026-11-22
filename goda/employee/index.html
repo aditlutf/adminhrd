@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HRIS Karyawan Goda</title>
+<meta name="theme-color" content="#010254">
+<meta name="description" content="Portal karyawan Shelter x Goda: profil, pengkinian data, E-Sign PKWT, rekening Mandiri, dan info Hadirqu.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="../config.js"></script>
+<style>
+:root{
+  --navy:#010254;--navy-2:#0B1170;--navy-3:#1E2699;--navy-tint:#EEF0FA;
+  --orange:#FF8801;--orange-hover:#FF9A26;--orange-press:#E67700;--orange-ink:#A85600;--orange-tint:#FFF3E3;
+  --bg:#F3F4F8;--surface:#FFFFFF;--surface-2:#F8F9FC;--ink:#0E1330;--ink-2:#4A5072;--ink-3:#5F6588;
+  --line:#E2E4EE;--line-strong:#C9CCDC;
+  --ok:#0F7B4B;--ok-tint:#E6F4EC;--warn:#8A5A00;--warn-tint:#FFF6DD;--bad:#B42318;--bad-tint:#FDECEA;
+  --header:#010254;--r:14px;
+  --shadow:0 1px 2px rgba(1,2,84,.06),0 6px 18px -8px rgba(1,2,84,.18);
+  --fh:'Lexend',system-ui,sans-serif;--fb:'Source Sans 3',system-ui,sans-serif;--fm:ui-monospace,SFMono-Regular,Consolas,monospace;
+  --cepat:140ms;--t:220ms;--ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#080A1C;--surface:#12163A;--surface-2:#0E1230;--ink:#ECEEFA;--ink-2:#B3B8D6;--ink-3:#9298BE;
+    --line:#252A55;--line-strong:#353B70;--navy-tint:#1A1F4D;--orange-tint:#2A1C0A;--orange-ink:#FFA640;
+    --ok:#4CC38A;--ok-tint:#0F2A1E;--warn:#F2C14E;--warn-tint:#2A220C;--bad:#FF8A80;--bad-tint:#2E1414;--header:#0A0E3A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px -10px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#080A1C;--surface:#12163A;--surface-2:#0E1230;--ink:#ECEEFA;--ink-2:#B3B8D6;--ink-3:#9298BE;
+  --line:#252A55;--line-strong:#353B70;--navy-tint:#1A1F4D;--orange-tint:#2A1C0A;--orange-ink:#FFA640;
+  --ok:#4CC38A;--ok-tint:#0F2A1E;--warn:#F2C14E;--warn-tint:#2A220C;--bad:#FF8A80;--bad-tint:#2E1414;--header:#0A0E3A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px -10px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--fb);font-size:16px;line-height:1.5;color:var(--ink);background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.fh{font-family:var(--fh);letter-spacing:-.01em;line-height:1.25}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--fm);font-size:.94em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.s{width:16px;height:16px}
+.muted{color:var(--ink-2)}
+.kecil{font-size:14px}
+.bungkus{max-width:560px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.layar{display:none;animation:masuk var(--t) var(--ease)}
+.layar.on{display:block}
+@keyframes masuk{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;font-family:var(--fh);font-weight:600;font-size:16px;white-space:nowrap;text-decoration:none;transition:background var(--cepat),transform var(--cepat) var(--ease)}
+.btn:active{transform:scale(.985)}
+.btn.oranye{background:var(--orange);color:var(--navy)}
+.btn.oranye:hover{background:var(--orange-hover)}
+.btn.navy{background:var(--navy-3);color:#fff}
+.btn.garis{border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+.btn.penuh{width:100%}
+.btn.tipis{min-height:40px;font-size:15px;padding:0 14px}
+.btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
+.putar{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:putar .8s linear infinite;display:inline-block}
+@keyframes putar{to{transform:rotate(360deg)}}
+.btn-persen{position:relative;overflow:hidden}
+.btn-persen .isi-persen{position:absolute;left:0;top:0;bottom:0;background:rgba(1,2,84,.16);transition:width .25s linear}
+.btn-persen span{position:relative}
+
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.tag.ok{background:var(--ok-tint);color:var(--ok)}
+.tag.warn{background:var(--warn-tint);color:var(--warn)}
+.tag.bad{background:var(--bad-tint);color:var(--bad)}
+.tag.nv{background:var(--navy-tint);color:var(--ink)}
+.tag.or{background:var(--orange-tint);color:var(--orange-ink)}
+
+.field{margin-bottom:14px}
+.field label,.lbl{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:600;font-size:15px;margin-bottom:6px}
+.field .cnt{font-weight:500;font-size:13px;color:var(--ink-3)}
+.field .cnt.ok{color:var(--ok)}
+.input{width:100%;min-height:50px;padding:11px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--surface);font-size:16px;transition:border-color var(--cepat)}
+textarea.input{min-height:90px;resize:vertical}
+.input:focus{outline:none;border-color:var(--navy-3);box-shadow:0 0 0 3px rgba(30,38,153,.15)}
+:root[data-theme="dark"] .input:focus{border-color:#8F96FF}
+.input[readonly]{background:var(--surface-2);color:var(--ink-2)}
+.input.diubah{border-color:var(--orange);background:var(--orange-tint)}
+.bantu{font-size:14px;color:var(--ink-3);margin-top:5px}
+.galat{font-size:14px;color:var(--bad);margin-top:8px;font-weight:600}
+
+.kartu{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:16px}
+.wrap{padding:16px}
+.judul-bag{font-family:var(--fh);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:22px 2px 10px}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid var(--line);font-size:15px;margin-bottom:14px;background:var(--navy-tint)}
+.banner.warn{background:var(--warn-tint);border-color:rgba(138,90,0,.25)}
+.banner.warn svg{color:var(--warn)}
+.banner.ok{background:var(--ok-tint);border-color:rgba(15,123,75,.25)}
+.banner.ok svg{color:var(--ok)}
+
+.hero{background:var(--header);color:#fff;padding:26px 20px 58px;position:relative;clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 42px) 100%,0 100%)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--orange);clip-path:polygon(0 0,calc(100% - 38px) 0,calc(100% - 42px) 100%,0 100%)}
+.duo{display:flex;align-items:center;gap:12px}
+.duo .sh{height:18px;width:auto}
+.duo .gd{width:34px;height:34px;border-radius:9px}
+.duo .x{opacity:.55;font-family:var(--fh)}
+.hero h1{font-size:28px;font-weight:600;margin-top:30px}
+.hero p{color:rgba(255,255,255,.82);margin-top:6px;max-width:36ch}
+.form-masuk{margin:-30px 16px 0;position:relative;padding:20px}
+.catatan{display:flex;gap:10px;font-size:14px;color:var(--ink-2);background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:12px;padding:12px;margin-top:14px}
+
+.bar{background:var(--header);color:#fff;padding:14px 16px 26px;position:relative;clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 22px) 100%,0 100%)}
+.bar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--orange);clip-path:polygon(0 0,calc(100% - 20px) 0,calc(100% - 22px) 100%,0 100%)}
+.bar .atas{display:flex;align-items:center;gap:10px}
+.bar .sh{height:14px;width:auto}
+.bar .gd{width:24px;height:24px;border-radius:6px}
+.bar .x{opacity:.55;font-size:13px}
+.bar .kanan{margin-left:auto;display:flex;gap:4px}
+.ikonbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff}
+.ikonbtn:hover{background:rgba(255,255,255,.1)}
+.bar h1{font-size:22px;font-weight:600;margin-top:12px}
+.bar p{color:rgba(255,255,255,.8);font-size:15px;margin-top:2px}
+
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;text-decoration:none;font-size:12px;font-weight:600;color:var(--ink-3);position:relative}
+.nav a[aria-current="page"]{color:var(--ink)}
+.nav a[aria-current="page"]::before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;background:var(--orange);border-radius:0 0 3px 3px}
+.nav a[aria-current="page"] svg{stroke:var(--navy-3)}
+:root[data-theme="dark"] .nav a[aria-current="page"] svg{stroke:#FFA640}
+.nav .titik{position:absolute;top:10px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:var(--orange)}
+
+.siapa{display:flex;gap:12px;align-items:center;margin-top:14px}
+.avatar{width:48px;height:48px;border-radius:14px;background:var(--orange);color:var(--navy);display:grid;place-items:center;font-family:var(--fh);font-weight:700;font-size:18px;flex:none}
+.siapa .meta{font-size:14px;color:rgba(255,255,255,.8)}
+.tugas{display:flex;gap:12px;align-items:center;padding:14px;border-bottom:1px solid var(--line);min-height:68px;width:100%;text-align:left;text-decoration:none}
+.tugas:last-child{border-bottom:0}
+.tugas:active{background:var(--surface-2)}
+.tugas .d{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none}
+.tugas .d.o{background:var(--orange-tint);color:var(--orange-ink)}
+.tugas .d.n{background:var(--navy-tint);color:var(--ink)}
+.tugas .d.g{background:var(--ok-tint);color:var(--ok)}
+.tugas .d.b{background:var(--bad-tint);color:var(--bad)}
+.tugas b{display:block;font-weight:600}
+.tugas span{font-size:14px;color:var(--ink-2)}
+.tugas .kanan{margin-left:auto;color:var(--ink-3)}
+
+.dl{display:grid;grid-template-columns:minmax(110px,42%) 1fr}
+.dl dt,.dl dd{padding:10px 14px;border-bottom:1px solid var(--line);font-size:15px}
+.dl dt{color:var(--ink-2);font-size:14px}
+.dl dd{word-break:break-word;font-weight:500}
+.dl dt:nth-last-of-type(1),.dl dd:nth-last-of-type(1){border-bottom:0}
+details.grup{margin-bottom:12px}
+details.grup>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;font-family:var(--fh);font-weight:600;min-height:52px}
+details.grup>summary::-webkit-details-marker{display:none}
+details.grup>summary svg{transition:transform var(--t) var(--ease);color:var(--ink-3)}
+details.grup[open]>summary svg{transform:rotate(90deg)}
+details.grup .isi{padding:0 16px 6px;border-top:1px solid var(--line);padding-top:14px}
+.n-ubah{font-family:var(--fb);font-size:13px;font-weight:700;color:var(--orange-ink);background:var(--orange-tint);border-radius:999px;padding:0 9px;margin-left:auto}
+
+.riwayat{padding:14px 16px;border-bottom:1px solid var(--line)}
+.riwayat:last-child{border-bottom:0}
+.riwayat .h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.riwayat ul{list-style:none;margin-top:6px;font-size:14px;color:var(--ink-2)}
+.riwayat .alasan{margin-top:8px;font-size:14px;padding:8px 10px;border-radius:10px;background:var(--bad-tint);color:var(--ink)}
+
+.langkah{counter-reset:l;list-style:none;display:grid;gap:10px}
+.langkah li{display:flex;gap:12px;align-items:flex-start;font-size:15px}
+.langkah li::before{counter-increment:l;content:counter(l);width:28px;height:28px;border-radius:9px;background:var(--navy-tint);color:var(--ink);font-family:var(--fh);font-weight:600;font-size:14px;display:grid;place-items:center;flex:none}
+.video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;margin-top:12px}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-kosong{display:grid;place-items:center;text-align:center;color:#fff;padding:16px;font-size:15px}
+.tahap{display:flex;gap:6px;margin:4px 0 14px}
+.tahap i{flex:1;height:5px;border-radius:999px;background:var(--line)}
+.tahap i.on{background:var(--orange)}
+.kertas{background:#fff;color:#111;border:1px solid #d8dae6;border-radius:10px;padding:18px;font-size:14px;line-height:1.55;max-height:62vh;overflow:auto;font-family:'Times New Roman',serif}
+.kertas ol{padding-left:22px}
+.kertas td{padding:2px 4px;vertical-align:top}
+.ttd-wadah{border:2px dashed var(--line-strong);border-radius:12px;background:#fff;height:220px;position:relative;touch-action:none}
+.ttd-wadah canvas{width:100%;height:100%;display:block;border-radius:10px}
+.ttd-wadah .petunjuk{position:absolute;left:12px;bottom:8px;font-size:13px;color:#8a8fa8;pointer-events:none}
+.pdf{width:100%;height:70vh;border:1px solid var(--line);border-radius:12px;background:#fff}
+.akun-hadirqu{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.akun-hadirqu div{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.akun-hadirqu small{display:block;font-size:13px;color:var(--ink-3)}
+.akun-hadirqu b{font-family:var(--fm);font-size:17px}
+.dua-tombol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.tirai{position:fixed;inset:0;background:rgba(5,6,30,.6);z-index:60;display:grid;place-items:center;padding:16px}
+.proses{background:var(--surface);border-radius:16px;padding:22px;width:min(380px,100%);text-align:center}
+.proses .jalur{height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin:14px 0 8px}
+.proses .jalur i{display:block;height:100%;background:var(--orange);width:0;transition:width .3s linear}
+.proses b{font-family:var(--fh);font-size:28px}
+.toast-wadah{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:80;display:grid;gap:8px;width:min(480px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:15px;animation:masuk var(--t) var(--ease)}
+.toast.bad{background:var(--bad);color:#fff}
+.memuat{display:flex;align-items:center;gap:10px;padding:28px 4px;color:var(--ink-2)}
+.memuat .putar{width:20px;height:20px;border-width:2.5px;color:var(--navy-3)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-rumah" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-orang" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+  <symbol id="i-pena" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+  <symbol id="i-berkas" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-keluar" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+  <symbol id="i-kanan" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-centang" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-awas" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V10"/><path d="M19 21V10"/><path d="M9 21V10"/><path d="M15 21V10"/><path d="m2 10 10-7 10 7"/></symbol>
+  <symbol id="i-jam" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-tautan" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-pesan" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-bulan" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-matahari" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-kunci" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-hp" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/></symbol>
+</svg>
+
+<div class="bungkus">
+  <section class="layar on" id="layarMasuk" aria-labelledby="judulMasuk">
+    <div class="hero">
+      <div class="duo"><img class="sh" src="data:image/png;base64,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" alt="Shelter"><span class="x">x</span><img class="gd" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABi5SURBVHhe7V0JlBvFma7qHmk89hgbG5L1AQGHy4TkQXDIC0mW5IXwAtnAW94COTYcucixLMkmgYWABeORuqXW3DPEgA8CZgEHyJqEy+HwBkjCFfJsY8Jlx2CDLzyHPTNSV1X/+/5qaaKp0XhaUrekMfre+xgzI1V3///fVX/99ddfhExyQCSiOXEyfTDeMLe/afrxkCAnO1Hy6eFY/VmDZuP5PB76GhjkUidGvu8Y5EpukJ86Bvm5EyNXOya5xomRX2R+Xi1/b2j49ysdk1yO30vHQl8bNBvOZ6b+Rcckp2P7qdj04/Y3T52zO06mRyIRTb2nGnwEGDMOTZnhhSxRfxY36y4XZmiJMPXlwqQPg0lfEKb2ujC0ncLUBoWpO5CgAEkNoE0DaNcAOilAh+7+7CqA+HlJDaAD26MArZpsWxia4xjafmFqO4Shv+YY9Hlh0AeFqd/KjFATN7XvskT9mU48fHxv24yZ6jPVMA6GjfoFTkI/j8e161hCv5ub2l+Fqb0HJnUVmlWiVCrJKIUAJCmARUEqP47U3J/4Pb8o280Qr4PXw+u24r3h/SjG06aBY2qOMOlulqh/cdiaeSeP1V3DjPBXHGvKh9Rnf18ilQwf51jat4Wl38HidS8LQ7ehnQJ0Z4WYEXJWsapSqplZQ8H7x+eQxou9EgVhailm1a13LH0lT2iXOh31H1Zlc1AiEiGanZjyKWFQg1naSyKh8ZGuFt8kFJgqyIOR+Jz4vJlnFwnd5kn9edFCm+z2hk+ocpv0GG455BieCF8vLLoRWjT3TcCu+/2i8ImIcsBeAnu+Fh1Egv6VJ+uu2ts9yYcK22z8jLDCq0VSS0F3xpGabF15uYnyyRgDS9JBYYVXDcamf1KVbVXDXtL4zzze8Ai04LinA1gEHBOZ54FrHJ/oaOKLk9SAJxrX2LGG6jYE9OJZgq6S4xt283Ey9qFqLJw4ROB0NEnBTurLBiMN81XZVxx2ouEHPKn3yXEsQWtvexBEQ+imICxtl2OGLlF1UBEMRBoPs63QGuhBB4YAGNrYG6/RX+LQioaQ1O/aE5l1iKqTssFubjiNJ7U3oBu7+lp3X1aisyh7A7ox3RT6qKqbwJFqmn6Ok9QHZUSupvzK0HAjkE5S7x2KTjlD1VFgSDdNu5An64TsivAm1BursXxE+bdR4K1aan8sfI6qK9+RunH62aIlJCCJ432eG6qx/EQ9tFIQLXrKNus+o+rMNzjNUz8ukvqQjOIZtW6/qpjpCZyk1jsQDZ+g6q5kgEEOFQl9i1z1qim/OolGgGsLcboRImSqqsOSwKN1v5VzfLM2zatqohHg7CBWd6eqw6IxbEz9DvTUFD9piFPETh3SzeELVF0WjEGTzOeWPiCdPvVCNVYv0SlM0F1OjMxWdVoQmKGvwkCPU+v6JxdxKOihkI6Ge1SdeobdfMhpcq5fW8KdnEzISCFPRcmJqm49gS9pWCuzVtSGa5w87NKAx+ivVd1OCLu5bpFc3Kkt6U5u4sqspfGBaGNhsQHboKvdaV+Nk57dGrBY3a2qjsfFnhYyTyRoSmakqI1VmhiEaiYATQTghioi3g/eVzUGyZKYiUwH+lrILFXXeWFHtf/Gt7+qkjqaCTiLCYgoAd41D9J3fAr4r/8FxL3nAb/vK8DvPdc7x/38eXl+Nw6zbdx3LvDVXwH7jk8C75oLAo1gMQGIVpkhdFOwjbofqLoeAyCEipj+Mu6CqYqpX8wVKO+cA/zxnwPf9jQIex8IAEkn52elMHIf6QFgb68D/vsfA+84DJxIFfUI7RS4of1Z1fcY9CanniJTtys99cPrNxHgUQ3sJ68GPrRblXtVg+9/B+zHfiJ7LFiCznSeZywnExS4pYv++PRjVZ2PQjpKm6GrwlaLwrqRAGubA2zrE/LtquQbXgrYmw8BS852fYRKGwEOA6b2M1Xno8BM+he53Kt+uZxE5XfMB/7eK6o8JyX4zheBtc12ewL1WcvJdgrMpOtUnY+g16g/iscpq+iOHXTyjHrgO55V5TipYb/1JIio7vo06jOXixY6gtr+d6LkcFX3EtzQLsbIn1PBrgo9fftZQ5XfQQH2f9eCc30FDQDZQYEZ+nmq7iWYqa+U25vVL5WLNxLgt5wIjrAn7Zh/IAh7P7CeIys7FHThMKC3q7qXYEb9erkvTf1SOWgQEBEC7I0HpLAORgNA8E2rZC9XsUzqdgrphP6Mqnsy2NwwT8T0VKXGf5wzs9Vnj5rfH4zA52KrTnejh3nkEDgtGRXs6zPIoaMMgJn62dBeoZuKERCxEPA9G0aEdLAaAIK/8yyIJRXKrUT/rpWCnaj79CgD4FHtqorN/68nYP/+ykCU7kbo+oHv3giO4Oqf88IRaeC7N4Bg+wO7J/vBy9yQsSqLcrCLAo+HvjfKAJhZd4e7yyfPF4JkM875PwBieI8qp5LA0/3ANt0F9pqvA2ubC2zpseA4OLhMDAw1s+55wLvmA3/gYuB/u1cag5/g+7YDT06vzJoBOoKxUPcoA+AGfQHayn8zYjGB9Es35YimtHeO970J7ImfAes8QjqVcqyN4OziBHA8ti3YIPCe+XJWgt+VzmnPUcDWXQu8/+/qx4tG+lmjMtNCrFNk0CdGlL8zcnijMLRdsqCR+uEgiRG/FR8H4TBVNgWDD+0E9tiPgVmNrlBxVS7raS/JGoDHHkAawJGZNvBe3Xg+eu88OQPsdVf70mMJPgTsl8e5YWJVNkGyhQKPaVsgckadNIDhWP0xjqnxss4ADAqiiQDb+ntVLgUB3+n0+hXAOua60yuMtKmBrBEDKKQHyDWAHEaJNDDWeSSwTf/jscXxYb92PwjspcrpEOJMIEaHsNilNAAW1z8vq3qogguQMuL3m/NLEqBIvQf2by4Cjoo/UHAFDeDWhSA8Xu2ABpDTJg4N9m8vBmEPqE14hpwW3n2WHGrGXCMoop6x2kicLHLHf1O7rKzJnxjvjzcA731NlYdn8N3rgd280H3rJ3p7lhBgfhsA0iDgXEfAXnYK8N7XPbY+FmzXX4HHyrxO0EEhZYbPdw0gGr5O1vRRPxQQZRf6h2uKFhjftg54y+Guk+YlaRXf1ltL8QEm4A0EePscYDueU5vyDHvtDwGu83g9P4jZwoZ2hTsEGPSmsq0B4NvYPQ+Y3afKwBP4tmewYlZh6+vSB1jojw+Qj9nklZZZwHc8rzbnCZjwwtpneb9mqezCmse6IQ0gHdXWyF2/6ocCoBw3N/7KoypGg+95GVjLzIzXrI9pe1wGbQBIrE+Ms5r2OcB7N6tNTgjpzP6ls3zTwk40AHq7NAARp3+SNXrVD/nNGwjYq0732BGPhkjtBbb0+EwMHYerAoYs6QQGOARkiT0BxgxWnFxU4Ainw2z5ye7QprbtNztkzeJHXR8grm2SswD1Q37SIMBREdufUZ97Qsi34zcXZt6OAhSfZWYWEGgPkGXc9XHshy/1eLXR4JvXgkADmMixLZVu0ernyFstpIGbdJvcA6h+yE8uJpB68GL1eT2BbbwdeCldIzqBQQ8BucTZAUYfX/tftekJgXdo33eum1GstusncfewSV8lTpQc7hi0P9BNIBjvT84Avu+tnMf0BukcdRx+4Hn+RCyHD6CyiYDdc6RMFS8UmAvJzCnBTgtbsJKI/i4ZNmYs4KYWaB6g7BL/2Jx5vMJW++3HrwRRbNefZbl8AIV43+ypiNq8J7B1VwfrEMq8AH2ApKOhk6QHG5QB4Juw9BjgbCijdvyvNwPAhRc73gBOqStmlegBkM0EeOtM4MO7RhJdvBDvkjs22LhOUOo9jEfcNGpQmzgx8gm5COR1Tl0g5bTv1XsyavemgCzYk1fJMG/JW9QqZQDY++Hwt+wjYN/9RbDv+vyETGf/vfoc4DcdARAd26YvzLzwBAz9c/IwpCAMAJV/1xc8in00uN0HrOuDviihUkPACNF/Qc++UOZb2PKL2K6lAWFG+MvydC2/L4RpXlEd2M6XVPl6gv3avcDlnN8HJVSwB6haor5bNCAps+F8eaya+oFSiQ7Qo5d7FPlYsDXf8C9lqmYAY5nJDSR4MKI8F0/9QCmUzs9sYIM7VNl6guDDwLqPKG3ql0s/8wEOJrZLH4Bc6vc6gHT8nmstcML3D/AdL7i7av2KhlXaB6hWdlDAWcD3/cwFQK/X7p4Lju1m1BZjAGzDSn8jYbUhID+lARjkR74uBWOmz2P/OaJ8byIfDUzqdHfP5Gm/GNYMID87XQO4wj8DIG6e3+YHpSC9iXssxJqv+psiFXRCyGSlNACT/Ng3A4gR4NYU4P1bpCCLMQD8DgZCfF0SDSolbLIzYwD/5ZsBNBMQ3XOB2/1SkMUOAeL20/xNlQ56CEBjxR6rHMS4CIbu1XsohmgA3NR+Jg8nVP9YDNEAbjoKHD6syrQg8NtO9d8AAhkCiFyn4A9/F9jzbcCfawE2wtYMD/S73P/P97fcf7cB+2MTOK2N/p3UIg0g5nMPgKXS0vtUmRYEtsr/HiCQIQDX/ZsIiO3PjJhWrvPrN3GBiLUd6t92sowTeKVvBiB9gBDwvtcVkXoHPqh99+d89wECSQhBA8C2Nz8sv+et9eLBMX3c8DF9PJBZAFb5eN0t8lAs+JqvZ8Y7tf0iGZQPUG4D2Hi7v/GRjAH4GgfAG7Qf+XZJwmDrrvFvHQAZlA+QYwDFRj29Attmay7y98XIzAIu9zMSiOMTjlOlbJ7kL6/KWLpPD1uGHsBby8WD73vb/+3kMhJokkt8NYDsvr+nFhctFBzrBHq6fq4FBGwACG+tFwf7sSv87RWRuBjEzdBXfV8NxKmR1Qisv/ANEggh0sCWLphYAV4pZwEngJikQwCWzuGxkHs9P/M22iiQQbMxmHyAxQTYmgvVZ/EEOd49+C3/LL4MswBvplU48I7Tq7/kDol+Kh/bQgNg8fA50BZARlBmjszffkp9Jk/A9QS5b94PPyDIOEDAQwB743dupRO/hsMssxlBdrTujMByAm8gwG5f5Nn7zoVbPeMoqbwx7RbKkVmANxUVagDOtqfl97y17h1CpIDdstDfmEiW2ZxAp5kskptCgjCAjEPI1i9Tn80T2NNL/MmND3IaGKVgP/kTsDfeBvaG5cByaG9cJusf8YHshpjCYD+blDWU3Ov57Kdls4JT0fCJsvGg9gXI7eBzgKd71eebEGL/DhCtMydWxEQMahYgqbm9QGQsxS8IpJINwAd3qpeYEHzwXWBtM91pn5E5vcWvNQCkuy8gjTuDjhKGbgdmANle4MmfexT/aNhPL87sDBrbrmcGagDjkci3136xU21+QuBd2o98y02KCahnzlQM7ScDSXIYlg4NdG8gTgvNeuB7C6//L49h6TmqtMWhSiSE4Fb45SfJKW2h4DueA45vu18x/3zEg6QMbTtxOki9Y2pvBb07WIaIcder+rQewF9fU1olraBmAeMRF8XwmhnnsBDIKfCdnw++lnCrHAJeyRaJerkc9QFQiWyLO2UqFOlHvy8LMo1p1wvLPATgfRZbA8n+2z3A5bRvbLu+sg0PkdKfdSuEGOSZslQIwRIqslssvDAk7hWwb/tkccGhkX0BwQ8BMgx+z5mer5ULwXDq++Fgpn0qOyhwkz4sDcA2tfv9Xg8Yj9IhfKG9qLeDD7wNdtcRbvdYiHM0Egr2dtWiDADvB4e5Wz4CPFXcCWc2ZvzIXo6AKOT5imGnLBa5MlslrMvPJeEDEnfLth8GfGiX+vyewPdsArvjnwozgqBCwbmU9YSPBlHk+gcf2OpWP8us9vka889HWTBaj0oDSBl117oGUMADl0LsJtf+0KM6xoLv2Qise4H34SBQH8A92NK++STg/W94vMJoSMfvt1/3dy/ERMSS8THth9kiUd8s1xAgiQWjYrpc9i0WuD7Obv+sGymcaLoUVCQw5tYNTt99FvCR/IfCTYBvXwcCQ96xPNcIiu06sHj4XNcHiNd9NrD1gPGI4+U9xdUOyAIPl2Jrr5BTrgM6Tr73AO718LqycrjHdvMBTZL96rTgp325RD0nNEgboVOkAQxb9UeLgOsEjSFWC8dx89X7VJkUBNl9vvkg2Ld81I2b51s88tMA0J9AR3bZx0dONS0W+N30htty4v1loiVjAPv2RaZ9QBqA0zK/QRjau2U/LwC3kS09Rq78lQo5TfxzDFjnfFegGDnMBo5KTQjBdprc8wJY99GQfqEdhGOrXysYuD5i98zLb2hBEiuEmfT11RcQXRoAomzVQhVKof7Zv4MieWov2M+1gb3sY+64isZwPQGBR8Z4fF+lAXTNkd+Vh0RgV7/yVGAvdhdV9m082OuukvdW1qEXiVVCDbp2RPkIFqcryjYVzCWuEyQPAbFvuyqfkoDjMt+6DtjjPwV+y8fAXnEyOI63Q6PwzCD75mOB3XoKsCeuBvb2H3xP+WJ7XwMWr3cPoCi3AXTJEnGtowzAiWn+bRItlOgL/O5bqox8AyqO798OjsejaRzBgO9/y1eF50I6fvefn+P4+bzWPxGxVLypXTbKAFhCP7Oip4Y2U2Dv/EmVVZXAX1Ngf18rt9H/I+5SRgOQqWB4jHzdaaMMYF902geFoQ0Guix8IOJC0arTfRZ19QErgtsrPgpOOad9uUzK5JI9TpxMH2UACG6EXqhYL4A7bdEh3HSnKrODCum/dGUKXyPL+OZn2YFnBdU9qepeQsT0pRXzA5A4XbvpSOB24bX2JwPE8G7g7W7ha7f6aQUMoBsdwJCp6l6Cm6ELyxoSzkPZC6wrLn2s2mE/+l1/N3cWw3a5CPQlVfcSg/GGuSKuDVfMD0BmHEJ780Oq/CY1GCZ65AanKkELu3/at6VtxkxV9yPgRmUCQqOIoVvrEGDbCj9dpBrB/v6IW/8fI37lnvPnEsf/7DEx48HGpeHuPF8uJ1FIGCaOTwP7ldJP56wU8L7t9cuBGeH8axTlZu4S8HgYMGctFJbuVNRSs8SSs2gID1wC7L1XJo0hyMDT7g1g33+BW/AakzwqLc8EHhlP7b3mlCNVnY8Bj2kvVnwYyBLHTIzHJ6YAX3MRsFfvBdG/FRyRloKuFuI2Lt63RZ4nzO77N+Bm6B9VvdRnqgRlDqCWf/qnwja1/6j4MKASkz5ucAtRiuRUYL88FviKU4GvrDBvWyR/sqVHg7CmgJMtGYeGW+m3PpddFNIx7ZuqrvNie7LxMBHX9lV0NjAuMxlAOKaiV10tlBk9VfTG5xI3gZh0985u0qjqelzYMbq86nqBGotjDwVm0BZVxwcERMMnOBYVZc0SqtF/YvZPgqaGkuQIVccTgken3etbFdEay0/cXdRDIRXXl6m69YSUOWsht8K81gtMUuIO4AQd2ruEfEjVrWcwI9SFVhT4XrUa/SeO/aa+RNVpQehrIbN4XN9RuWXiGotiGx4Nq212LDJN1WnBSBkN/wpdenXNa2scnzhk46pfVP+CqsuiwaLhlTWHcJKwR278bFd1WBKcK46p56b+kkwYqfkD1UnUCy74JOhTECGaqsOSMRypXyAS+i65TlAzguoi6qMD5/za1v3NU+eouvMNTnPdIt6i75NOYc0IqoNS+bi/om5PKtJ4oqoz3zEUnXmGaKnrr/UEVUCpfA24Fd7dF2v4hKqrwGA3NywSSf3diiaR1uju8rG0Lfuu++BHVB0FjuHIjAXC0v4kA0W1aGF5ifJGb9/Snhi8tmGeqpuyASIknLbCS6FTk8GHMTdao/9EObfpwBKh1ggJwNsvBqlE+DyRDG2WvUFV5hEcBES5yreevsJi+lmqDiqO3siMmcMWjfMkHZK5BDVD8Icox24NRJIOsBZ6g/NTH8K7QSIVDx8vEnS5SGgpGT0sd+GJg4VYvRUVn6D7hTX1pmGjfoEq66pGKjb9OGaF2oSlubOFjpqzOCFRPiinTh27+rchoZvD1oyjVdlOKvQZMw5NW9plwtIeE3E9NWIMtSHCJfaQKA+c0iX0QW7RR9LxKd/YHZ89dgfvZMdwa/0CntR+xJP0IZbU9kiPFg0Cg0ooiIN9xRGfL0fhsmZvUt8pEvQBntS+N2RNKT55Y7JhW9f02Syhf0kkQzE7Wfc4N+lOKRzcoNqlyQiXLGId4IkmgRG7crxvvP+ssvG5MEM3Tt+xLW0tS+hLIKGf2XugvXrvJ7xpHjoDK1c4pnbJcMs0y04c8pAw6d+cuNaLde2gXcsYR4YoWOw5UMjoMKHxoNBR+GgwuVQV5IVqG1ml4nXwenhdvH5WwfKe8D7x8xqmYveKON0kDPo7Eadx3qL9u50MnQqFpGe/3wEAFJKNh6UT0z7GrPCXuRH6njDpjSxGbxUmfYCb2tOOSTcIQ3tLmPpex9QGhaEJVAAkdZAFMHGYySoqSzQklbl/x8/j9/D7SfdIHcegXJh0UJj6e8LQtjpxul4Y+lPCoGuYqd/MTS3CDe07KUs/O21NO8mJkdnq81Qb/h8LY02y+30jsAAAAABJRU5ErkJggg==" alt="Goda"></div>
+      <h1 id="judulMasuk">Portal Karyawan</h1>
+      <p>Profil, pengkinian data, tanda tangan PKWT, dan info kerja Promotor &amp; Mekanik Goda.</p>
+    </div>
+    <form class="kartu form-masuk" id="formMasuk" novalidate>
+      <div class="field">
+        <label for="mNik">NIK KTP <span class="cnt" id="mNikCnt">0 / 16</span></label>
+        <input class="input mono" id="mNik" inputmode="numeric" autocomplete="off" maxlength="16" placeholder="16 digit sesuai KTP" required>
+      </div>
+      <div class="field">
+        <label for="mId">ID Karyawan</label>
+        <input class="input mono" id="mId" autocomplete="off" maxlength="20" placeholder="ID dari HRD" required>
+      </div>
+      <div class="galat" id="mGalat" role="alert" hidden></div>
+      <button class="btn oranye penuh btn-persen" type="submit" id="btnMasuk" style="margin-top:6px"><i class="isi-persen" style="width:0"></i><span id="btnMasukTeks">Masuk</span></button>
+      <div class="catatan"><svg class="i" aria-hidden="true"><use href="#i-kunci"></use></svg><span>Data Anda dicocokkan dengan database HRD. Setelah 5 kali salah, login dikunci 15 menit.</span></div>
+    </form>
+    <p class="kecil muted" style="text-align:center;margin:20px 16px">PT Shelter Indonesia Gemilang x PT Goda Technology Group</p>
+  </section>
+
+  <div id="app" hidden>
+    <header class="bar">
+      <div class="atas"><img class="sh" src="data:image/png;base64,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" alt="Shelter"><span class="x">x</span><img class="gd" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABi5SURBVHhe7V0JlBvFma7qHmk89hgbG5L1AQGHy4TkQXDIC0mW5IXwAtnAW94COTYcucixLMkmgYWABeORuqXW3DPEgA8CZgEHyJqEy+HwBkjCFfJsY8Jlx2CDLzyHPTNSV1X/+/5qaaKp0XhaUrekMfre+xgzI1V3///fVX/99ddfhExyQCSiOXEyfTDeMLe/afrxkCAnO1Hy6eFY/VmDZuP5PB76GhjkUidGvu8Y5EpukJ86Bvm5EyNXOya5xomRX2R+Xi1/b2j49ysdk1yO30vHQl8bNBvOZ6b+Rcckp2P7qdj04/Y3T52zO06mRyIRTb2nGnwEGDMOTZnhhSxRfxY36y4XZmiJMPXlwqQPg0lfEKb2ujC0ncLUBoWpO5CgAEkNoE0DaNcAOilAh+7+7CqA+HlJDaAD26MArZpsWxia4xjafmFqO4Shv+YY9Hlh0AeFqd/KjFATN7XvskT9mU48fHxv24yZ6jPVMA6GjfoFTkI/j8e161hCv5ub2l+Fqb0HJnUVmlWiVCrJKIUAJCmARUEqP47U3J/4Pb8o280Qr4PXw+u24r3h/SjG06aBY2qOMOlulqh/cdiaeSeP1V3DjPBXHGvKh9Rnf18ilQwf51jat4Wl38HidS8LQ7ehnQJ0Z4WYEXJWsapSqplZQ8H7x+eQxou9EgVhailm1a13LH0lT2iXOh31H1Zlc1AiEiGanZjyKWFQg1naSyKh8ZGuFt8kFJgqyIOR+Jz4vJlnFwnd5kn9edFCm+z2hk+ocpv0GG455BieCF8vLLoRWjT3TcCu+/2i8ImIcsBeAnu+Fh1Egv6VJ+uu2ts9yYcK22z8jLDCq0VSS0F3xpGabF15uYnyyRgDS9JBYYVXDcamf1KVbVXDXtL4zzze8Ai04LinA1gEHBOZ54FrHJ/oaOKLk9SAJxrX2LGG6jYE9OJZgq6S4xt283Ey9qFqLJw4ROB0NEnBTurLBiMN81XZVxx2ouEHPKn3yXEsQWtvexBEQ+imICxtl2OGLlF1UBEMRBoPs63QGuhBB4YAGNrYG6/RX+LQioaQ1O/aE5l1iKqTssFubjiNJ7U3oBu7+lp3X1aisyh7A7ox3RT6qKqbwJFqmn6Ok9QHZUSupvzK0HAjkE5S7x2KTjlD1VFgSDdNu5An64TsivAm1BursXxE+bdR4K1aan8sfI6qK9+RunH62aIlJCCJ432eG6qx/EQ9tFIQLXrKNus+o+rMNzjNUz8ukvqQjOIZtW6/qpjpCZyk1jsQDZ+g6q5kgEEOFQl9i1z1qim/OolGgGsLcboRImSqqsOSwKN1v5VzfLM2zatqohHg7CBWd6eqw6IxbEz9DvTUFD9piFPETh3SzeELVF0WjEGTzOeWPiCdPvVCNVYv0SlM0F1OjMxWdVoQmKGvwkCPU+v6JxdxKOihkI6Ge1SdeobdfMhpcq5fW8KdnEzISCFPRcmJqm49gS9pWCuzVtSGa5w87NKAx+ivVd1OCLu5bpFc3Kkt6U5u4sqspfGBaGNhsQHboKvdaV+Nk57dGrBY3a2qjsfFnhYyTyRoSmakqI1VmhiEaiYATQTghioi3g/eVzUGyZKYiUwH+lrILFXXeWFHtf/Gt7+qkjqaCTiLCYgoAd41D9J3fAr4r/8FxL3nAb/vK8DvPdc7x/38eXl+Nw6zbdx3LvDVXwH7jk8C75oLAo1gMQGIVpkhdFOwjbofqLoeAyCEipj+Mu6CqYqpX8wVKO+cA/zxnwPf9jQIex8IAEkn52elMHIf6QFgb68D/vsfA+84DJxIFfUI7RS4of1Z1fcY9CanniJTtys99cPrNxHgUQ3sJ68GPrRblXtVg+9/B+zHfiJ7LFiCznSeZywnExS4pYv++PRjVZ2PQjpKm6GrwlaLwrqRAGubA2zrE/LtquQbXgrYmw8BS852fYRKGwEOA6b2M1Xno8BM+he53Kt+uZxE5XfMB/7eK6o8JyX4zheBtc12ewL1WcvJdgrMpOtUnY+g16g/iscpq+iOHXTyjHrgO55V5TipYb/1JIio7vo06jOXixY6gtr+d6LkcFX3EtzQLsbIn1PBrgo9fftZQ5XfQQH2f9eCc30FDQDZQYEZ+nmq7iWYqa+U25vVL5WLNxLgt5wIjrAn7Zh/IAh7P7CeIys7FHThMKC3q7qXYEb9erkvTf1SOWgQEBEC7I0HpLAORgNA8E2rZC9XsUzqdgrphP6Mqnsy2NwwT8T0VKXGf5wzs9Vnj5rfH4zA52KrTnejh3nkEDgtGRXs6zPIoaMMgJn62dBeoZuKERCxEPA9G0aEdLAaAIK/8yyIJRXKrUT/rpWCnaj79CgD4FHtqorN/68nYP/+ykCU7kbo+oHv3giO4Oqf88IRaeC7N4Bg+wO7J/vBy9yQsSqLcrCLAo+HvjfKAJhZd4e7yyfPF4JkM875PwBieI8qp5LA0/3ANt0F9pqvA2ubC2zpseA4OLhMDAw1s+55wLvmA3/gYuB/u1cag5/g+7YDT06vzJoBOoKxUPcoA+AGfQHayn8zYjGB9Es35YimtHeO970J7ImfAes8QjqVcqyN4OziBHA8ti3YIPCe+XJWgt+VzmnPUcDWXQu8/+/qx4tG+lmjMtNCrFNk0CdGlL8zcnijMLRdsqCR+uEgiRG/FR8H4TBVNgWDD+0E9tiPgVmNrlBxVS7raS/JGoDHHkAawJGZNvBe3Xg+eu88OQPsdVf70mMJPgTsl8e5YWJVNkGyhQKPaVsgckadNIDhWP0xjqnxss4ADAqiiQDb+ntVLgUB3+n0+hXAOua60yuMtKmBrBEDKKQHyDWAHEaJNDDWeSSwTf/jscXxYb92PwjspcrpEOJMIEaHsNilNAAW1z8vq3qogguQMuL3m/NLEqBIvQf2by4Cjoo/UHAFDeDWhSA8Xu2ABpDTJg4N9m8vBmEPqE14hpwW3n2WHGrGXCMoop6x2kicLHLHf1O7rKzJnxjvjzcA731NlYdn8N3rgd280H3rJ3p7lhBgfhsA0iDgXEfAXnYK8N7XPbY+FmzXX4HHyrxO0EEhZYbPdw0gGr5O1vRRPxQQZRf6h2uKFhjftg54y+Guk+YlaRXf1ltL8QEm4A0EePscYDueU5vyDHvtDwGu83g9P4jZwoZ2hTsEGPSmsq0B4NvYPQ+Y3afKwBP4tmewYlZh6+vSB1jojw+Qj9nklZZZwHc8rzbnCZjwwtpneb9mqezCmse6IQ0gHdXWyF2/6ocCoBw3N/7KoypGg+95GVjLzIzXrI9pe1wGbQBIrE+Ms5r2OcB7N6tNTgjpzP6ls3zTwk40AHq7NAARp3+SNXrVD/nNGwjYq0732BGPhkjtBbb0+EwMHYerAoYs6QQGOARkiT0BxgxWnFxU4Ainw2z5ye7QprbtNztkzeJHXR8grm2SswD1Q37SIMBREdufUZ97Qsi34zcXZt6OAhSfZWYWEGgPkGXc9XHshy/1eLXR4JvXgkADmMixLZVu0ernyFstpIGbdJvcA6h+yE8uJpB68GL1eT2BbbwdeCldIzqBQQ8BucTZAUYfX/tftekJgXdo33eum1GstusncfewSV8lTpQc7hi0P9BNIBjvT84Avu+tnMf0BukcdRx+4Hn+RCyHD6CyiYDdc6RMFS8UmAvJzCnBTgtbsJKI/i4ZNmYs4KYWaB6g7BL/2Jx5vMJW++3HrwRRbNefZbl8AIV43+ypiNq8J7B1VwfrEMq8AH2ApKOhk6QHG5QB4Juw9BjgbCijdvyvNwPAhRc73gBOqStmlegBkM0EeOtM4MO7RhJdvBDvkjs22LhOUOo9jEfcNGpQmzgx8gm5COR1Tl0g5bTv1XsyavemgCzYk1fJMG/JW9QqZQDY++Hwt+wjYN/9RbDv+vyETGf/vfoc4DcdARAd26YvzLzwBAz9c/IwpCAMAJV/1xc8in00uN0HrOuDviihUkPACNF/Qc++UOZb2PKL2K6lAWFG+MvydC2/L4RpXlEd2M6XVPl6gv3avcDlnN8HJVSwB6haor5bNCAps+F8eaya+oFSiQ7Qo5d7FPlYsDXf8C9lqmYAY5nJDSR4MKI8F0/9QCmUzs9sYIM7VNl6guDDwLqPKG3ql0s/8wEOJrZLH4Bc6vc6gHT8nmstcML3D/AdL7i7av2KhlXaB6hWdlDAWcD3/cwFQK/X7p4Lju1m1BZjAGzDSn8jYbUhID+lARjkR74uBWOmz2P/OaJ8byIfDUzqdHfP5Gm/GNYMID87XQO4wj8DIG6e3+YHpSC9iXssxJqv+psiFXRCyGSlNACT/Ng3A4gR4NYU4P1bpCCLMQD8DgZCfF0SDSolbLIzYwD/5ZsBNBMQ3XOB2/1SkMUOAeL20/xNlQ56CEBjxR6rHMS4CIbu1XsohmgA3NR+Jg8nVP9YDNEAbjoKHD6syrQg8NtO9d8AAhkCiFyn4A9/F9jzbcCfawE2wtYMD/S73P/P97fcf7cB+2MTOK2N/p3UIg0g5nMPgKXS0vtUmRYEtsr/HiCQIQDX/ZsIiO3PjJhWrvPrN3GBiLUd6t92sowTeKVvBiB9gBDwvtcVkXoHPqh99+d89wECSQhBA8C2Nz8sv+et9eLBMX3c8DF9PJBZAFb5eN0t8lAs+JqvZ8Y7tf0iGZQPUG4D2Hi7v/GRjAH4GgfAG7Qf+XZJwmDrrvFvHQAZlA+QYwDFRj29Attmay7y98XIzAIu9zMSiOMTjlOlbJ7kL6/KWLpPD1uGHsBby8WD73vb/+3kMhJokkt8NYDsvr+nFhctFBzrBHq6fq4FBGwACG+tFwf7sSv87RWRuBjEzdBXfV8NxKmR1Qisv/ANEggh0sCWLphYAV4pZwEngJikQwCWzuGxkHs9P/M22iiQQbMxmHyAxQTYmgvVZ/EEOd49+C3/LL4MswBvplU48I7Tq7/kDol+Kh/bQgNg8fA50BZARlBmjszffkp9Jk/A9QS5b94PPyDIOEDAQwB743dupRO/hsMssxlBdrTujMByAm8gwG5f5Nn7zoVbPeMoqbwx7RbKkVmANxUVagDOtqfl97y17h1CpIDdstDfmEiW2ZxAp5kskptCgjCAjEPI1i9Tn80T2NNL/MmND3IaGKVgP/kTsDfeBvaG5cByaG9cJusf8YHshpjCYD+blDWU3Ov57Kdls4JT0fCJsvGg9gXI7eBzgKd71eebEGL/DhCtMydWxEQMahYgqbm9QGQsxS8IpJINwAd3qpeYEHzwXWBtM91pn5E5vcWvNQCkuy8gjTuDjhKGbgdmANle4MmfexT/aNhPL87sDBrbrmcGagDjkci3136xU21+QuBd2o98y02KCahnzlQM7ScDSXIYlg4NdG8gTgvNeuB7C6//L49h6TmqtMWhSiSE4Fb45SfJKW2h4DueA45vu18x/3zEg6QMbTtxOki9Y2pvBb07WIaIcder+rQewF9fU1olraBmAeMRF8XwmhnnsBDIKfCdnw++lnCrHAJeyRaJerkc9QFQiWyLO2UqFOlHvy8LMo1p1wvLPATgfRZbA8n+2z3A5bRvbLu+sg0PkdKfdSuEGOSZslQIwRIqslssvDAk7hWwb/tkccGhkX0BwQ8BMgx+z5mer5ULwXDq++Fgpn0qOyhwkz4sDcA2tfv9Xg8Yj9IhfKG9qLeDD7wNdtcRbvdYiHM0Egr2dtWiDADvB4e5Wz4CPFXcCWc2ZvzIXo6AKOT5imGnLBa5MlslrMvPJeEDEnfLth8GfGiX+vyewPdsArvjnwozgqBCwbmU9YSPBlHk+gcf2OpWP8us9vka889HWTBaj0oDSBl117oGUMADl0LsJtf+0KM6xoLv2Qise4H34SBQH8A92NK++STg/W94vMJoSMfvt1/3dy/ERMSS8THth9kiUd8s1xAgiQWjYrpc9i0WuD7Obv+sGymcaLoUVCQw5tYNTt99FvCR/IfCTYBvXwcCQ96xPNcIiu06sHj4XNcHiNd9NrD1gPGI4+U9xdUOyAIPl2Jrr5BTrgM6Tr73AO718LqycrjHdvMBTZL96rTgp325RD0nNEgboVOkAQxb9UeLgOsEjSFWC8dx89X7VJkUBNl9vvkg2Ld81I2b51s88tMA0J9AR3bZx0dONS0W+N30htty4v1loiVjAPv2RaZ9QBqA0zK/QRjau2U/LwC3kS09Rq78lQo5TfxzDFjnfFegGDnMBo5KTQjBdprc8wJY99GQfqEdhGOrXysYuD5i98zLb2hBEiuEmfT11RcQXRoAomzVQhVKof7Zv4MieWov2M+1gb3sY+64isZwPQGBR8Z4fF+lAXTNkd+Vh0RgV7/yVGAvdhdV9m082OuukvdW1qEXiVVCDbp2RPkIFqcryjYVzCWuEyQPAbFvuyqfkoDjMt+6DtjjPwV+y8fAXnEyOI63Q6PwzCD75mOB3XoKsCeuBvb2H3xP+WJ7XwMWr3cPoCi3AXTJEnGtowzAiWn+bRItlOgL/O5bqox8AyqO798OjsejaRzBgO9/y1eF50I6fvefn+P4+bzWPxGxVLypXTbKAFhCP7Oip4Y2U2Dv/EmVVZXAX1Ngf18rt9H/I+5SRgOQqWB4jHzdaaMMYF902geFoQ0Guix8IOJC0arTfRZ19QErgtsrPgpOOad9uUzK5JI9TpxMH2UACG6EXqhYL4A7bdEh3HSnKrODCum/dGUKXyPL+OZn2YFnBdU9qepeQsT0pRXzA5A4XbvpSOB24bX2JwPE8G7g7W7ha7f6aQUMoBsdwJCp6l6Cm6ELyxoSzkPZC6wrLn2s2mE/+l1/N3cWw3a5CPQlVfcSg/GGuSKuDVfMD0BmHEJ780Oq/CY1GCZ65AanKkELu3/at6VtxkxV9yPgRmUCQqOIoVvrEGDbCj9dpBrB/v6IW/8fI37lnvPnEsf/7DEx48HGpeHuPF8uJ1FIGCaOTwP7ldJP56wU8L7t9cuBGeH8axTlZu4S8HgYMGctFJbuVNRSs8SSs2gID1wC7L1XJo0hyMDT7g1g33+BW/AakzwqLc8EHhlP7b3mlCNVnY8Bj2kvVnwYyBLHTIzHJ6YAX3MRsFfvBdG/FRyRloKuFuI2Lt63RZ4nzO77N+Bm6B9VvdRnqgRlDqCWf/qnwja1/6j4MKASkz5ucAtRiuRUYL88FviKU4GvrDBvWyR/sqVHg7CmgJMtGYeGW+m3PpddFNIx7ZuqrvNie7LxMBHX9lV0NjAuMxlAOKaiV10tlBk9VfTG5xI3gZh0985u0qjqelzYMbq86nqBGotjDwVm0BZVxwcERMMnOBYVZc0SqtF/YvZPgqaGkuQIVccTgken3etbFdEay0/cXdRDIRXXl6m69YSUOWsht8K81gtMUuIO4AQd2ruEfEjVrWcwI9SFVhT4XrUa/SeO/aa+RNVpQehrIbN4XN9RuWXiGotiGx4Nq212LDJN1WnBSBkN/wpdenXNa2scnzhk46pfVP+CqsuiwaLhlTWHcJKwR278bFd1WBKcK46p56b+kkwYqfkD1UnUCy74JOhTECGaqsOSMRypXyAS+i65TlAzguoi6qMD5/za1v3NU+eouvMNTnPdIt6i75NOYc0IqoNS+bi/om5PKtJ4oqoz3zEUnXmGaKnrr/UEVUCpfA24Fd7dF2v4hKqrwGA3NywSSf3diiaR1uju8rG0Lfuu++BHVB0FjuHIjAXC0v4kA0W1aGF5ifJGb9/Snhi8tmGeqpuyASIknLbCS6FTk8GHMTdao/9EObfpwBKh1ggJwNsvBqlE+DyRDG2WvUFV5hEcBES5yreevsJi+lmqDiqO3siMmcMWjfMkHZK5BDVD8Icox24NRJIOsBZ6g/NTH8K7QSIVDx8vEnS5SGgpGT0sd+GJg4VYvRUVn6D7hTX1pmGjfoEq66pGKjb9OGaF2oSlubOFjpqzOCFRPiinTh27+rchoZvD1oyjVdlOKvQZMw5NW9plwtIeE3E9NWIMtSHCJfaQKA+c0iX0QW7RR9LxKd/YHZ89dgfvZMdwa/0CntR+xJP0IZbU9kiPFg0Cg0ooiIN9xRGfL0fhsmZvUt8pEvQBntS+N2RNKT55Y7JhW9f02Syhf0kkQzE7Wfc4N+lOKRzcoNqlyQiXLGId4IkmgRG7crxvvP+ssvG5MEM3Tt+xLW0tS+hLIKGf2XugvXrvJ7xpHjoDK1c4pnbJcMs0y04c8pAw6d+cuNaLde2gXcsYR4YoWOw5UMjoMKHxoNBR+GgwuVQV5IVqG1ml4nXwenhdvH5WwfKe8D7x8xqmYveKON0kDPo7Eadx3qL9u50MnQqFpGe/3wEAFJKNh6UT0z7GrPCXuRH6njDpjSxGbxUmfYCb2tOOSTcIQ3tLmPpex9QGhaEJVAAkdZAFMHGYySoqSzQklbl/x8/j9/D7SfdIHcegXJh0UJj6e8LQtjpxul4Y+lPCoGuYqd/MTS3CDe07KUs/O21NO8mJkdnq81Qb/h8LY02y+30jsAAAAABJRU5ErkJggg==" alt="Goda">
+        <div class="kanan">
+          <button class="ikonbtn" type="button" id="btnTema" aria-label="Ganti tema terang/gelap"><svg class="i" aria-hidden="true"><use href="#i-bulan"></use></svg></button>
+          <button class="ikonbtn" type="button" id="btnKeluar" aria-label="Keluar"><svg class="i" aria-hidden="true"><use href="#i-keluar"></use></svg></button>
+        </div>
+      </div>
+      <h1 id="judulHal">Beranda</h1>
+      <p id="subHal"></p>
+    </header>
+    <main class="wrap" id="isi">
+      <section class="layar" id="hal-beranda"></section>
+      <section class="layar" id="hal-profil"></section>
+      <section class="layar" id="hal-ajukan"></section>
+      <section class="layar" id="hal-pkwt"></section>
+      <section class="layar" id="hal-info"></section>
+    </main>
+    <nav class="nav" aria-label="Menu utama" id="nav">
+      <a href="#beranda" data-hal="beranda"><svg class="i" aria-hidden="true"><use href="#i-rumah"></use></svg>Beranda</a>
+      <a href="#profil" data-hal="profil"><svg class="i" aria-hidden="true"><use href="#i-orang"></use></svg>Profil</a>
+      <a href="#ajukan" data-hal="ajukan"><svg class="i" aria-hidden="true"><use href="#i-pena"></use></svg>Pengkinian<span class="titik" id="titikAjukan" hidden></span></a>
+      <a href="#pkwt" data-hal="pkwt"><svg class="i" aria-hidden="true"><use href="#i-berkas"></use></svg>PKWT<span class="titik" id="titikPkwt" hidden></span></a>
+      <a href="#info" data-hal="info"><svg class="i" aria-hidden="true"><use href="#i-bank"></use></svg>Info Kerja</a>
+    </nav>
+  </div>
+</div>
+<div class="toast-wadah" id="toast" aria-live="polite"></div>
+<div class="tirai" id="tiraiProses" hidden><div class="proses" role="status" aria-live="polite"><h2 class="fh" style="font-size:18px" id="prosesJudul">Memproses</h2><div class="jalur"><i id="prosesJalur"></i></div><b id="prosesPersen">0%</b><p class="muted kecil" id="prosesKet">Jangan tutup halaman ini.</p></div></div>
+
+<script>
+var KONFIG = window.HRD_KONFIG || {};
+var MODE_GAS = !!(window.google && google.script && google.script.run);
+var API_URL = String(KONFIG.API_URL || '');
+var HAL = { beranda: ['Beranda', ''], profil: ['Profil Saya', 'Data Anda di database HRD'], ajukan: ['Pengkinian Data', 'Ajukan perbaikan data, diverifikasi HRD'],
+  pkwt: ['E-Sign PKWT', 'Perjanjian Kerja Waktu Tertentu'], info: ['Info Kerja', 'Rekening Mandiri, Hadirqu, dan laporan harian'] };
+var S = { token: '', nama: '', hal: 'beranda', beranda: null, profil: null, form: null, pkwt: null, info: null, langkah: 1, edit: null, pad: null };
+
+function $(s, el) { return (el || document).querySelector(s); }
+function $$(s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); }
+function esc(v) { return String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var escapeHtml = esc;
+function ic(n, s) { return '<svg class="i' + (s ? ' s' : '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>'; }
+function tanpaMandarin(s) { var x = String(s === null || s === undefined ? '' : s).replace(/[一-龥]/g, '').trim(); return x || String(s || ''); }
+function simpan(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function baca(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function salam() { var j = new Date().getHours(); return j < 11 ? 'pagi' : (j < 15 ? 'siang' : (j < 18 ? 'sore' : 'malam')); }
+function memuat(t) { return '<div class="memuat" role="status"><span class="putar" aria-hidden="true"></span>' + esc(t || 'Memuat...') + '</div>'; }
+function galatHtml(m) { return '<div class="banner warn">' + ic('awas') + '<div>' + esc(m) + '</div></div>'; }
+function toast(m, j) { var el = document.createElement('div'); el.className = 'toast ' + (j || ''); el.setAttribute('role', j === 'bad' ? 'alert' : 'status'); el.textContent = m; $('#toast').appendChild(el); setTimeout(function () { el.remove(); }, j === 'bad' ? 7000 : 4000); }
+function tautan(url, teks, kelas, ikon) { if (!url) return ''; return '<a class="btn ' + (kelas || 'garis') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + (ikon ? ic(ikon, 1) : '') + esc(teks) + '</a>'; }
+function videoEmbed(url) {
+  var u = String(url || ''), m = u.match(/\/d\/([A-Za-z0-9_-]{10,})/) || u.match(/[?&]id=([A-Za-z0-9_-]{10,})/);
+  if (m && u.indexOf('drive.google.com') !== -1) return 'https:\/\/drive.google.com/file/d/' + m[1] + '/preview';
+  m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{6,})/);
+  if (m) return 'https:\/\/www.youtube.com/embed/' + m[1];
+  return '';
+}
+function videoHtml(url, judul) {
+  var e = videoEmbed(url);
+  if (!e) return '<div class="video"><div class="video-kosong" style="position:absolute;inset:0">Video segera tersedia.</div></div>';
+  return '<div class="video"><iframe src="' + esc(e) + '" title="' + esc(judul) + '" allow="autoplay; encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe></div>';
+}
+
+function panggil(fn, args) {
+  if (!MODE_GAS) {
+    if (!/^https:\/\/script\.google\.com\/macros\/s\/[^\/]+\/exec/.test(API_URL)) return Promise.reject(new Error('Alamat server belum diatur. Hubungi HRD.'));
+    return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args || [] }) })
+      .then(function (r) { if (!r.ok) throw new Error('Server menjawab kode ' + r.status); return r.json(); })
+      .then(function (x) { if (!x || !x.ok) throw new Error((x && x.galat) || 'Server tidak memberi jawaban.'); return x.hasil; })
+      .catch(function (e) { throw new Error(/Failed to fetch|NetworkError|Load failed/i.test(e.message) ? 'Tidak bisa menghubungi server. Periksa internet lalu coba lagi.' : e.message); });
+  }
+  return new Promise(function (ok, gagal) {
+    var r = google.script.run.withSuccessHandler(ok).withFailureHandler(function (e) { gagal(e instanceof Error ? e : new Error(String(e && e.message ? e.message : e))); });
+    r[fn].apply(r, args || []);
+  });
+}
+function api(aksi, data) {
+  return panggil('empApi', [S.token, aksi, data || {}]).then(function (r) {
+    if (!r || !r.ok) { if (r && r.sesiHabis) keluarLokal(r.pesan); throw new Error(r && r.pesan ? r.pesan : 'Server tidak memberi jawaban.'); }
+    return r.data;
+  });
+}
+
+function terapkanTema(t) {
+  if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+  var gelap = t === 'dark' || (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  $('#btnTema').innerHTML = ic(gelap ? 'matahari' : 'bulan');
+}
+$('#btnTema').onclick = function () { var g = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches); var t = g ? 'light' : 'dark'; simpan('tema_karyawan', t); terapkanTema(t); };
+terapkanTema(baca('tema_karyawan'));
+
+var sudahPing = false;
+function bangunkan() { if (sudahPing) return; sudahPing = true; panggil('portalPing', []).catch(function () { sudahPing = false; }); }
+$('#mNik').addEventListener('focus', bangunkan);
+$('#mId').addEventListener('focus', bangunkan);
+$('#mNik').addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); var c = $('#mNikCnt'); c.textContent = this.value.length + ' / 16'; c.classList.toggle('ok', this.value.length >= 15); });
+
+var animasi = null;
+function persenMulai(btn, teksEl, awalan) {
+  var p = 0, isi = $('.isi-persen', btn); btn.disabled = true;
+  animasi = setInterval(function () { p = p + Math.max(1, (92 - p) / 14); if (p > 92) p = 92; isi.style.width = p + '%'; teksEl.textContent = awalan + ' ' + Math.round(p) + '%'; }, 120);
+}
+function persenSelesai(btn, teksEl, teks, berhasil) {
+  clearInterval(animasi); var isi = $('.isi-persen', btn);
+  if (berhasil) { isi.style.width = '100%'; teksEl.textContent = '100%'; }
+  setTimeout(function () { isi.style.width = '0'; teksEl.textContent = teks; btn.disabled = false; }, berhasil ? 350 : 0);
+}
+$('#formMasuk').onsubmit = function (e) {
+  e.preventDefault();
+  var nik = $('#mNik').value.trim(), id = $('#mId').value.trim(), g = $('#mGalat'), b = $('#btnMasuk'), tx = $('#btnMasukTeks');
+  g.hidden = true;
+  if (nik.length < 15) { g.textContent = 'NIK KTP harus 15-16 digit angka sesuai KTP.'; g.hidden = false; $('#mNik').focus(); return; }
+  if (!id) { g.textContent = 'Isi ID Karyawan Anda.'; g.hidden = false; $('#mId').focus(); return; }
+  persenMulai(b, tx, 'Memeriksa');
+  panggil('empMasuk', [nik, id]).then(function (r) {
+    if (!r || !r.ok) { persenSelesai(b, tx, 'Masuk', false); g.textContent = (r && r.pesan) || 'Gagal masuk.'; g.hidden = false; return; }
+    persenSelesai(b, tx, 'Masuk', true);
+    S.token = r.token; S.nama = r.nama; simpan('emp_sesi', JSON.stringify({ t: r.token, n: r.nama }));
+    $('#mNik').value = ''; $('#mId').value = '';
+    setTimeout(masukAplikasi, 300);
+  }).catch(function (err) { persenSelesai(b, tx, 'Masuk', false); g.textContent = err.message; g.hidden = false; });
+};
+
+function keluarLokal(pesan) {
+  S.token = ''; S.beranda = S.profil = S.form = S.pkwt = S.info = null; simpan('emp_sesi', null);
+  $('#app').hidden = true; $('#layarMasuk').classList.add('on');
+  if (pesan) { $('#mGalat').textContent = pesan; $('#mGalat').hidden = false; }
+}
+$('#btnKeluar').onclick = function () { var t = S.token; panggil('empKeluar', [t]).catch(function () {}); keluarLokal(''); };
+function masukAplikasi() {
+  $('#layarMasuk').classList.remove('on'); $('#app').hidden = false;
+  var h = (location.hash || '').replace('#', '');
+  bukaHal(HAL[h] ? h : 'beranda', true);
+}
+function bukaHal(n, tanpaHash) {
+  if (!HAL[n]) n = 'beranda';
+  S.hal = n;
+  $$('#nav a').forEach(function (a) { if (a.dataset.hal === n) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  $$('#isi .layar').forEach(function (s) { s.classList.toggle('on', s.id === 'hal-' + n); });
+  $('#judulHal').textContent = n === 'beranda' ? 'Selamat ' + salam() + (S.nama ? ', ' + S.nama.split(' ')[0] : '') : HAL[n][0];
+  $('#subHal').textContent = HAL[n][1];
+  if (!tanpaHash) { try { history.pushState(null, '', '#' + n); } catch (e) {} }
+  ({ beranda: renderBeranda, profil: renderProfil, ajukan: renderAjukan, pkwt: renderPkwt, info: renderInfo })[n]();
+  window.scrollTo(0, 0);
+}
+$$('#nav a').forEach(function (a) { a.onclick = function (e) { e.preventDefault(); bukaHal(a.dataset.hal); }; });
+window.addEventListener('popstate', function () { var n = (location.hash || '').replace('#', ''); if (S.token && HAL[n]) bukaHal(n, true); });
+
+function renderBeranda() {
+  var el = $('#hal-beranda');
+  if (!S.beranda) { el.innerHTML = memuat('Membaca data Anda...'); api('beranda').then(function (d) { S.beranda = d; renderBeranda(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
+  var d = S.beranda, p = d.profil, k = d.konfig || {};
+  $('#subHal').textContent = (p.jabatan || '') + (p.area ? ' · ' + p.area : '');
+  $('#titikPkwt').hidden = d.pkwt.sudah; $('#titikAjukan').hidden = !d.pengkinian.menunggu;
+  var pk = d.pkwt.sudah ? ['g', 'centang', 'PKWT sudah ditandatangani', 'Lihat dokumen Anda'] : (d.pkwt.tertahan ? ['b', 'awas', 'PKWT belum bisa dibuat', 'Gaji belum tercatat, hubungi HRD'] : ['o', 'berkas', 'Tanda tangani PKWT', 'Baca kontrak lalu tanda tangan di layar']);
+  var pg = d.pengkinian.menunggu ? ['o', 'jam', d.pengkinian.menunggu + ' pengajuan menunggu HRD', 'Lihat status pengajuan'] : (d.pengkinian.terakhir ? ['n', 'pena', 'Pengajuan terakhir: ' + labelStatus(d.pengkinian.terakhir.status), d.pengkinian.terakhir.waktu] : ['n', 'pena', 'Perbarui data diri', 'Rekening, alamat, kontak, BPJS']);
+  el.innerHTML = '<div class="kartu pad" style="display:flex;gap:12px;align-items:center"><div class="avatar" aria-hidden="true">' + esc((p.nama || 'K').charAt(0)) + '</div><div><b class="fh">' + esc(p.nama) + '</b><div class="muted kecil"><span class="mono">ID ' + esc(p.id) + '</span> &middot; ' + esc(p.toko || p.area || '-') + '</div></div></div>' +
+    '<div class="judul-bag">Perlu perhatian</div><div class="kartu">' +
+    tugas(pk, 'pkwt') + tugas(pg, 'ajukan') + tugas(['n', 'bank', 'Rekening Mandiri untuk gaji', 'Cara membuka rekening & video'], 'info') + tugas(['n', 'hp', 'Absen Hadirqu', 'ID & sandi: ID karyawan Anda'], 'info') + '</div>' +
+    (k.waHrd ? '<a class="btn garis penuh" style="margin-top:16px" target="_blank" rel="noopener" href="https:\/\/wa.me/' + esc(k.waHrd) + '">' + ic('pesan', 1) + 'Hubungi HRD lewat WhatsApp</a>' : '');
+  $$('[data-pergi]', el).forEach(function (a) { a.onclick = function (e) { e.preventDefault(); bukaHal(a.dataset.pergi); }; });
+}
+function tugas(x, hal) { return '<a class="tugas" href="#' + hal + '" data-pergi="' + hal + '"><span class="d ' + x[0] + '">' + ic(x[1]) + '</span><div><b>' + esc(x[2]) + '</b><span>' + esc(x[3]) + '</span></div><span class="kanan">' + ic('kanan') + '</span></a>'; }
+function labelStatus(s) { return { MENUNGGU: 'Menunggu verifikasi HRD', DISETUJUI: 'Disetujui', DITOLAK: 'Ditolak', DIGANTI: 'Digantikan pengajuan baru', LAMA: 'Tercatat' }[s] || s; }
+function tagStatus(s) { var w = { MENUNGGU: 'or', DISETUJUI: 'ok', DITOLAK: 'bad' }[s] || 'nv'; return '<span class="tag ' + w + '">' + esc(labelStatus(s)) + '</span>'; }
+
+function renderProfil() {
+  var el = $('#hal-profil');
+  if (!S.profil) { el.innerHTML = memuat('Membaca profil...'); api('profil').then(function (d) { S.profil = d; renderProfil(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
+  el.innerHTML = '<div class="banner">' + ic('info') + '<div>Ada data yang salah atau kosong? Ajukan perbaikannya lewat menu <b>Pengkinian</b>. Data baru berubah setelah diverifikasi HRD.</div></div>' +
+    S.profil.grup.map(function (g, i) {
+      return '<details class="kartu grup"' + (i < 2 ? ' open' : '') + '><summary>' + esc(g.judul) + ic('kanan') + '</summary><dl class="dl" style="border-top:1px solid var(--line)">' +
+        g.isi.map(function (f) { return '<dt>' + esc(f.label) + '</dt><dd' + (/NIK|NOMORKTP|NOKK|REKENING|BPJS|NOMORTEL/.test(f.kunci) ? ' class="mono"' : '') + '>' + esc(f.nilai || '-') + '</dd>'; }).join('') + '</dl></details>';
+    }).join('') +
+    '<button class="btn oranye penuh" type="button" id="kePengkinian" style="margin-top:6px">' + ic('pena', 1) + 'Ajukan perbaikan data</button>';
+  $('#kePengkinian').onclick = function () { bukaHal('ajukan'); };
+}
+
+function medan(f) {
+  var id = 'f_' + f.kunci, h = '<div class="field"><label for="' + id + '">' + esc(f.label) + '</label>';
+  if (f.opsi) {
+    var ops = f.opsi.slice(); if (f.nilai && ops.indexOf(f.nilai) === -1) ops.unshift(f.nilai);
+    h += '<select class="input" id="' + id + '" data-k="' + f.kunci + '" data-awal="' + esc(f.nilai) + '"><option value="">(kosong)</option>' + ops.map(function (o) { return '<option value="' + esc(o) + '"' + (o === f.nilai ? ' selected' : '') + '>' + esc(tanpaMandarin(o)) + '</option>'; }).join('') + '</select>';
+  } else {
+    var tipe = f.tipe === 'tanggal' ? 'date' : (f.tipe === 'hp' ? 'tel' : (f.kunci === 'EMAIL' ? 'email' : 'text'));
+    var angka = f.tipe === 'angka' || f.tipe === 'nik16';
+    var panjang = /ALAMAT|PENGALAMAN/.test(f.kunci);
+    if (panjang) h += '<textarea class="input" id="' + id + '" data-k="' + f.kunci + '" data-awal="' + esc(f.nilai) + '" maxlength="250">' + esc(f.nilai) + '</textarea>';
+    else h += '<input class="input' + (angka ? ' mono' : '') + '" id="' + id + '" type="' + tipe + '"' + (angka ? ' inputmode="numeric"' : '') + (f.tipe === 'nik16' ? ' maxlength="16"' : '') + ' data-k="' + f.kunci + '" data-awal="' + esc(f.nilai) + '" value="' + esc(f.nilai) + '">';
+    if (f.tipe === 'tanggal' && !f.nilai && f.tampil) h += '<div class="bantu">Tercatat: ' + esc(f.tampil) + '</div>';
+  }
+  if (f.kunci === 'NOREKENINGMANDIRI') h += '<div class="bantu">Gaji dibayar ke rekening Mandiri atas nama Anda sendiri.</div>';
+  return h + '</div>';
+}
+function renderAjukan() {
+  var el = $('#hal-ajukan');
+  if (!S.form) { el.innerHTML = memuat('Menyiapkan formulir...'); api('pengkinian_form').then(function (d) { S.form = d; renderAjukan(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
+  var fokus = S.fokusKolom; S.fokusKolom = '';
+  el.innerHTML = '<div class="banner">' + ic('info') + '<div>Ubah hanya data yang perlu diperbaiki. Kolom yang diubah ditandai oranye. Data <b>tidak langsung berubah</b>, menunggu verifikasi HRD.</div></div>' +
+    '<form id="fAjukan" novalidate>' + S.form.grup.map(function (g, i) {
+      return '<details class="kartu grup" data-g="' + i + '"' + (i === 0 || (fokus && g.isi.some(function (f) { return f.kunci === fokus; })) ? ' open' : '') + '><summary><span>' + esc(g.judul) + '</span><span class="n-ubah" hidden></span>' + ic('kanan') + '</summary><div class="isi">' + g.isi.map(medan).join('') + '</div></details>';
+    }).join('') +
+    '<div class="field"><label for="fCatatan">Catatan untuk HRD <span class="cnt">opsional</span></label><textarea class="input" id="fCatatan" maxlength="300" placeholder="Misal: rekening lama sudah ditutup"></textarea></div>' +
+    '<div class="galat" id="fGalat" hidden></div><button class="btn oranye penuh" type="submit" id="fKirim" disabled>Belum ada perubahan</button></form>' +
+    '<div class="judul-bag">Riwayat & status pengajuan</div><div class="kartu" id="fRiwayat">' + riwayatHtml(S.form.riwayat) + '</div>';
+  var hitung = function () {
+    var n = 0;
+    $$('#fAjukan details.grup').forEach(function (d) {
+      var m = 0; $$('[data-k]', d).forEach(function (i) { var beda = i.value.trim() !== String(i.dataset.awal).trim(); i.classList.toggle('diubah', beda); if (beda) m++; });
+      var t = $('.n-ubah', d); t.hidden = !m; t.textContent = m + ' diubah'; n += m;
+    });
+    var b = $('#fKirim'); b.disabled = !n; b.textContent = n ? 'Kirim pengajuan (' + n + ' perubahan)' : 'Belum ada perubahan';
+  };
+  $$('#fAjukan [data-k]').forEach(function (i) { i.addEventListener('input', hitung); i.addEventListener('change', hitung); if (i.getAttribute('inputmode') === 'numeric') i.addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); }); });
+  if (fokus && $('#f_' + fokus)) setTimeout(function () { $('#f_' + fokus).focus(); $('#f_' + fokus).scrollIntoView({ block: 'center' }); }, 80);
+  $('#fAjukan').onsubmit = function (e) {
+    e.preventDefault();
+    var ubah = {}; $$('#fAjukan [data-k]').forEach(function (i) { if (i.value.trim() !== String(i.dataset.awal).trim()) ubah[i.dataset.k] = i.value.trim(); });
+    var g = $('#fGalat'), b = $('#fKirim'); g.hidden = true;
+    if (!Object.keys(ubah).length) return;
+    b.disabled = true; b.innerHTML = '<span class="putar" aria-hidden="true"></span> Mengirim...';
+    api('pengkinian_kirim', { ubah: ubah, catatan: $('#fCatatan').value.trim() }).then(function (r) {
+      toast('Pengajuan No. ' + r.no + ' terkirim (' + r.jumlah + ' data). Menunggu verifikasi HRD.');
+      S.form = null; S.beranda = null; renderAjukan(); $('#titikAjukan').hidden = false;
+    }).catch(function (err) { g.textContent = err.message; g.hidden = false; hitung(); });
+  };
+}
+function riwayatHtml(L) {
+  if (!L || !L.length) return '<div class="pad muted">Belum ada pengajuan.</div>';
+  return L.map(function (x) {
+    return '<div class="riwayat"><div class="h"><div><b class="fh">Pengajuan No. ' + esc(x.no || '-') + '</b><div class="muted kecil">' + esc(x.waktu) + '</div></div>' + tagStatus(x.status) + '</div>' +
+      (x.rincian.length ? '<ul>' + x.rincian.slice(0, 8).map(function (r) { return '<li>' + esc(r.label) + ': <b>' + esc(tanpaMandarin(r.baru) || '(kosong)') + '</b></li>'; }).join('') + (x.rincian.length > 8 ? '<li>dan ' + (x.rincian.length - 8) + ' data lain</li>' : '') + '</ul>' : '') +
+      (x.status === 'DITOLAK' && x.catatanAdmin ? '<div class="alasan"><b>Alasan HRD:</b> ' + esc(x.catatanAdmin) + '</div>' : '') +
+      (x.status === 'DISETUJUI' && x.waktuV ? '<div class="muted kecil" style="margin-top:6px">Diverifikasi ' + esc(x.waktuV) + '</div>' : '') + '</div>';
+  }).join('');
+}
+
+function panduanPkwt(video) {
+  return '<details class="kartu grup"' + (S.pkwt && S.pkwt.sudah ? '' : ' open') + '><summary><span>' + ic('play', 1) + ' Panduan &amp; video tutorial TTD digital</span>' + ic('kanan') + '</summary><div class="isi">' +
+    '<ol class="langkah"><li>Buka link aplikasi E-Sign PKWT (menu PKWT di portal ini).</li><li>Masukkan NIK KTP Anda.</li><li>Masukkan ID Karyawan Anda.</li><li>Periksa dan lengkapi data diri Anda, lalu klik Lanjut.</li><li>Baca pratinjau dokumen dengan saksama.</li><li>Bubuhkan tanda tangan Anda di kotak yang disediakan, lalu klik Setuju &amp; Buat PKWT.</li></ol>' +
+    videoHtml(video, 'Video tutorial penandatanganan PKWT') +
+    '<div style="margin:12px 0 10px">' + tautan(video, 'Buka video di Google Drive', 'garis penuh', 'tautan') + '</div></div></details>';
+}
+function renderPkwt() {
+  var el = $('#hal-pkwt');
+  if (!S.pkwt) { el.innerHTML = memuat('Membaca data kontrak...'); api('pkwt').then(function (d) { S.pkwt = d; S.langkah = 1; S.edit = null; renderPkwt(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
+  var p = S.pkwt;
+  if (p.sudah) {
+    var lihat = String(p.link || '').replace(/\/view.*$/, '/preview');
+    el.innerHTML = '<div class="banner ok">' + ic('centang') + '<div><b>PKWT Anda sudah ditandatangani.</b> Dokumen tersimpan di arsip HRD.</div></div>' +
+      (lihat ? '<iframe class="pdf" src="' + esc(lihat) + '" title="Dokumen PKWT"></iframe><div style="margin-top:12px">' + tautan(p.link, 'Buka dokumen PKWT', 'garis penuh', 'tautan') + '</div>' : '') +
+      '<div style="margin-top:14px">' + panduanPkwt(p.videoPkwt) + '</div>';
+    return;
+  }
+  if (p.tertahan) {
+    el.innerHTML = '<div class="banner warn">' + ic('awas') + '<div><b>PKWT belum bisa dibuat.</b> Gaji pokok Anda belum tercatat di database HRD. Silakan hubungi HRD.</div></div>' + panduanPkwt(p.videoPkwt);
+    return;
+  }
+  var d = p.data, e = S.edit || (S.edit = { jenisKelamin: /perempuan|wanita/i.test(d.jenisKelamin) ? 'Perempuan' : 'Laki-Laki', tempatLahir: d.tempatLahir || '', tanggalLahir: d.tanggalLahir || '', alamat: d.alamat || '', kotaTtd: d.kotaTtd || 'Semarang' });
+  var tahap = '<div class="tahap" aria-label="Langkah ' + S.langkah + ' dari 3"><i class="on"></i><i class="' + (S.langkah > 1 ? 'on' : '') + '"></i><i class="' + (S.langkah > 2 ? 'on' : '') + '"></i></div>';
+  if (S.langkah === 1) {
+    el.innerHTML = panduanPkwt(p.videoPkwt) + '<div class="kartu pad">' + tahap + '<h2 class="fh" style="font-size:18px">1. Periksa data kontrak</h2><p class="muted kecil" style="margin:4px 0 14px">Data diambil dari database HRD. Perbaiki tempat/tanggal lahir dan alamat bila belum sesuai KTP.</p>' +
+      '<div class="field"><label for="kNama">Nama lengkap</label><input class="input" id="kNama" value="' + esc(d.nama) + '" readonly></div>' +
+      '<div class="field"><label for="kNik">No. KTP</label><input class="input mono" id="kNik" value="' + esc(d.nik) + '" readonly></div>' +
+      '<div class="field"><label for="kJk">Jenis kelamin</label><select class="input" id="kJk"><option' + (e.jenisKelamin === 'Laki-Laki' ? ' selected' : '') + '>Laki-Laki</option><option' + (e.jenisKelamin === 'Perempuan' ? ' selected' : '') + '>Perempuan</option></select></div>' +
+      '<div class="field"><label for="kTempat">Tempat lahir</label><input class="input" id="kTempat" maxlength="60" value="' + esc(e.tempatLahir) + '"></div>' +
+      '<div class="field"><label for="kTgl">Tanggal lahir</label><input class="input" id="kTgl" maxlength="40" placeholder="Contoh: 14 Maret 2000" value="' + esc(e.tanggalLahir) + '"></div>' +
+      '<div class="field"><label for="kAlamat">Alamat sesuai KTP</label><textarea class="input" id="kAlamat" maxlength="250">' + esc(e.alamat) + '</textarea></div>' +
+      '<div class="field"><label for="kKota">Kota tanda tangan</label><input class="input" id="kKota" maxlength="40" value="' + esc(e.kotaTtd) + '"></div>' +
+      '<div class="field"><label for="kJab">Posisi</label><input class="input" id="kJab" value="' + esc(d.jabatan) + '" readonly></div>' +
+      '<div class="field"><label for="kMulai">Mulai kontrak</label><input class="input" id="kMulai" value="' + esc(d.tglMulai) + '" readonly></div>' +
+      '<div class="galat" id="kGalat" hidden></div><button class="btn oranye penuh" type="button" id="kLanjut">Lanjut baca kontrak' + ic('kanan', 1) + '</button></div>';
+    $('#kLanjut').onclick = function () {
+      e.jenisKelamin = $('#kJk').value; e.tempatLahir = $('#kTempat').value.trim(); e.tanggalLahir = $('#kTgl').value.trim(); e.alamat = $('#kAlamat').value.trim(); e.kotaTtd = $('#kKota').value.trim() || 'Semarang';
+      if (!e.tempatLahir || !e.tanggalLahir || !e.alamat) { $('#kGalat').textContent = 'Lengkapi tempat lahir, tanggal lahir, dan alamat.'; $('#kGalat').hidden = false; return; }
+      S.langkah = 2; renderPkwt();
+    };
+    return;
+  }
+  if (S.langkah === 2) {
+    var hari = new Date(), bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var v = { nama: d.nama, jenisKelamin: e.jenisKelamin, tempatLahir: e.tempatLahir, tanggalLahir: e.tanggalLahir, nik: d.nik, alamat: e.alamat, jabatan: d.jabatan,
+      gajiPokok: d.gajiPokok, tglMulai: d.tglMulai, bulanRomawi: d.bulanRomawi, kotaTtd: e.kotaTtd, tglTtd: hari.getDate() + ' ' + bulan[hari.getMonth()] + ' ' + hari.getFullYear() };
+    el.innerHTML = '<div class="kartu pad">' + tahap + '<h2 class="fh" style="font-size:18px">2. Baca pratinjau kontrak</h2><p class="muted kecil" style="margin:4px 0 12px">Gulir sampai akhir dokumen sebelum lanjut.</p>' +
+      '<div class="kertas" id="kertas" tabindex="0" aria-label="Naskah PKWT">' + naskahKontrak(v) + '</div>' +
+      '<label class="lbl" style="font-weight:500;margin-top:14px;gap:10px;justify-content:flex-start"><input type="checkbox" id="kSetuju" style="width:20px;height:20px;accent-color:var(--navy-3)"> Saya sudah membaca dan memahami isi PKWT ini.</label>' +
+      '<div class="dua-tombol"><button class="btn garis" type="button" id="kKembali">Kembali</button><button class="btn oranye" type="button" id="kKeTtd" disabled>Lanjut TTD</button></div></div>';
+    $('#kSetuju').onchange = function () { $('#kKeTtd').disabled = !this.checked; };
+    $('#kKembali').onclick = function () { S.langkah = 1; renderPkwt(); };
+    $('#kKeTtd').onclick = function () { S.langkah = 3; renderPkwt(); };
+    return;
+  }
+  el.innerHTML = '<div class="kartu pad">' + tahap + '<h2 class="fh" style="font-size:18px">3. Tanda tangan</h2><p class="muted kecil" style="margin:4px 0 12px">Tanda tangan di kotak dengan jari. Tanda tangan dipakai di semua halaman PKWT.</p>' +
+    '<div class="ttd-wadah"><canvas id="kanvas" aria-label="Kotak tanda tangan"></canvas><span class="petunjuk">Tanda tangan di sini</span></div>' +
+    '<button class="btn garis tipis" type="button" id="kHapus" style="margin-top:10px">Hapus tanda tangan</button>' +
+    '<div class="galat" id="tGalat" hidden></div><div class="dua-tombol"><button class="btn garis" type="button" id="kKembali2">Kembali</button><button class="btn oranye" type="button" id="kSimpan">Setuju &amp; Buat PKWT</button></div></div>';
+  setTimeout(siapkanPad, 30);
+  $('#kHapus').onclick = function () { if (S.pad) S.pad.clear(); };
+  $('#kKembali2').onclick = function () { S.langkah = 2; renderPkwt(); };
+  $('#kSimpan').onclick = simpanPkwt;
+}
+function siapkanPad() {
+  var c = $('#kanvas'); if (!c) return;
+  if (typeof SignaturePad === 'undefined') { $('#tGalat').textContent = 'Komponen tanda tangan gagal dimuat. Periksa internet lalu muat ulang halaman.'; $('#tGalat').hidden = false; return; }
+  var r = Math.max(window.devicePixelRatio || 1, 1);
+  c.width = c.offsetWidth * r; c.height = c.offsetHeight * r; c.getContext('2d').scale(r, r);
+  S.pad = new SignaturePad(c, { backgroundColor: 'rgb(255,255,255)', penColor: '#0a1060', minWidth: 1, maxWidth: 2.6 });
+}
+function prosesMulai(judul) {
+  var p = 0; $('#prosesJudul').textContent = judul; $('#tiraiProses').hidden = false;
+  animasi = setInterval(function () { p = p + Math.max(0.4, (95 - p) / 30); if (p > 95) p = 95; $('#prosesJalur').style.width = p + '%'; $('#prosesPersen').textContent = Math.round(p) + '%'; }, 200);
+}
+function prosesSelesai(cb) { clearInterval(animasi); $('#prosesJalur').style.width = '100%'; $('#prosesPersen').textContent = '100%'; setTimeout(function () { $('#tiraiProses').hidden = true; $('#prosesJalur').style.width = '0'; if (cb) cb(); }, 500); }
+function prosesBatal() { clearInterval(animasi); $('#tiraiProses').hidden = true; $('#prosesJalur').style.width = '0'; }
+function simpanPkwt() {
+  var g = $('#tGalat'); g.hidden = true;
+  if (!S.pad || S.pad.isEmpty()) { g.textContent = 'Silakan tanda tangan terlebih dahulu.'; g.hidden = false; return; }
+  var b = $('#kSimpan'); b.disabled = true;
+  prosesMulai('Menerbitkan PKWT Anda');
+  api('pkwt_ttd', { ttd: S.pad.toDataURL('image/png'), edit: S.edit }).then(function (r) {
+    if (!r || !r.success) { prosesBatal(); b.disabled = false; g.textContent = (r && r.message) || 'Gagal membuat PKWT.'; g.hidden = false; return; }
+    prosesSelesai(function () { S.pkwt = { sudah: true, link: r.fileUrl, videoPkwt: S.pkwt.videoPkwt }; S.beranda = null; S.profil = null; toast('PKWT berhasil dibuat dan ditandatangani.'); $('#titikPkwt').hidden = true; renderPkwt(); });
+  }).catch(function (err) { prosesBatal(); b.disabled = false; g.textContent = err.message; g.hidden = false; });
+}
+
+function renderInfo() {
+  var el = $('#hal-info');
+  if (!S.info) { el.innerHTML = memuat('Memuat info...'); api('info').then(function (d) { S.info = d; renderInfo(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
+  var k = S.info.konfig || {}, id = S.info.profil.id;
+  el.innerHTML = '<div class="judul-bag" style="margin-top:4px">Rekening Bank Mandiri</div><div class="kartu pad">' +
+    '<p>Gaji karyawan Shelter x Goda <b>wajib</b> dibayarkan ke rekening <b>Bank Mandiri atas nama Anda sendiri</b>. Belum punya? Buka secara online lewat aplikasi <b>Livin’ by Mandiri</b>:</p>' +
+    '<ol class="langkah" style="margin-top:12px"><li>Unduh aplikasi Livin’ by Mandiri di Play Store atau App Store.</li><li>Pilih menu pembukaan rekening baru (Buka Rekening / Daftar).</li><li>Siapkan e-KTP asli, kamera, dan sinyal internet yang stabil.</li><li>Foto e-KTP dan swafoto sesuai petunjuk, lalu isi data diri persis seperti di KTP.</li><li>Pilih jenis tabungan, lalu ikuti verifikasi sampai rekening aktif.</li><li>Catat nomor rekening dan kirim lewat tombol di bawah ini.</li></ol>' +
+    '<p class="muted kecil" style="margin-top:10px">Langkah di aplikasi bisa sedikit berbeda sesuai versi terbaru.</p>' +
+    videoHtml(k.videoMandiri, 'Video tutorial membuka rekening Mandiri') +
+    (k.videoMandiri ? '<div style="margin-top:10px">' + tautan(k.videoMandiri, 'Buka video tutorial', 'garis penuh', 'tautan') + '</div>' : '') +
+    '<button class="btn oranye penuh" type="button" id="keRekening" style="margin-top:12px">' + ic('pena', 1) + 'Saya sudah punya rekening Mandiri</button></div>' +
+    '<div class="judul-bag">Presensi Hadirqu</div><div class="kartu pad">' +
+    '<p>Absen berangkat dan pulang memakai aplikasi <b>Hadirqu</b>.</p><div class="akun-hadirqu"><div><small>ID</small><b>' + esc(id) + '</b></div><div><small>Kata sandi</small><b>' + esc(id) + '</b></div></div>' +
+    '<ol class="langkah" style="margin-top:14px"><li>Unduh Hadirqu lalu masuk dengan ID dan kata sandi di atas.</li><li>Registrasi absensi melalui logo kamera di bagian tengah bawah.</li><li>Absen berangkat dan pulang melalui logo kamera di tengah bawah.</li></ol>' +
+    '<div class="dua-tombol">' + tautan(k.hadirquAndroid, 'Android', 'navy', 'hp') + tautan(k.hadirquIos, 'iPhone', 'navy', 'hp') + '</div></div>' +
+    '<div class="judul-bag">Laporan penjualan harian</div><div class="kartu pad">' +
+    '<ol class="langkah"><li>Buka form input data penjualan.</li><li>Pilih area promotor (Jawa / Luar Jawa).</li><li>Unggah foto KG, unit, dan CS untuk laporan harian.</li><li>Pastikan nama sesuai nama promotor.</li></ol>' +
+    '<div style="display:grid;gap:10px;margin-top:14px">' + tautan(k.formPenjualan, 'Buka form input penjualan', 'oranye penuh', 'berkas') + tautan(k.grupWa, 'Gabung grup WhatsApp promotor', 'garis penuh', 'pesan') + '</div></div>' +
+    (k.waHrd ? '<a class="btn garis penuh" style="margin-top:16px" target="_blank" rel="noopener" href="https:\/\/wa.me/' + esc(k.waHrd) + '">' + ic('pesan', 1) + 'Tanya HRD soal absensi atau penjualan</a>' : '');
+  $('#keRekening').onclick = function () { S.fokusKolom = 'NOREKENINGMANDIRI'; bukaHal('ajukan'); };
+}
+
+function naskahKontrak(v) {
+  var safeNama = esc(v.nama), safeTtl = esc((v.tempatLahir ? v.tempatLahir + ', ' : '') + v.tanggalLahir), safeJk = esc(v.jenisKelamin), safeKtp = esc(v.nik),
+    safeAlamat = esc(v.alamat), safeJabatan = esc(v.jabatan), safeGaji = esc(v.gajiPokok), safeTglMulai = esc(v.tglMulai), safeKotaTtd = esc(v.kotaTtd), safeTglTtd = esc(v.tglTtd);
+  var insentifPoint = /mekanik/i.test(v.jabatan || '') ? '' : '<li>Insentif ditanggung oleh Pihak Toko sesuai Lokasi Kerja dan pencapaian sales promotor setiap bulannya dengan skema yang telah disesuaikan oleh perusahaan.</li>';
+  return `
+        <div style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+          <h2 style="font-size: 16px; margin: 0; text-decoration: underline;">PERJANJIAN KERJA WAKTU TERTENTU</h2>
+          <p style="margin: 0; font-weight: normal;">NOMOR : .../PKWT-DIRECT/HRD-SIG/GTG/${escapeHtml(v.bulanRomawi || '...')}/2026</p>
+        </div>
+        
+        <p>Yang bertanda tangan dibawah ini kami, masing-masing :</p>
+        <table style="width:100%; border:none; margin-bottom: 10px;">
+          <tr><td style="width:20px; vertical-align:top;">1.</td><td style="width:150px;">Nama Lengkap</td><td style="width:10px;">:</td><td><strong>JONO PANGOLAH</strong></td></tr>
+          <tr><td></td><td>Jabatan</td><td>:</td><td>BRANCH MANAGER</td></tr>
+          <tr><td></td><td>Instansi</td><td>:</td><td>PT SHELTER INDONESIA GEMILANG</td></tr>
+          <tr><td></td><td style="vertical-align:top;">Alamat Lengkap</td><td style="vertical-align:top;">:</td><td>Jl. Jatiluhur Raya No. 206D, Jatingaleh, Banyumanik, Semarang</td></tr>
+        </table>
+        <p style="margin-left:25px; margin-bottom:15px;">Bertindak untuk dan atas nama kuasa direksi PT SHELTER INDONESIA GEMILANG selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong></p>
+        
+        <table style="width:100%; border:none; margin-bottom: 10px;">
+          <tr><td style="width:20px; vertical-align:top;">2.</td><td style="width:150px;">Nama Lengkap</td><td style="width:10px;">:</td><td><strong>${safeNama}</strong></td></tr>
+          <tr><td></td><td>Jenis Kelamin</td><td>:</td><td>${safeJk}</td></tr>
+          <tr><td></td><td>Tempat/Tanggal Lahir</td><td>:</td><td>${safeTtl}</td></tr>
+          <tr><td></td><td>No. KTP</td><td>:</td><td>${safeKtp}</td></tr>
+          <tr><td></td><td style="vertical-align:top;">Alamat Sesuai KTP</td><td style="vertical-align:top;">:</td><td>${safeAlamat}</td></tr>
+        </table>
+        <p style="margin-left:25px; margin-bottom:20px;">Bertindak untuk dan atas nama pribadi dan diri sendiri, selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong></p>
+        
+        <p>Bahwa berdasar order, adanya suatu pekerjaan yang bersifat sementara dari PT GODA TECHNOLOGY GROUP dengan PIHAK PERTAMA, yang dituangkan dalam Perjanjian Kerja Sama (PKS), maka PIHAK PERTAMA dan PIHAK KEDUA secara sukarela mengikatkan diri untuk mengerjakan tugas / pekerjaan tersebut dengan Perjanjian Kerja Waktu Tertentu ini.</p>
+        <p>Bahwa PIHAK PERTAMA dan PIHAK KEDUA menyadari betul Perjanjian Kerja Waktu Tertentu ini sangat tergantung dari kondisi order/SPK dan atau sesuai yang tersirat pada ketentuan pasal 9 ayat (3) Peraturan Pemerintah Republik Indonesia Nomor 35 Tahun 2021, apabila pekerjaan diselesaikan lebih cepat maka PKWT ini putus demi hukum pada saat selesainya pekerjaan.</p>
+        <p>Atas dasar uraian diatas tersebut maka kedua belah pihak sepakat untuk mengadakan Perjanjian Kerja Waktu Tertentu (PKWT) dengan syarat dan ketentuan sebagai berikut :</p>
+        
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 1<br>Pengikatan Diri dan Jangka Waktu Perjanjian</strong>
+          <p>Sejak ditandatanganinya Perjanjian Kerja Waktu Tertentu ini, PIHAK KEDUA menyatakan:</p>
+          <ol>
+            <li>Mengikatkan diri sebagai Karyawan PT SHELTER INDONESIA GEMILANG di posisi <strong>${safeJabatan}</strong> yang sudah memahami tugas dan pekerjaannya secara profesional dan jika dibutuhkan siap untuk bekerja lembur/over time.</li>
+            <li>Tidak lagi terikat dengan Perjanjian Kerja dengan pihak lain.</li>
+            <li>Bersedia ditugaskan di PT GODA TECHNOLOGY GROUP dan atau dipindahtugaskan (mutasi/rotasi) dimana saja di klien/customer/pengguna jasa PIHAK PERTAMA dengan posisi/ jabatan sesuai kebutuhan, situasi dan kondisi serta kebijakan PIHAK PERTAMA.</li>
+            <li>Apabila PIHAK KEDUA menyatakan bersedia untuk ditempatkan dan/atau dimutasi ke lokasi kerja yang ditentukan oleh perusahaan sesuai kebutuhan. Penolakan tanpa alasan yang sah akan dikenakan evaluasi kinerja dan dapat diproses sesuai ketentuan hukum yang berlaku.</li>
+            <li>Apabila PIHAK KEDUA tidak melaksanakan tugas kerja dengan maksimal sesuai yang ditargetkan (tidak perform), PIHAK KEDUA bersedia dan ikhlas mengundurkan diri.</li>
+            <li>Perjanjian ini terhitung mulai tanggal <strong>${safeTglMulai}</strong> sampai dengan <strong>20 Mei 2027</strong>.</li>
+            ${insentifPoint}
+          </ol>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 2<br>Upah</strong>
+          <p>Dalam masa berlakunya perjanjian ini, upah yang diberikan PIHAK PERTAMA kepada PIHAK KEDUA adalah sebagai berikut :</p>
+          <ol style="list-style-type: lower-alpha;">
+            <li>Gaji Pokok : <strong>${safeGaji}</strong> per bulan</li>
+            <li>Upah PIHAK KEDUA dapat berubah sesuai dengan penempatan karyawan.</li>
+            <li>Periode perhitungan upah (cut off) adalah tanggal 16 sampai dengan tanggal 15 bulan berikutnya.</li>
+            <li>Pembayaran upah kepada PIHAK KEDUA dilakukan pada tanggal 01 tiap bulannya. Bilamana hari pembayaran upah PIHAK KEDUA jatuh pada hari libur atau hari libur resmi yang telah ditetapkan oleh pemerintah, maka pembayaran upah PIHAK KEDUA dilakukan pada hari kerja setelah hari libur tersebut berakhir.</li>
+            <li>Bila PIHAK KEDUA tidak masuk kerja, maka upah pada hari itu tidak dibayarkan oleh PIHAK PERTAMA atau bersifat no work no pay.</li>
+            <li>Dalam hal PIHAK KEDUA tidak mencapai target kerja minimum yang telah ditentukan, maka insentif atau bonus dapat dikurangi atau tidak diberikan, sesuai dengan hasil evaluasi yang objektif dan terdokumentasi.</li>
+            <li>PIHAK PERTAMA setuju untuk memberikan Tunjangan Hari Raya Keagamaan (THR) sesuai dengan agama yang dianut oleh PIHAK KEDUA yang akan dibayarkan menjelang Hari Raya Idul Fitri dengan ketentuan sebagai berikut:<br>
+                - Jika PIHAK KEDUA memiliki masa kerja kurang dari 1 (satu) bulan, maka PIHAK KEDUA tidak mendapatkan THR<br>
+                - Jika PIHAK KEDUA telah memiliki masa kerja lebih dari 1 (satu) bulan secara terus menerus tetapi kurang dari 1 (satu) tahun, maka PIHAK KEDUA akan menerima THR secara proporsional dengan perhitungan sebagai berikut: {(masa kerja : 12) x gaji pokok)}<br>
+                - Jika PIHAK KEDUA telah memiliki masa kerja 12 (dua belas) bulan secara terus menerus, maka PIHAK KEDUA akan menerima THR sebesar 1 x gaji pokok<br>
+                - Apabila PIHAK KEDUA tidak ada hubungan kerja dengan PIHAK PERTAMA di saat Hari Raya Idul Fitri maka PIHAK KEDUA tidak berhak mendapatkan Tunjangan Hari Raya Keagamaan (THR).</li>
+            <li>Pajak penghasilan (PPh 21) dan pajak lain yang timbul akibat PKWT ini dibayar oleh PIHAK KEDUA dan disetor oleh PIHAK PERTAMA kepada Kas Negara sesuai dengan perundang-undangan yg berlaku.</li>
+          </ol>
+        </div>
+        
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 3<br>BPJS Ketenagakerjaan dan BPJS Kesehatan</strong>
+          <p>PIHAK PERTAMA mendaftarkan PIHAK KEDUA dalam asuransi program BPJS Ketenagakerjaan dan BPJS Kesehatan dengan rincian sebagai berikut:</p>
+          <p>BPJS KETENAGAKERJAAN :<br>
+          1. Jaminan Kecelakaan Kerja (JKK) : Perusahaan 0.24%<br>
+          2. Jaminan Kematian (JKM) : Perusahaan 0.30%</p>
+          <p>BPJS KESEHATAN :<br>
+          1. Jaminan Kesehatan : Perusahaan 4%, Karyawan 1%</p>
+          <p>Iuran BPJS Ketenagakerjaan dihitung berdasarkan gaji pokok sedangkan iuran BPJS Kesehatan dihitung berdasarkan UMK yang berlaku</p>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 4<br>Ketidakhadiran</strong>
+          <ol>
+            <li>Jika PIHAK KEDUA berhalangan hadir karena sakit, maka yang bersangkutan wajib memberitahukan kepada atasannya sekurang-kurangnya 4 (empat) jam sebelum masuk kerja dan menyerahkan surat keterangan dokter pada saat kembali masuk kerja.</li>
+            <li>Apabila PIHAK KEDUA berhalangan hadir untuk suatu urusan pribadi atau karena sebab lain yang sangat penting dan mendesak, maka PIHAK KEDUA harus mendapatkan persetujuan terlebih dahulu dari atasannya sekurang – kurangnya 1 (satu) hari sebelumnya.</li>
+            <li>Apabila PIHAK KEDUA tidak hadir tanpa pemberitahuan atau suatu alasan yang dapat diterima, dinyatakan mangkir oleh perusahaan. Jika selama 5 (lima) hari kerja berturut – turut dan telah dipanggil secara layak sebanyak 2 (dua) kali, maka PIHAK KEDUA dikualifikasikan mengundurkan diri dan perjanjian ini batal demi hukum, dan bagi PIHAK KEDUA tetap dikenakan sanksi/kewajiban sesuai ketentuan PIHAK PERTAMA dan tanpa kompensasi apapun.</li>
+          </ol>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 5<br>Tata Tertib dan Syarat – Syarat Kerja</strong>
+          <p>PIHAK KEDUA telah menyetujui untuk memenuhi kewajiban dengan jujur, profesional, disiplin dan penuh rasa tanggung jawab serta patuh atas ketentuan sebagai berikut :</p>
+          <ol>
+            <li>Akan selalu menjaga rahasia perusahaan dan pengguna jasa, dan tidak akan membocorkan kepada PIHAK lain selama berlakunya dan sesudah berakhirnya perjanjian ini. Hal – hal yang bersifat rahasia semata – mata ditentukan oleh PIHAK PERTAMA.</li>
+            <li>Menghormati hubungan kerja dengan pengguna jasa PIHAK PERTAMA dengan cara:<br>
+                - Selalu siap siaga di tempat tugas, di saat jam tugas maupun di luar jam tugas.<br>
+                - Menghormati, menjaga sopan santun/tata krama dan bersikap ramah terhadap pengguna jasa.<br>
+                - Mematuhi perintah pengguna jasa sepanjang tidak bertentangan dengan peraturan perusahaan PIHAK PERTAMA dan atau hukum negara.<br>
+                - Menaati dan patuh terhadap peraturan pengguna jasa.<br>
+                - Bertindak dan berlaku jujur serta senantiasa menjaga nama baik diri sendiri, nama baik perusahaan dan nama baik pengguna jasa.
+            </li>
+            <li>Pada saat bertugas PIHAK KEDUA wajib untuk :<br>
+                - Disiplin dan mematuhi semua peraturan dan SOP yang berlaku.<br>
+                - Mematuhi schedule / hari kerja dan jam kerja yang berlaku, dimana PIHAK KEDUA ditempatkan.<br>
+                - Tidak diperbolehkan membawa handphone, rokok dan korek api kecuali ada peraturan pengguna jasa yang memperbolehkan.<br>
+                - Tertib dan sopan menjunjung tinggi kehormatan diri.<br>
+                - Tidak bekerja atau mengikatkan diri pada PIHAK ketiga/PIHAK lain.<br>
+                - Melaksanakan tugas pokok dan tugas kerja sesuai ketentuan.<br>
+                - Tidak meminta imbalan atau menerima hadiah dalam bentuk apapun untuk pelayanan yang diberikan.
+            </li>
+            <li>Melaporkan kepada atasan dengan segera apabila terjadi sesuatu hal yang menyimpang atau akan dapat membahayakan diri atau kejadian –kejadian lainnya yang dapat menimbulkan kerugian baik secara langsung maupun tidak langsung bagi pengguna jasa maupun perusahaan PIHAK PERTAMA.</li>
+          </ol>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 6<br>Pengunduran Diri dan Berakhirnya Perjanjian</strong>
+          <ol>
+            <li>Kedua belah PIHAK sepakat untuk mengikatkan diri melalui perjanjian kerja ini sesuai waktu yang telah disepakati. Namun demikian apabila PIHAK KEDUA berniat mengakhiri perjanjian kerja sebelum waktunya, atau tidak ingin memperpanjang perjanjian kerja setelah habis waktunya, surat pemberitahuan harus sudah diserahkan kepada PIHAK PERTAMA oleh PIHAK KEDUA selambat lambatnya 30 hari kerja, sebelum tanggal efektif pengakhiran hubungan kerja.</li>
+            <li>Perjanjian kerja ini akan berakhir dengan sendirinya karena satu atau lain hal sebagai berikut :<br>
+                - PIHAK KEDUA meninggal dunia;<br>
+                - Berakhirnya jangka waktu perjanjian kerja ini;<br>
+                - Pekerjaan telah selesai dan/atau tidak ada barang atau produk yang dikerjakan lagi sebelum berakhirnya waktu perjanjian kerja;<br>
+                - PIHAK KEDUA melakukan Pelanggaran Tata Tertib, SOP dan/atau Peraturan Perusahaan (PP);<br>
+                - Apabila PIHAK KEDUA tidak hadir bekerja selama 5 (lima) hari kerja berturut-turut tanpa keterangan sah;<br>
+                - Dalam penilaian kinerja, PIHAK KEDUA tidak dapat memenuhi standar penilaian;<br>
+                - Adanya keadaan memaksa (force majeure);<br>
+                - PIHAK KEDUA melakukan Pelanggaran Bersifat Mendesak (Pencurian, penipuan, mabuk, asusila, berkelahi, dsb);<br>
+                - PIHAK KEDUA memasuki usia pensiun atau di bawah umur;<br>
+                - Perjanjian kerja antara PIHAK PERTAMA dengan klien habis/diakhiri;<br>
+                - Klien mengurangi jumlah tenaga kerja yang dipesan.
+            </li>
+          </ol>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 7<br>FORCE MAJEUR</strong>
+          <ol>
+            <li>Keadaan memaksa (force majeur) adalah keadaan yang terjadi di luar kekuasaan kedua belah PIHAK...</li>
+            <li>Ketika terjadinya force majeur, maka PIHAK yang mengalami harus memberitahu pada PIHAK lain...</li>
+            <li>PIHAK PERTAMA tidak mempunyai kewajiban untuk melakukan pembayaran pada PIHAK KEDUA apabila terjadi force majeur.</li>
+            <li>PIHAK KEDUA juga bersedia dan sepakat tidak akan menuntut upah apabila terjadi force majeur.</li>
+          </ol>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 8<br>Ketentuan Lain-lain</strong>
+          <ol>
+            <li>PIHAK KEDUA berkewajiban mengganti kerusakan material atau kerugian finansial yang diderita PIHAK PERTAMA dan atau klien PIHAK PERTAMA... Pembayaran ganti rugi dapat dilakukan secara cash dan atau memotong upah terakhir.</li>
+            <li>PKWT ini hanya dapat dirubah atau direvisi berdasarkan kesepakatan tertulis...</li>
+            <li>Bahwa apabila perjanjian kerjasama antara PT GODA dengan PT SHELTER tidak diperpanjang lagi, PIHAK KEDUA akan mendapatkan pengalihan perlindungan hak-hak...</li>
+            <li>PIHAK KEDUA bertanggung jawab atas kerugian yang timbul karena kesalahan atau kelalaian... dan setuju untuk dilakukan pemotongan gaji terakhir...</li>
+          </ol>
+        </div>
+        
+        <div style="margin-top: 15px;">
+          <strong style="display:block; text-align:center;">Pasal - 9<br>Penutup</strong>
+          <p>Perjanjian Kerja Waktu Tertentu ini dibuat oleh kedua belah PIHAK atas dasar SUKARELA, tidak ada unsur paksaan atau penekanan oleh PIHAK manapun, telah dibaca secara seksama oleh kedua belah PIHAK dan telah dimengerti dan dipahami.</p>
+          <p>PIHAK KEDUA menyadari sepenuhnya bahwa pekerjaan yang diterima oleh PIHAK PERTAMA dari klien/customer/pengguna jasa adalah pekerjaan yang bersifat sekali selesai, sementara, untuk waktu tertentu saja. Oleh sebab itu berdasarkan Perjanjian Kerja Waktu Tertentu ini PIHAK KEDUA sepakat dan setuju serta telah menyadari tidak akan menuntut/memberikan tuntutan pada PIHAK PERTAMA berupa apapun... Dan dengan demikian PIHAK KEDUA tetap sanggup bekerja sebagai karyawan PKWT, hanya bekerja untuk waktu tertentu saja.</p>
+        </div>
+        
+        <p style="text-align:right; margin-top:30px;">Ditandatangani di ${safeKotaTtd}, ${safeTglTtd}</p>
+        <table style="width:100%; text-align:center; margin-top:10px;">
+          <tr>
+            <td style="width:50%;"><strong>PIHAK PERTAMA</strong><br><br><br><br><br>JONO PANGOLAH<br>Kuasa Direksi</td>
+            <td style="width:50%;"><strong>PIHAK KEDUA</strong><br><br><div id="ttd-pihak-kedua-1"><br><br><br><strong>${safeNama}</strong></div></td>
+          </tr>
+        </table>
+        
+        <hr style="margin: 40px 0; border: 1px solid #000;">
+        
+        <!-- HALAMAN PERJANJIAN BERSAMA -->
+        <h2 style="text-align:center; font-size: 16px; text-decoration:underline;">PERJANJIAN BERSAMA</h2>
+        <p>Yang bertanda tangan di bawah ini:</p>
+        <table style="width:100%; border:none; margin-bottom: 10px;">
+          <tr><td style="width:20px; vertical-align:top;">1.</td><td colspan="3">PT SHELTER INDONESIA GEMILANG, diwakili oleh;</td></tr>
+          <tr><td></td><td style="width:150px;">Nama Lengkap</td><td style="width:10px;">:</td><td>JONO PANGOLAH</td></tr>
+          <tr><td></td><td>Jabatan</td><td>:</td><td>PLT BRANCH MANAGER</td></tr>
+          <tr><td></td><td colspan="3">Disebut juga sebagai Pihak Pertama.</td></tr>
+        </table>
+        <table style="width:100%; border:none; margin-bottom: 10px;">
+          <tr><td style="width:20px; vertical-align:top;">2.</td><td style="width:150px;">Nama Lengkap</td><td style="width:10px;">:</td><td><strong>${safeNama}</strong></td></tr>
+          <tr><td></td><td>No. KTP</td><td>:</td><td>${safeKtp}</td></tr>
+          <tr><td></td><td colspan="3">Karyawan PT SHELTER INDONESIA GEMILANG dengan kontrak kerja PKWT.<br>Disebut juga sebagai Pihak Kedua.</td></tr>
+        </table>
+        <p>Pihak Pertama dan Pihak Kedua sepakat dan saling mengikatkan diri menentukan isi Perjanjian Bersama mengenai hal-hal sebagai berikut :</p>
+        <ol>
+          <li><strong>Pelepasan Hak Uang Kompensasi PKWT</strong><br>Pihak Kedua setuju dan bersedia untuk melepaskan haknya dan/atau tidak menerima Uang Kompensasi PKWT.</li>
+          <li><strong>Pelepasan Hak-Hak Lain</strong><br>Pihak Kedua melepaskan semua haknya untuk melakukan upaya dan tindakan hukum secara perdata maupun pidana pada Pihak Pertama...</li>
+          <li><strong>Persetujuan Mengundurkan Diri apabila Tidak Perform</strong><br>Apabila Pihak Kedua tidak melaksanakan tugas kerja dengan maksimal, Pihak Kedua bersedia dan ikhlas mengundurkan diri.</li>
+          <li><strong>Perlindungan nama baik</strong><br>PIHAK KEDUA dilarang menyebarkan informasi negatif atau merugikan nama baik perusahaan.</li>
+          <li><strong>Penutup</strong><br>Pihak Pertama dan Pihak Kedua sepakat untuk melaksanakan isi kesepakatan ini dengan penuh kesadaran dan tanggung jawab...</li>
+        </ol>
+        
+        <table style="width:100%; text-align:center; margin-top:30px;">
+          <tr>
+            <td style="width:50%;">Pihak Kedua,<br><br><div id="ttd-pihak-kedua-2"><br><br><br><strong>${safeNama}</strong></div></td>
+            <td style="width:50%;">Pihak Pertama<br>PT SHELTER INDONESIA GEMILANG,<br><br><br><br>JONO PANGOLAH</td>
+          </tr>
+        </table>
+
+        <hr style="margin: 40px 0; border: 1px solid #000;">
+        
+        <!-- HALAMAN SURAT PERNYATAAN -->
+        <h2 style="text-align:center; font-size: 16px; text-decoration:underline;">SURAT PERNYATAAN</h2>
+        <p>Yang bertanda tangan di bawah ini:</p>
+        <table style="width:100%; border:none; margin-bottom: 15px;">
+          <tr><td style="width:150px;">Nama Lengkap</td><td style="width:10px;">:</td><td><strong>${safeNama}</strong></td></tr>
+          <tr><td>Jenis Kelamin</td><td>:</td><td>${safeJk}</td></tr>
+          <tr><td>Tempat/Tanggal Lahir</td><td>:</td><td>${safeTtl}</td></tr>
+          <tr><td>No. KTP</td><td>:</td><td>${safeKtp}</td></tr>
+          <tr><td style="vertical-align:top;">Alamat</td><td style="vertical-align:top;">:</td><td>${safeAlamat}</td></tr>
+        </table>
+        <p>Dengan ini, saya menyatakan bahwa:</p>
+        <ol>
+          <li>Saya memahami, setuju dan menerima semua yang tertuang di dalam Perjanjian Kerja Waktu Tertentu (PKWT) dan Perjanjian Bersama (PB) yang telah saya tanda tangani sebagai Pihak Kedua dengan PT SHELTER INDONESIA GEMILANG sebagai Pihak Pertama.</li>
+          <li>Apabila saya tidak melaksanakan tugas kerja dengan maksimal sesuai yang ditargetkan (tidak perform), saya bersedia dan ikhlas mengundurkan diri.</li>
+          <li>Saya bertanggungjawab untuk mengganti kerugian pada perusahaan maupun pihak lain atas kesalahan saya walaupun sudah tidak bekerja di PT SHELTER INDONESIA GEMILANG.</li>
+        </ol>
+        <p>Demikian pernyataan ini saya buat dengan kesadaran penuh (sehat jasmani dan rohani) serta tanpa ada tekanan dan paksaan dari pihak manapun.</p>
+        <p style="text-align:right; margin-top:30px;">${safeKotaTtd}, ${safeTglTtd}<br>Yang Membuat Pernyataan<br><br><div id="ttd-pihak-kedua-3"><br><br><br><strong>${safeNama}</strong></div></p>
+      `;
+}
+
+(function mulai() {
+  if (!MODE_GAS && 'serviceWorker' in navigator && location.protocol === 'https:') { navigator.serviceWorker.register('sw.js').catch(function () {}); }
+  var sesi = null; try { sesi = JSON.parse(baca('emp_sesi') || 'null'); } catch (e) {}
+  if (sesi && sesi.t) { S.token = sesi.t; S.nama = sesi.n || ''; masukAplikasi(); }
+})();
+</script>
+</body>
+</html>
