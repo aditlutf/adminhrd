@@ -69,9 +69,32 @@ textarea.input{min-height:84px;resize:vertical}
 .chip{min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line-strong);background:var(--surface);font-weight:600;font-size:14.5px;color:var(--ink-2);transition:all var(--cepat)}
 .chip[aria-checked="true"]{border-color:var(--navy-3);background:var(--navy-tint);color:var(--navy-3)}
 .chips.salah .chip{border-color:var(--bad)}
-.cek{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);cursor:pointer;font-size:14px}
-.cek input{width:20px;height:20px;margin-top:1px;accent-color:var(--navy-3);flex-shrink:0}
+.cek,.field>label.cek{position:relative;display:flex;gap:12px;align-items:flex-start;margin:0;padding:13px 14px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--surface);cursor:pointer;font-size:14.5px;line-height:1.45;font-weight:500;color:var(--ink-2);transition:border-color var(--cepat),background var(--cepat)}
+.cek input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.cek .kotak{width:22px;height:22px;border-radius:7px;border:2px solid var(--line-strong);background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;transition:all var(--cepat)}
+.cek .kotak .i{width:15px;height:15px;stroke-width:3;opacity:0;transform:scale(.6);transition:all var(--cepat)}
+.cek .teks-cek{padding-top:1px}
+.cek:has(input:checked){border-color:var(--navy-3);background:var(--navy-tint);color:var(--ink)}
+.cek input:checked + .kotak{background:var(--navy-3);border-color:var(--navy-3)}
+.cek input:checked + .kotak .i{opacity:1;transform:none}
+.cek input:focus-visible + .kotak{outline:2.5px solid var(--orange);outline-offset:2px}
 .cek.salah{border-color:var(--bad)}
+.blok{border:1.5px solid var(--line-strong);border-left:5px solid var(--navy-3);border-radius:14px;padding:14px 14px 2px;margin-bottom:16px;background:var(--surface)}
+.blok-judul{display:flex;align-items:center;gap:10px;font-family:var(--fh);font-size:15.5px;font-weight:700;margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid var(--line)}
+.blok-judul .tag{min-width:40px;height:26px;padding:0 8px;border-radius:8px;background:var(--navy-3);color:#fff;font-size:12.5px;letter-spacing:.03em;display:inline-flex;align-items:center;justify-content:center}
+.blok-judul .ket{margin-left:auto;font-family:var(--fb);font-size:12px;font-weight:600}
+.blok.redup{border-left-color:var(--line-strong);background:var(--surface-2)}
+.blok.redup .blok-judul .tag{background:var(--ink-3)}
+.kota{position:relative}
+.kota-daftar{margin-top:6px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);max-height:264px;overflow-y:auto;overscroll-behavior:contain}
+.kota-item{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);min-height:48px;justify-content:center}
+.kota-item:last-child{border-bottom:0}
+.kota-item b{font-weight:600;font-size:14.5px;color:var(--ink)}
+.kota-item span{font-size:12.5px;color:var(--ink-3)}
+.kota-item[aria-selected="true"],.kota-item:hover{background:var(--navy-tint)}
+.kota-item.manual b{color:var(--navy-3)}
+.kota-kosong{padding:12px 14px;font-size:13.5px;color:var(--ink-3)}
+.kota-terpilih{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:12.5px;color:var(--ok);font-weight:600}
 .subjudul{font-family:var(--fh);font-size:15px;font-weight:700;margin:6px 0 10px;padding-top:12px;border-top:1px dashed var(--line)}
 .subjudul:first-child{border-top:0;padding-top:0;margin-top:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px;border:1.5px solid transparent;transition:background var(--cepat),transform var(--cepat)}
@@ -184,12 +207,11 @@ textarea.input{min-height:84px;resize:vertical}
 var KONFIG = window.HRD_KONFIG || {};
 var MODE_GAS = !!(window.google && google.script && google.script.run);
 var API_URL = String(KONFIG.API_URL || '');
-var URL_EMPLOYEE = 'https:\/\/hrdcentral.cloud/goda/employee/';
 var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 var BINTANG = '\u002a';
 var HUB = ['Ayah', 'Ibu', 'Suami', 'Istri', 'Anak', 'Kakak', 'Adik', 'Saudara', 'Lainnya'];
 var BERKAS = { foto: ['Pas foto', 'Foto formal terbaru, wajah terlihat jelas. Otomatis diperkecil agar pas di CV.'], ktp: ['Foto KTP', 'Foto KTP asli, semua tulisan terbaca.'], kk: ['Kartu Keluarga (KK)', 'Foto atau PDF Kartu Keluarga.'], rek: ['Bukti rekening Mandiri', 'Screenshot Livin’ by Mandiri atau foto buku tabungan yang menampilkan nomor & nama.'] };
-var S = { token: '', id: '', namaData: '', ditemukan: false, penempatan: null, data: { kel: [{}, {}, {}] }, berkas: {}, langkah: 0, kotor: false, simpanTerakhir: '', sibukKirim: false };
+var S = { token: '', id: '', namaData: '', ditemukan: false, penempatan: null, data: { kel: [{}, {}, {}] }, berkas: {}, ketik: {}, langkah: 0, kotor: false, simpanTerakhir: '', sibukKirim: false };
 
 function $(s, el) { return (el || document).querySelector(s); }
 function $$(s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); }
@@ -233,12 +255,12 @@ var LANGKAH = [
     { k: 'statusKawin', l: 'Status perkawinan', t: 'pilih', o: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'], w: 1 },
     { k: 'jmlAnak', l: 'Jumlah anak', t: 'pilih', o: ['Tidak Ada', '1', '2', '3', '4', '5'], w: 1 },
     { k: 'warga', l: 'Kewarganegaraan', t: 'pilih', o: ['Indonesia', 'WNA'], w: 1 },
-    { k: 'daerahAsal', l: 'Daerah asal', t: 'teks', w: 0, max: 60, ph: 'Kota / kabupaten asal' },
+    { k: 'daerahAsal', l: 'Kota domisili (tempat tinggal)', t: 'kota', w: 1, bantu: 'Ketik lalu pilih dari daftar. Bila tidak ada, pilih "Tambahkan manual".' },
     { k: 'ibuKandung', l: 'Nama ibu kandung', t: 'teks', w: 1, max: 100, bantu: 'Dipakai untuk pendaftaran BPJS dan bank.' }
   ] },
   { judul: 'KTP & alamat', sub: 'Pastikan sama persis dengan KTP', isian: [
     { k: 'nik', l: 'NIK KTP', t: 'angka', w: 1, max: 16, bantu: '16 digit angka di KTP.', cek: function (v) { return /^\d{16}$/.test(v) ? '' : 'NIK harus 16 digit angka.'; } },
-    { k: 'tempatLahir', l: 'Tempat lahir', t: 'teks', w: 1, max: 60, ph: 'Contoh: Semarang' },
+    { k: 'tempatLahir', l: 'Tempat lahir', t: 'kota', w: 1, ph: 'Ketik kota / kabupaten kelahiran', bantu: 'Sesuai KTP. Bila tidak ada di daftar, pilih "Tambahkan manual".' },
     { k: 'tglLahir', l: 'Tanggal lahir', t: 'tanggal', w: 1, cek: function (v) { var u = umur(v); return u === null ? 'Tanggal tidak valid.' : (u < 15 || u > 70 ? 'Periksa kembali tahun lahir.' : ''); } },
     { k: 'alamatKtp', l: 'Alamat sesuai KTP', t: 'area', w: 1, max: 300, ph: 'Jalan, RT/RW, kelurahan, kecamatan, kota' },
     { k: 'domisiliSama', l: 'Alamat tinggal sekarang sama dengan alamat KTP', t: 'cek' },
@@ -246,23 +268,33 @@ var LANGKAH = [
   ] },
   { judul: 'Kontak', sub: 'Nomor aktif & kontak darurat', isian: [
     { k: 'noWa', l: 'Nomor WhatsApp aktif', t: 'tel', w: 1, max: 15, cek: cekHp },
-    { k: 'email', l: 'Email', t: 'email', w: 0, max: 100, cek: function (v) { return !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Format email tidak valid.'; } },
-    { grup: 'Kontak darurat', bantu: 'Keluarga inti atau kerabat dekat yang bisa dihubungi saat keadaan darurat.' },
+    { k: 'email', l: 'Email', t: 'email', w: 1, max: 100, ph: 'nama@gmail.com', cek: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Format email tidak valid (contoh nama@gmail.com).'; } },
+    { grup: 'Kontak darurat', info: 'Kontak darurat adalah orang yang akan <b>segera dihubungi perusahaan</b> apabila terjadi keadaan darurat yang menimpa Anda, misalnya <b>kecelakaan kerja</b>, sakit mendadak saat bertugas, atau kondisi lain yang membutuhkan keputusan keluarga. Cantumkan keluarga inti atau kerabat dekat yang <b>nomornya selalu aktif</b> dan sudah mengetahui bahwa namanya didaftarkan sebagai kontak darurat Anda.' },
     { k: 'darNama', l: 'Nama kontak darurat', t: 'teks', w: 1, max: 100 },
     { k: 'darHub', l: 'Hubungan dengan Anda', t: 'pilih', o: HUB, w: 1 },
     { k: 'darHubLain', l: 'Tulis hubungan', t: 'teks', w: 1, max: 40, jika: function (d) { return d.darHub === 'Lainnya'; } },
     { k: 'darNo', l: 'Nomor telepon kontak darurat', t: 'tel', w: 1, max: 15, cek: function (v, d) { var c = cekHp(v); if (c) return c; return normHp(v) === normHp(d.noWa) ? 'Nomor darurat harus berbeda dengan nomor Anda.' : ''; } }
   ] },
-  { judul: 'Pendidikan', sub: 'Isi yang pernah ditempuh', isian: [
-    { grup: 'SD / sederajat' }, { k: 'sdNama', l: 'Nama sekolah', t: 'teks', w: 0, max: 100 }, { tahun: 'sd' },
-    { grup: 'SMP / sederajat' }, { k: 'smpNama', l: 'Nama sekolah', t: 'teks', w: 0, max: 100 }, { tahun: 'smp' },
-    { grup: 'SMA / SMK / sederajat' }, { k: 'smaNama', l: 'Nama sekolah', t: 'teks', w: 0, max: 100, ph: 'Contoh: SMK Negeri 1 Semarang' }, { k: 'smaJurusan', l: 'Jurusan', t: 'teks', w: 0, max: 60 }, { tahun: 'sma' },
-    { grup: 'Diploma / perguruan tinggi' }, { k: 'ptAda', l: 'Saya pernah kuliah / diploma', t: 'cek' },
-    { k: 'ptJenjang', l: 'Jenjang', t: 'pilih', o: ['D1', 'D2', 'D3', 'D4', 'S1', 'S2'], w: 1, jika: function (d) { return ya(d.ptAda); } },
-    { k: 'ptNama', l: 'Nama kampus', t: 'teks', w: 1, max: 120, jika: function (d) { return ya(d.ptAda); } },
-    { k: 'ptJurusan', l: 'Jurusan', t: 'teks', w: 0, max: 80, jika: function (d) { return ya(d.ptAda); } },
-    { tahun: 'pt', jika: function (d) { return ya(d.ptAda); } }
-  ], cekLangkah: function (d) { return (d.sdNama || d.smpNama || d.smaNama || (ya(d.ptAda) && d.ptNama)) ? '' : 'Isi minimal satu riwayat sekolah.'; } },
+  { judul: 'Pendidikan', sub: 'Isi berurutan mulai dari SD', isian: [
+    { blok: 'SD / sederajat', tag: 'SD' },
+    { k: 'sdNama', l: 'Nama sekolah', t: 'teks', w: 1, max: 100, ph: 'Contoh: SD Negeri 1 Semarang' }, { tahun: 'sd', w: 1 },
+    { blokAkhir: 1 },
+    { blok: 'SMP / sederajat', tag: 'SMP', jika: lanjutSmp0, redup: function (d) { return ya(d.hanyaSd); } },
+    { k: 'smpNama', l: 'Nama sekolah', t: 'teks', w: 1, max: 100, ph: 'Contoh: SMP Negeri 2 Semarang', jika: lanjutSmp }, { tahun: 'smp', w: 1, jika: lanjutSmp },
+    { k: 'hanyaSd', l: 'Saya adalah lulusan Sekolah Dasar (tidak melanjutkan ke SMP)', t: 'cek', ringkas: ['SMP / sederajat', 'Tidak melanjutkan (lulusan SD)'] },
+    { blokAkhir: 1, jika: lanjutSmp0 },
+    { blok: 'SMA / SMK / sederajat', tag: 'SMA', jika: lanjutSmp, redup: function (d) { return ya(d.hanyaSmp); } },
+    { k: 'smaNama', l: 'Nama sekolah', t: 'teks', w: 1, max: 100, ph: 'Contoh: SMK Negeri 1 Semarang', jika: lanjutSma }, { k: 'smaJurusan', l: 'Jurusan', t: 'teks', w: 0, max: 60, ph: 'Contoh: IPA, IPS, Teknik Otomotif', jika: lanjutSma }, { tahun: 'sma', w: 1, jika: lanjutSma },
+    { k: 'hanyaSmp', l: 'Saya adalah lulusan Sekolah Menengah Pertama (tidak melanjutkan ke SMA/SMK)', t: 'cek', jika: lanjutSmp, ringkas: ['SMA / SMK / sederajat', 'Tidak melanjutkan (lulusan SMP)'] },
+    { blokAkhir: 1, jika: lanjutSmp },
+    { blok: 'Diploma / perguruan tinggi', tag: 'PT', ket: 'opsional', jika: lanjutSma },
+    { k: 'ptAda', l: 'Saya pernah kuliah / menempuh pendidikan diploma', t: 'cek', jika: lanjutSma },
+    { k: 'ptJenjang', l: 'Jenjang', t: 'pilih', o: ['D1', 'D2', 'D3', 'D4', 'S1', 'S2'], w: 1, jika: kuliah },
+    { k: 'ptNama', l: 'Nama kampus', t: 'teks', w: 1, max: 120, jika: kuliah },
+    { k: 'ptJurusan', l: 'Jurusan', t: 'teks', w: 0, max: 80, jika: kuliah },
+    { tahun: 'pt', jika: kuliah },
+    { blokAkhir: 1, jika: lanjutSma }
+  ] },
   { judul: 'Pengalaman kerja', sub: 'Dua pekerjaan terakhir (bila ada)', isian: [
     { k: 'kerjaAda', l: 'Pengalaman kerja sebelumnya', t: 'pilih', o: ['Belum pernah bekerja', 'Pernah bekerja'], nilai: ['false', 'true'], w: 1 },
     { grup: 'Pekerjaan 1 (terakhir)', jika: kerja }, { k: 'k1Perusahaan', l: 'Nama perusahaan', t: 'teks', w: 1, max: 100, jika: kerja },
@@ -276,20 +308,81 @@ var LANGKAH = [
   ] },
   { judul: 'Anggota keluarga', sub: 'Minimal satu (ayah, ibu, pasangan, atau anak)', keluarga: true },
   { judul: 'Rekening gaji', sub: 'Gaji dibayarkan ke Bank Mandiri atas nama Anda', isian: [
-    { info: 'Gaji karyawan Shelter x Goda <b>wajib</b> ke rekening <b>Bank Mandiri atas nama Anda sendiri</b>. Belum punya? Centang di bawah; Anda wajib membukanya sebelum tanggal 10.' },
+    { info: 'Gaji Karyawan <b>Wajib</b> melalui rekening <b>Bank Mandiri atas nama sendiri</b>. Belum punya? Centang di bawah; Anda wajib membukanya <b>sebelum tanggal 10</b>.' },
     { k: 'belumMandiri', l: 'Saya belum punya rekening Bank Mandiri', t: 'cek' },
-    { k: 'rekMandiri', l: 'Nomor rekening Bank Mandiri', t: 'angka', w: 1, max: 20, jika: function (d) { return !ya(d.belumMandiri); }, cek: function (v) { return /^\d{10,16}$/.test(v) ? '' : 'Nomor rekening Mandiri biasanya 13 digit angka.'; } },
+    { k: 'rekMandiri', l: 'Nomor rekening Bank Mandiri', t: 'angka', w: 1, max: 20, jika: punyaMandiri, cek: function (v) { return /^\d{10,16}$/.test(v) ? '' : 'Nomor rekening Mandiri biasanya 13 digit angka.'; } },
+    { berkas: 'rek', jika: punyaMandiri },
     { k: 'rekBca', l: 'Nomor rekening BCA', t: 'angka', w: 0, max: 20, bantu: 'Boleh dikosongkan.' }
   ] },
-  { judul: 'Unggah berkas', sub: 'Foto langsung dari kamera HP juga bisa', berkasLangkah: true },
+  { judul: 'Unggah berkas', sub: 'Pas foto, KTP, dan Kartu Keluarga', berkasLangkah: true },
   { judul: 'Periksa & kirim', sub: 'Pastikan semua data sudah benar', ringkasan: true }
 ];
 function kerja(d) { return ya(d.kerjaAda); }
+function lanjutSmp0() { return true; }
+function lanjutSmp(d) { return !ya(d.hanyaSd); }
+function lanjutSma(d) { return !ya(d.hanyaSd) && !ya(d.hanyaSmp); }
+function kuliah(d) { return lanjutSma(d) && ya(d.ptAda); }
+function punyaMandiri(d) { return !ya(d.belumMandiri); }
+var BERKAS_UNGGAH = ['foto', 'ktp', 'kk'];
 function normHp(v) { var p = String(v || '').replace(/\D/g, ''); if (p.indexOf('62') === 0) p = '0' + p.slice(2); if (p.indexOf('8') === 0) p = '0' + p; return p; }
 function cekHp(v) { var p = normHp(v); return /^08\d{7,12}$/.test(p) ? '' : 'Nomor HP tidak valid (contoh 081234567890).'; }
 function umur(iso) { var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); if (!m) return null; var d = new Date(+m[1], +m[2] - 1, +m[3]); if (isNaN(d.getTime())) return null; var s = new Date(), u = s.getFullYear() - d.getFullYear(); if (s.getMonth() < d.getMonth() || (s.getMonth() === d.getMonth() && s.getDate() < d.getDate())) u--; return u; }
 function tglIndo(iso) { var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? (+m[3]) + ' ' + BULAN[+m[2] - 1] + ' ' + m[1] : ''; }
 function tahunIni() { return new Date().getFullYear(); }
+
+var KOTA = {"prov":["Aceh","Sumatera Utara","Sumatera Barat","Riau","Jambi","Sumatera Selatan","Bengkulu","Lampung","Kepulauan Bangka Belitung","Kepulauan Riau","Daerah Khusus Ibukota Jakarta","Jawa Barat","Jawa Tengah","Daerah Istimewa Yogyakarta","Jawa Timur","Banten","Bali","Nusa Tenggara Barat","Nusa Tenggara Timur","Kalimantan Barat","Kalimantan Tengah","Kalimantan Selatan","Kalimantan Timur","Kalimantan Utara","Sulawesi Utara","Sulawesi Tengah","Sulawesi Selatan","Sulawesi Tenggara","Gorontalo","Sulawesi Barat","Maluku","Maluku Utara","Papua","Papua Barat","Papua Selatan","Papua Tengah","Papua Pegunungan","Papua Barat Daya"],"kota":["Kab. Aceh Selatan|0","Kab. Aceh Tenggara|0","Kab. Aceh Timur|0","Kab. Aceh Tengah|0","Kab. Aceh Barat|0","Kab. Aceh Besar|0","Kab. Pidie|0","Kab. Aceh Utara|0","Kab. Simeulue|0","Kab. Aceh Singkil|0","Kab. Bireuen|0","Kab. Aceh Barat Daya|0","Kab. Gayo Lues|0","Kab. Aceh Jaya|0","Kab. Nagan Raya|0","Kab. Aceh Tamiang|0","Kab. Bener Meriah|0","Kab. Pidie Jaya|0","Kota Banda Aceh|0","Kota Sabang|0","Kota Lhokseumawe|0","Kota Langsa|0","Kota Subulussalam|0","Kab. Tapanuli Tengah|1","Kab. Tapanuli Utara|1","Kab. Tapanuli Selatan|1","Kab. Nias|1","Kab. Langkat|1","Kab. Karo|1","Kab. Deli Serdang|1","Kab. Simalungun|1","Kab. Asahan|1","Kab. Labuhanbatu|1","Kab. Dairi|1","Kab. Toba|1","Kab. Mandailing Natal|1","Kab. Nias Selatan|1","Kab. Pakpak Bharat|1","Kab. Humbang Hasundutan|1","Kab. Samosir|1","Kab. Serdang Bedagai|1","Kab. Batu Bara|1","Kab. Padang Lawas Utara|1","Kab. Padang Lawas|1","Kab. Labuhanbatu Selatan|1","Kab. Labuhanbatu Utara|1","Kab. Nias Utara|1","Kab. Nias Barat|1","Kota Medan|1","Kota Pematangsiantar|1","Kota Sibolga|1","Kota Tanjungbalai|1","Kota Binjai|1","Kota Tebing Tinggi|1","Kota Padangsidimpuan|1","Kota Gunungsitoli|1","Kab. Pesisir Selatan|2","Kab. Solok|2","Kab. Sijunjung|2","Kab. Tanah Datar|2","Kab. Padang Pariaman|2","Kab. Agam|2","Kab. Lima Puluh Kota|2","Kab. Pasaman|2","Kab. Kepulauan Mentawai|2","Kab. Dharmasraya|2","Kab. Solok Selatan|2","Kab. Pasaman Barat|2","Kota Padang|2","Kota Solok|2","Kota Sawahlunto|2","Kota Padang Panjang|2","Kota Bukittinggi|2","Kota Payakumbuh|2","Kota Pariaman|2","Kab. Kampar|3","Kab. Indragiri Hulu|3","Kab. Bengkalis|3","Kab. Indragiri Hilir|3","Kab. Pelalawan|3","Kab. Rokan Hulu|3","Kab. Rokan Hilir|3","Kab. Siak|3","Kab. Kuantan Singingi|3","Kab. Kepulauan Meranti|3","Kota Pekanbaru|3","Kota Dumai|3","Kab. Kerinci|4","Kab. Merangin|4","Kab. Sarolangun|4","Kab. Batanghari|4","Kab. Muaro Jambi|4","Kab. Tanjung Jabung Barat|4","Kab. Tanjung Jabung Timur|4","Kab. Bungo|4","Kab. Tebo|4","Kota Jambi|4","Kota Sungai Penuh|4","Kab. Ogan Komering Ulu|5","Kab. Ogan Komering Ilir|5","Kab. Muara Enim|5","Kab. Lahat|5","Kab. Musi Rawas|5","Kab. Musi Banyuasin|5","Kab. Banyuasin|5","Kab. Ogan Komering Ulu Timur|5","Kab. Ogan Komering Ulu Selatan|5","Kab. Ogan Ilir|5","Kab. Empat Lawang|5","Kab. Penukal Abab Lematang Ilir|5","Kab. Musi Rawas Utara|5","Kota Palembang|5","Kota Pagar Alam|5","Kota Lubuk Linggau|5","Kota Prabumulih|5","Kab. Bengkulu Selatan|6","Kab. Rejang Lebong|6","Kab. Bengkulu Utara|6","Kab. Kaur|6","Kab. Seluma|6","Kab. Mukomuko|6","Kab. Lebong|6","Kab. Kepahiang|6","Kab. Bengkulu Tengah|6","Kota Bengkulu|6","Kab. Lampung Selatan|7","Kab. Lampung Tengah|7","Kab. Lampung Utara|7","Kab. Lampung Barat|7","Kab. Tulang Bawang|7","Kab. Tanggamus|7","Kab. Lampung Timur|7","Kab. Way Kanan|7","Kab. Pesawaran|7","Kab. Pringsewu|7","Kab. Mesuji|7","Kab. Tulang Bawang Barat|7","Kab. Pesisir Barat|7","Kota Bandar Lampung|7","Kota Metro|7","Kab. Bangka|8","Kab. Belitung|8","Kab. Bangka Selatan|8","Kab. Bangka Tengah|8","Kab. Bangka Barat|8","Kab. Belitung Timur|8","Kota Pangkal Pinang|8","Kab. Bintan|9","Kab. Karimun|9","Kab. Natuna|9","Kab. Lingga|9","Kab. Kepulauan Anambas|9","Kota Batam|9","Kota Tanjung Pinang|9","Kab. Kepulauan Seribu|10","Kota Jakarta Pusat|10","Kota Jakarta Utara|10","Kota Jakarta Barat|10","Kota Jakarta Selatan|10","Kota Jakarta Timur|10","Kab. Bogor|11","Kab. Sukabumi|11","Kab. Cianjur|11","Kab. Bandung|11","Kab. Garut|11","Kab. Tasikmalaya|11","Kab. Ciamis|11","Kab. Kuningan|11","Kab. Cirebon|11","Kab. Majalengka|11","Kab. Sumedang|11","Kab. Indramayu|11","Kab. Subang|11","Kab. Purwakarta|11","Kab. Karawang|11","Kab. Bekasi|11","Kab. Bandung Barat|11","Kab. Pangandaran|11","Kota Bogor|11","Kota Sukabumi|11","Kota Bandung|11","Kota Cirebon|11","Kota Bekasi|11","Kota Depok|11","Kota Cimahi|11","Kota Tasikmalaya|11","Kota Banjar|11","Kab. Cilacap|12","Kab. Banyumas|12","Kab. Purbalingga|12","Kab. Banjarnegara|12","Kab. Kebumen|12","Kab. Purworejo|12","Kab. Wonosobo|12","Kab. Magelang|12","Kab. Boyolali|12","Kab. Klaten|12","Kab. Sukoharjo|12","Kab. Wonogiri|12","Kab. Karanganyar|12","Kab. Sragen|12","Kab. Grobogan|12","Kab. Blora|12","Kab. Rembang|12","Kab. Pati|12","Kab. Kudus|12","Kab. Jepara|12","Kab. Demak|12","Kab. Semarang|12","Kab. Temanggung|12","Kab. Kendal|12","Kab. Batang|12","Kab. Pekalongan|12","Kab. Pemalang|12","Kab. Tegal|12","Kab. Brebes|12","Kota Magelang|12","Kota Surakarta|12","Kota Salatiga|12","Kota Semarang|12","Kota Pekalongan|12","Kota Tegal|12","Kab. Kulon Progo|13","Kab. Bantul|13","Kab. Gunungkidul|13","Kab. Sleman|13","Kota Yogyakarta|13","Kab. Pacitan|14","Kab. Ponorogo|14","Kab. Trenggalek|14","Kab. Tulungagung|14","Kab. Blitar|14","Kab. Kediri|14","Kab. Malang|14","Kab. Lumajang|14","Kab. Jember|14","Kab. Banyuwangi|14","Kab. Bondowoso|14","Kab. Situbondo|14","Kab. Probolinggo|14","Kab. Pasuruan|14","Kab. Sidoarjo|14","Kab. Mojokerto|14","Kab. Jombang|14","Kab. Nganjuk|14","Kab. Madiun|14","Kab. Magetan|14","Kab. Ngawi|14","Kab. Bojonegoro|14","Kab. Tuban|14","Kab. Lamongan|14","Kab. Gresik|14","Kab. Bangkalan|14","Kab. Sampang|14","Kab. Pamekasan|14","Kab. Sumenep|14","Kota Kediri|14","Kota Blitar|14","Kota Malang|14","Kota Probolinggo|14","Kota Pasuruan|14","Kota Mojokerto|14","Kota Madiun|14","Kota Surabaya|14","Kota Batu|14","Kab. Pandeglang|15","Kab. Lebak|15","Kab. Tangerang|15","Kab. Serang|15","Kota Tangerang|15","Kota Cilegon|15","Kota Serang|15","Kota Tangerang Selatan|15","Kab. Jembrana|16","Kab. Tabanan|16","Kab. Badung|16","Kab. Gianyar|16","Kab. Klungkung|16","Kab. Bangli|16","Kab. Karangasem|16","Kab. Buleleng|16","Kota Denpasar|16","Kab. Lombok Barat|17","Kab. Lombok Tengah|17","Kab. Lombok Timur|17","Kab. Sumbawa|17","Kab. Dompu|17","Kab. Bima|17","Kab. Sumbawa Barat|17","Kab. Lombok Utara|17","Kota Mataram|17","Kota Bima|17","Kab. Kupang|18","Kab. Timor Tengah Selatan|18","Kab. Timor Tengah Utara|18","Kab. Belu|18","Kab. Alor|18","Kab. Flores Timur|18","Kab. Sikka|18","Kab. Ende|18","Kab. Ngada|18","Kab. Manggarai|18","Kab. Sumba Timur|18","Kab. Sumba Barat|18","Kab. Lembata|18","Kab. Rote Ndao|18","Kab. Manggarai Barat|18","Kab. Nagekeo|18","Kab. Sumba Tengah|18","Kab. Sumba Barat Daya|18","Kab. Manggarai Timur|18","Kab. Sabu Raijua|18","Kab. Malaka|18","Kota Kupang|18","Kab. Sambas|19","Kab. Mempawah|19","Kab. Sanggau|19","Kab. Ketapang|19","Kab. Sintang|19","Kab. Kapuas Hulu|19","Kab. Bengkayang|19","Kab. Landak|19","Kab. Sekadau|19","Kab. Melawi|19","Kab. Kayong Utara|19","Kab. Kubu Raya|19","Kota Pontianak|19","Kota Singkawang|19","Kab. Kotawaringin Barat|20","Kab. Kotawaringin Timur|20","Kab. Kapuas|20","Kab. Barito Selatan|20","Kab. Barito Utara|20","Kab. Katingan|20","Kab. Seruyan|20","Kab. Sukamara|20","Kab. Lamandau|20","Kab. Gunung Mas|20","Kab. Pulang Pisau|20","Kab. Murung Raya|20","Kab. Barito Timur|20","Kota Palangkaraya|20","Kab. Tanah Laut|21","Kab. Kotabaru|21","Kab. Banjar|21","Kab. Barito Kuala|21","Kab. Tapin|21","Kab. Hulu Sungai Selatan|21","Kab. Hulu Sungai Tengah|21","Kab. Hulu Sungai Utara|21","Kab. Tabalong|21","Kab. Tanah Bumbu|21","Kab. Balangan|21","Kota Banjarmasin|21","Kota Banjarbaru|21","Kab. Paser|22","Kab. Kutai Kartanegara|22","Kab. Berau|22","Kab. Kutai Barat|22","Kab. Kutai Timur|22","Kab. Penajam Paser Utara|22","Kab. Mahakam Ulu|22","Kota Balikpapan|22","Kota Samarinda|22","Kota Bontang|22","Kab. Bulungan|23","Kab. Malinau|23","Kab. Nunukan|23","Kab. Tana Tidung|23","Kota Tarakan|23","Kab. Bolaang Mongondow|24","Kab. Minahasa|24","Kab. Kepulauan Sangihe|24","Kab. Kepulauan Talaud|24","Kab. Minahasa Selatan|24","Kab. Minahasa Utara|24","Kab. Minahasa Tenggara|24","Kab. Bolaang Mongondow Utara|24","Kab. Kep. Siau Tagulandang Biaro|24","Kab. Bolaang Mongondow Timur|24","Kab. Bolaang Mongondow Selatan|24","Kota Manado|24","Kota Bitung|24","Kota Tomohon|24","Kota Kotamobagu|24","Kab. Banggai|25","Kab. Poso|25","Kab. Donggala|25","Kab. Toli-Toli|25","Kab. Buol|25","Kab. Morowali|25","Kab. Banggai Kepulauan|25","Kab. Parigi Moutong|25","Kab. Tojo Una Una|25","Kab. Sigi|25","Kab. Banggai Laut|25","Kab. Morowali Utara|25","Kota Palu|25","Kab. Kepulauan Selayar|26","Kab. Bulukumba|26","Kab. Bantaeng|26","Kab. Jeneponto|26","Kab. Takalar|26","Kab. Gowa|26","Kab. Sinjai|26","Kab. Bone|26","Kab. Maros|26","Kab. Pangkajene dan Kepulauan|26","Kab. Barru|26","Kab. Soppeng|26","Kab. Wajo|26","Kab. Sidenreng Rappang|26","Kab. Pinrang|26","Kab. Enrekang|26","Kab. Luwu|26","Kab. Tana Toraja|26","Kab. Luwu Utara|26","Kab. Luwu Timur|26","Kab. Toraja Utara|26","Kota Makassar|26","Kota Parepare|26","Kota Palopo|26","Kab. Kolaka|27","Kab. Konawe|27","Kab. Muna|27","Kab. Buton|27","Kab. Konawe Selatan|27","Kab. Bombana|27","Kab. Wakatobi|27","Kab. Kolaka Utara|27","Kab. Konawe Utara|27","Kab. Buton Utara|27","Kab. Kolaka Timur|27","Kab. Konawe Kepulauan|27","Kab. Muna Barat|27","Kab. Buton Tengah|27","Kab. Buton Selatan|27","Kota Kendari|27","Kota Bau Bau|27","Kab. Gorontalo|28","Kab. Boalemo|28","Kab. Bone Bolango|28","Kab. Pohuwato|28","Kab. Gorontalo Utara|28","Kota Gorontalo|28","Kab. Pasangkayu|29","Kab. Mamuju|29","Kab. Mamasa|29","Kab. Polewali Mandar|29","Kab. Majene|29","Kab. Mamuju Tengah|29","Kab. Maluku Tengah|30","Kab. Maluku Tenggara|30","Kab. Kepulauan Tanimbar|30","Kab. Buru|30","Kab. Seram Bagian Timur|30","Kab. Seram Bagian Barat|30","Kab. Kepulauan Aru|30","Kab. Maluku Barat Daya|30","Kab. Buru Selatan|30","Kota Ambon|30","Kota Tual|30","Kab. Halmahera Barat|31","Kab. Halmahera Tengah|31","Kab. Halmahera Utara|31","Kab. Halmahera Selatan|31","Kab. Kepulauan Sula|31","Kab. Halmahera Timur|31","Kab. Pulau Morotai|31","Kab. Pulau Taliabu|31","Kota Ternate|31","Kota Tidore Kepulauan|31","Kab. Jayapura|32","Kab. Kepulauan Yapen|32","Kab. Biak Numfor|32","Kab. Sarmi|32","Kab. Keerom|32","Kab. Waropen|32","Kab. Supiori|32","Kab. Mamberamo Raya|32","Kota Jayapura|32","Kab. Manokwari|33","Kab. Fak Fak|33","Kab. Teluk Bintuni|33","Kab. Teluk Wondama|33","Kab. Kaimana|33","Kab. Manokwari Selatan|33","Kab. Pegunungan Arfak|33","Kab. Merauke|34","Kab. Boven Digoel|34","Kab. Mappi|34","Kab. Asmat|34","Kab. Nabire|35","Kab. Puncak Jaya|35","Kab. Paniai|35","Kab. Mimika|35","Kab. Puncak|35","Kab. Dogiyai|35","Kab. Intan Jaya|35","Kab. Deiyai|35","Kab. Jayawijaya|36","Kab. Pegunungan Bintang|36","Kab. Yahukimo|36","Kab. Tolikara|36","Kab. Mamberamo Tengah|36","Kab. Yalimo|36","Kab. Lanny Jaya|36","Kab. Nduga|36","Kab. Sorong|37","Kab. Sorong Selatan|37","Kab. Raja Ampat|37","Kab. Tambrauw|37","Kab. Maybrat|37","Kota Sorong|37"]}, KOTA_IDX = null;
+function normKota(s) { return String(s || '').toLowerCase().replace(/\bkep\.\s*/g, 'kepulauan ').replace(/\bkab\.\s*/g, 'kabupaten ').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+function dasarKota(s) { return s.replace(/^(kabupaten|kota|kab)( |$)/, ''); }
+function indeksKota() {
+  if (KOTA_IDX) return KOTA_IDX;
+  KOTA_IDX = KOTA.kota.map(function (x) { var p = x.split('|'), kn = normKota(p[0]); return { n: p[0], p: KOTA.prov[+p[1]], kn: kn, dasar: dasarKota(kn), kota: kn.indexOf('kota ') === 0, kp: normKota(KOTA.prov[+p[1]]) }; });
+  return KOTA_IDX;
+}
+function rapikanKota(q) { return String(q || '').replace(/\s+/g, ' ').trim().slice(0, 60).toLowerCase().replace(/(^|[\s(.-])([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); }); }
+function cariKota(q) {
+  var nq = normKota(q); if (nq.length < 2) return [];
+  var jenis = /^kota( |$)/.test(nq) ? 'kota' : (/^(kab|kabupaten)( |$)/.test(nq) ? 'kab' : ''), dq = dasarKota(nq), hasil = [];
+  indeksKota().forEach(function (x) {
+    if (jenis && (jenis === 'kota') !== x.kota) return;
+    var s = -1;
+    if (!dq) s = 5; else if (x.dasar === dq) s = 0; else if (x.dasar.indexOf(dq) === 0) s = 1; else if ((' ' + x.dasar).indexOf(' ' + dq) !== -1) s = 2; else if (x.dasar.indexOf(dq) !== -1) s = 3; else if (dq.length >= 4 && x.kp.indexOf(dq) === 0) s = 4;
+    if (s >= 0) hasil.push({ n: x.n, p: x.p, s: s, kota: x.kota ? 1 : 0 });
+  });
+  hasil.sort(function (a, b) { return a.s - b.s || b.kota - a.kota || (a.n < b.n ? -1 : 1); });
+  hasil = hasil.slice(0, 40);
+  var tepatAda = hasil.some(function (x) { return x.s === 0 || normKota(x.n) === nq; });
+  if (String(q).trim().length >= 3 && !tepatAda) hasil.push({ n: rapikanKota(q), p: '', manual: true });
+  return hasil;
+}
+function kotaTepat(v) { var nq = normKota(v); if (!nq) return null; var c = indeksKota().filter(function (x) { return x.kn === nq || x.dasar === nq; }); return c.length === 1 ? { n: c[0].n, p: c[0].p } : null; }
+function pasangKota(inp) {
+  var k = inp.dataset.kota, daftar = $('#kd_' + k), aktif = -1, hasil = [];
+  function tutup() { daftar.hidden = true; inp.setAttribute('aria-expanded', 'false'); inp.removeAttribute('aria-activedescendant'); aktif = -1; }
+  function gambar() {
+    var baru = daftar.hidden; hasil = cariKota(inp.value);
+    daftar.innerHTML = hasil.length ? hasil.map(function (x, i) {
+      return '<button type="button" class="kota-item' + (x.manual ? ' manual' : '') + '" role="option" tabindex="-1" id="ko_' + k + i + '" aria-selected="' + (i === aktif) + '" data-i="' + i + '"><b>' + esc(x.manual ? 'Tambahkan manual: "' + x.n + '"' : x.n) + '</b><span>' + esc(x.manual ? 'Gunakan nama ini karena tidak ada di daftar' : x.p) + '</span></button>';
+    }).join('') : '<div class="kota-kosong">Ketik minimal 2 huruf nama kota atau kabupaten.</div>';
+    daftar.hidden = false; inp.setAttribute('aria-expanded', 'true');
+    if (aktif >= 0) inp.setAttribute('aria-activedescendant', 'ko_' + k + aktif);
+    $$('.kota-item', daftar).forEach(function (b) { b.onmousedown = function (e) { e.preventDefault(); }; b.onclick = function () { pilih(hasil[+b.dataset.i]); }; });
+    if (baru) { var r = inp.getBoundingClientRect(); if (r.top > window.innerHeight * 0.4) window.scrollBy({ top: r.top - 90, behavior: 'smooth' }); }
+  }
+  function pilih(x) { if (!x) return; S.data[k] = x.n; S.data[k + 'Manual'] = x.manual ? 'true' : 'false'; delete S.ketik[k]; tutup(); berubah(true); }
+  inp.oninput = function () {
+    S.ketik[k] = inp.value; S.data[k] = ''; S.data[k + 'Manual'] = 'false'; aktif = -1;
+    var t = inp.parentNode.querySelector('.kota-terpilih'); if (t) t.remove();
+    gambar(); S.kotor = true; simpanLokalTunda();
+  };
+  inp.onfocus = function () { if (!S.data[k] && normKota(inp.value).length >= 2) gambar(); };
+  inp.onkeydown = function (e) {
+    if (daftar.hidden || !hasil.length) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); aktif = (aktif + (e.key === 'ArrowDown' ? 1 : -1) + hasil.length) % hasil.length; gambar(); var el = $('#ko_' + k + aktif); if (el) el.scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'Enter') { e.preventDefault(); pilih(hasil[aktif >= 0 ? aktif : 0]); }
+    else if (e.key === 'Escape') tutup();
+  };
+  inp.onblur = function () { setTimeout(function () { if (!document.body.contains(inp) || inp === document.activeElement) return; if (!S.data[k]) { var t = kotaTepat(inp.value); if (t) return pilih(t); } tutup(); }, 160); };
+}
 
 function isianAktif(i) { var L = LANGKAH[i]; return (L.isian || []).filter(function (f) { return f.k && (!f.jika || f.jika(S.data)); }); }
 function berkasWajib() { var w = ['foto', 'ktp', 'kk']; if (!ya(S.data.belumMandiri)) w.push('rek'); return w; }
@@ -305,7 +398,8 @@ function hitungPersen() {
 function galatIsian(f, d) {
   var v = String(d[f.k] === undefined ? '' : d[f.k]).trim();
   if (f.t === 'cek') return '';
-  if (f.w && !v) return f.t === 'pilih' ? 'Pilih salah satu.' : 'Wajib diisi.';
+  if (f.t === 'kota' && !v && String(S.ketik[f.k] || '').trim()) return 'Pilih dari daftar, atau pilih "Tambahkan manual" bila tidak ada.';
+  if (f.w && !v) return f.t === 'pilih' ? 'Pilih salah satu.' : (f.t === 'kota' ? 'Ketik lalu pilih kota / kabupaten.' : 'Wajib diisi.');
   if (v && f.cek) return f.cek(v, d);
   return '';
 }
@@ -322,8 +416,9 @@ function periksaLangkah(i) {
   (L.isian || []).forEach(function (f) {
     if (!f.tahun || (f.jika && !f.jika(d))) return;
     var namaK = { sd: 'sdNama', smp: 'smpNama', sma: 'smaNama', pt: 'ptNama', k1: 'k1Perusahaan', k2: 'k2Perusahaan' }[f.tahun];
-    var e = galatTahun(f.tahun, d, !!d[namaK]); if (e) g[f.tahun + 'Tahun'] = e;
+    var e = galatTahun(f.tahun, d, !!f.w || !!d[namaK]); if (e) g[f.tahun + 'Tahun'] = e;
   });
+  (L.isian || []).forEach(function (f) { if (f.berkas && (!f.jika || f.jika(d)) && !(S.berkas[f.berkas] && S.berkas[f.berkas].ada)) g['berkas_' + f.berkas] = 'Wajib diunggah.'; });
   if (L.cekLangkah) { var e2 = L.cekLangkah(d); if (e2) g._langkah = e2; }
   if (L.keluarga) {
     (d.kel || []).forEach(function (a, n) {
@@ -337,7 +432,7 @@ function periksaLangkah(i) {
       }
     });
   }
-  if (L.berkasLangkah) berkasWajib().forEach(function (j) { if (!S.berkas[j] || !S.berkas[j].ada) g['berkas_' + j] = 'Wajib diunggah.'; });
+  if (L.berkasLangkah) BERKAS_UNGGAH.forEach(function (j) { if (!S.berkas[j] || !S.berkas[j].ada) g['berkas_' + j] = 'Wajib diunggah.'; });
   if (L.ringkasan) {
     if (!ya(d.setuju1)) g.setuju1 = 'Wajib dicentang.';
     if (!ya(d.setuju2)) g.setuju2 = 'Wajib dicentang.';
@@ -351,7 +446,13 @@ function htmlIsian(f, g) {
   var bantu = f.bantu ? '<div class="bantu">' + esc(f.bantu) + '</div>' : '';
   var galat = e ? '<div class="galat-isian" id="g_' + f.k + '">' + esc(e) + '</div>' : '';
   var inv = e ? ' aria-invalid="true" aria-describedby="g_' + f.k + '"' : '';
-  if (f.t === 'cek') return '<div class="field"><label class="cek' + (e ? ' salah' : '') + '"><input type="checkbox" data-k="' + f.k + '"' + (ya(v) ? ' checked' : '') + '><span>' + esc(f.l) + '</span></label>' + galat + '</div>';
+  if (f.t === 'cek') return '<div class="field"><label class="cek' + (e ? ' salah' : '') + '"><input type="checkbox" data-k="' + f.k + '"' + (ya(v) ? ' checked' : '') + '><span class="kotak" aria-hidden="true">' + ic('centang') + '</span><span class="teks-cek">' + esc(f.l) + '</span></label>' + (f.bantu ? '<div class="bantu">' + esc(f.bantu) + '</div>' : '') + galat + '</div>';
+  if (f.t === 'kota') {
+    var ketik = S.ketik[f.k] !== undefined ? S.ketik[f.k] : v;
+    return '<div class="field kota">' + label + '<input class="input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="kd_' + f.k + '" autocomplete="off" autocapitalize="words" spellcheck="false" data-kota="' + f.k + '" id="' + id + '"' + inv + ' maxlength="60" placeholder="' + esc(f.ph || 'Ketik nama kota / kabupaten') + '" value="' + esc(ketik) + '">' +
+      '<div class="kota-daftar" id="kd_' + f.k + '" role="listbox" hidden></div>' +
+      (v ? '<div class="kota-terpilih">' + ic('centang', 1) + esc(v) + (S.data[f.k + 'Manual'] === 'true' ? ' (ditambahkan manual)' : '') + '</div>' : '') + bantu + galat + '</div>';
+  }
   if (f.t === 'pilih') {
     var nilai = f.nilai || f.o;
     if (f.o.length <= 4 || f.k === 'agama' || f.k === 'jmlAnak' || f.k === 'ptJenjang' || f.k === 'darHub') {
@@ -371,7 +472,7 @@ function htmlIsian(f, g) {
 }
 function htmlTahun(f, g) {
   var d = S.data, p = f.tahun, e = g[p + 'Tahun'];
-  return '<div class="field"><span class="lbl">' + esc(f.judul || 'Tahun masuk & lulus') + '</span><div class="dua">' +
+  return '<div class="field"><span class="lbl">' + esc(f.judul || 'Tahun masuk & lulus') + (f.w ? '<span class="wajib" aria-hidden="true">*</span>' : '') + '</span><div class="dua">' +
     '<div><label class="sr" for="f_' + p + 'Mulai">Tahun mulai</label><input class="input mono" id="f_' + p + 'Mulai" data-k="' + p + 'Mulai" inputmode="numeric" maxlength="4" placeholder="Mulai, mis. 2015" value="' + esc(d[p + 'Mulai'] || '') + '"' + (e ? ' aria-invalid="true"' : '') + '></div>' +
     '<div><label class="sr" for="f_' + p + 'Akhir">Tahun selesai</label><input class="input mono" id="f_' + p + 'Akhir" data-k="' + p + 'Akhir" inputmode="numeric" maxlength="4" placeholder="Selesai, mis. 2018" value="' + esc(d[p + 'Akhir'] || '') + '"' + (e ? ' aria-invalid="true"' : '') + '></div></div>' +
     (e ? '<div class="galat-isian">' + esc(e) + '</div>' : '') + '</div>';
@@ -388,17 +489,17 @@ function htmlKeluarga(g) {
       '<div class="field"><label for="' + p + 'kontak">Nomor HP <span class="opsional">opsional</span></label><input class="input mono" type="tel" inputmode="tel" id="' + p + 'kontak" data-kel="' + n + '" data-f="kontak" maxlength="15" value="' + esc(a.kontak || '') + '"' + inv('kontak') + '>' + e('kontak') + '</div></div></div>';
   }).join('');
 }
+function htmlSatuBerkas(j, g, wj) {
+  var b = S.berkas[j] || {}, e = g['berkas_' + j];
+  var gbr = b.pratinjau ? '<img alt="" src="' + b.pratinjau + '">' : ic(j === 'foto' ? 'orang' : 'berkas');
+  var ket = b.sibuk ? '<span class="putar" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"></span> Mengunggah...' : (b.ada ? 'Terunggah &middot; ' + esc(b.nama || '') : esc(BERKAS[j][1]));
+  return '<div class="field"><div class="berkas' + (b.ada ? ' ada' : '') + (e ? ' salah' : '') + '"><div class="gbr">' + gbr + '</div><div class="teks"><b>' + esc(BERKAS[j][0]) + (wj ? ' <span class="wajib" style="color:var(--bad)">*</span>' : ' <span class="opsional">opsional</span>') + '</b><span>' + ket + '</span></div>' +
+    '<input type="file" id="up_' + j + '" data-up="' + j + '" accept="' + (j === 'foto' ? 'image/' + BINTANG : 'image/' + BINTANG + ',application/pdf') + '" hidden>' +
+    '<button type="button" class="btn ' + (b.ada ? 'garis' : 'oranye') + '" data-pilih="' + j + '"' + (b.sibuk ? ' disabled' : '') + '>' + ic('unggah', 1) + (b.ada ? 'Ganti' : 'Pilih') + '</button></div>' + (e ? '<div class="galat-isian">' + esc(e) + '</div>' : '') + '</div>';
+}
 function htmlBerkas(g) {
-  var wajib = berkasWajib();
   return '<div class="banner info">' + ic('info') + '<div>Berkas tersimpan di Google Drive HRD (tidak dibagikan publik). Foto otomatis diperkecil agar unggah cepat dan pas di CV.</div></div>' +
-    ['foto', 'ktp', 'kk', 'rek'].map(function (j) {
-      var b = S.berkas[j] || {}, e = g['berkas_' + j], wj = wajib.indexOf(j) !== -1;
-      var gbr = b.pratinjau ? '<img alt="" src="' + b.pratinjau + '">' : ic(j === 'foto' ? 'orang' : 'berkas');
-      var ket = b.sibuk ? '<span class="putar" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"></span> Mengunggah...' : (b.ada ? 'Terunggah &middot; ' + esc(b.nama || '') : esc(BERKAS[j][1]));
-      return '<div class="field"><div class="berkas' + (b.ada ? ' ada' : '') + (e ? ' salah' : '') + '"><div class="gbr">' + gbr + '</div><div class="teks"><b>' + esc(BERKAS[j][0]) + (wj ? ' <span class="wajib" style="color:var(--bad)">*</span>' : ' <span class="opsional">opsional</span>') + '</b><span>' + ket + '</span></div>' +
-        '<input type="file" id="up_' + j + '" data-up="' + j + '" accept="' + (j === 'foto' ? 'image/' + BINTANG : 'image/' + BINTANG + ',application/pdf') + '" hidden>' +
-        '<button type="button" class="btn ' + (b.ada ? 'garis' : 'oranye') + '" data-pilih="' + j + '"' + (b.sibuk ? ' disabled' : '') + '>' + ic('unggah', 1) + (b.ada ? 'Ganti' : 'Pilih') + '</button></div>' + (e ? '<div class="galat-isian">' + esc(e) + '</div>' : '') + '</div>';
-    }).join('');
+    BERKAS_UNGGAH.map(function (j) { return htmlSatuBerkas(j, g, true); }).join('');
 }
 function teksNilai(k) {
   var d = S.data, v = d[k];
@@ -413,11 +514,15 @@ function htmlRingkasan(g) {
     if (L.ringkasan) return;
     var baris = [];
     if (L.keluarga) d.kel.forEach(function (a, n) { if (a && a.nama) baris.push(['Anggota ' + (n + 1), a.nama + ' (' + (a.hub === 'Lainnya' ? a.hubLain : a.hub) + ')' + (a.tgl ? ', ' + tglIndo(a.tgl) : '')]); });
-    else if (L.berkasLangkah) ['foto', 'ktp', 'kk', 'rek'].forEach(function (j) { baris.push([BERKAS[j][0], S.berkas[j] && S.berkas[j].ada ? 'Terunggah' : '-']); });
+    else if (L.berkasLangkah) BERKAS_UNGGAH.forEach(function (j) { baris.push([BERKAS[j][0], S.berkas[j] && S.berkas[j].ada ? 'Terunggah' : '-']); });
     else (L.isian || []).forEach(function (f) {
       if (f.jika && !f.jika(d)) return;
+      if (f.berkas) baris.push([BERKAS[f.berkas][0], S.berkas[f.berkas] && S.berkas[f.berkas].ada ? 'Terunggah' : '-']);
+      if (f.t === 'cek' && f.ringkas && ya(d[f.k])) baris.push(f.ringkas);
+      if (f.k === 'belumMandiri' && ya(d[f.k])) baris.push(['Rekening Mandiri', 'Belum punya (wajib dibuka sebelum tanggal 10)']);
+      if (f.k === 'smpNama' || f.k === 'sdNama' || f.k === 'smaNama' || f.k === 'smaJurusan' || f.k === 'ptNama' || f.k === 'ptJurusan' || f.k === 'ptJenjang') { baris.push([{ sd: 'SD', smp: 'SMP', sma: 'SMA/SMK', pt: 'Kampus' }[f.k.replace(/(Nama|Jurusan|Jenjang)$/, '')] + ' - ' + f.l.toLowerCase(), teksNilai(f.k)]); return; }
       if (f.k && f.t !== 'cek') baris.push([f.l, teksNilai(f.k)]);
-      if (f.tahun && (d[f.tahun + 'Mulai'] || d[f.tahun + 'Akhir'])) baris.push([f.judul || 'Tahun', (d[f.tahun + 'Mulai'] || '?') + ' - ' + (d[f.tahun + 'Akhir'] || '?')]);
+      if (f.tahun && (d[f.tahun + 'Mulai'] || d[f.tahun + 'Akhir'])) baris.push([{ sd: 'SD - tahun', smp: 'SMP - tahun', sma: 'SMA/SMK - tahun', pt: 'Kampus - tahun', k1: 'Pekerjaan 1 - periode', k2: 'Pekerjaan 2 - periode' }[f.tahun] || f.judul || 'Tahun', (d[f.tahun + 'Mulai'] || '?') + ' - ' + (d[f.tahun + 'Akhir'] || '?')]);
     });
     h += '<div class="ringkas"><h3>' + esc(L.judul) + '<button type="button" class="btn teks" data-ke="' + i + '">' + ic('pena', 1) + 'Ubah</button></h3><dl>' + baris.map(function (b) { return '<dt>' + esc(b[0]) + '</dt><dd>' + esc(b[1]) + '</dd>'; }).join('') + '</dl></div>';
   });
@@ -439,8 +544,10 @@ function render(g) {
   else if (L.ringkasan) h += htmlRingkasan(g);
   else (L.isian || []).forEach(function (f) {
     if (f.jika && !f.jika(S.data)) return;
-    if (f.info) h += '<div class="banner info">' + ic('info') + '<div>' + f.info + '</div></div>';
-    else if (f.grup) h += '<div class="subjudul">' + esc(f.grup) + '</div>' + (f.bantu ? '<p class="bantu" style="margin:-6px 0 10px">' + esc(f.bantu) + '</p>' : '');
+    if (f.blok) h += '<section class="blok' + (f.redup && f.redup(S.data) ? ' redup' : '') + '"><div class="blok-judul"><span class="tag">' + esc(f.tag) + '</span>' + esc(f.blok) + (f.redup && f.redup(S.data) ? '<span class="ket muted">tidak melanjutkan</span>' : (f.ket ? '<span class="ket muted">' + esc(f.ket) + '</span>' : '<span class="ket" style="color:var(--bad)">wajib</span>')) + '</div>';
+    else if (f.blokAkhir) h += '</section>';
+    else if (f.berkas) h += htmlSatuBerkas(f.berkas, g, true);
+    else if (f.grup || f.info) h += (f.grup ? '<div class="subjudul">' + esc(f.grup) + '</div>' + (f.bantu ? '<p class="bantu" style="margin:-6px 0 10px">' + esc(f.bantu) + '</p>' : '') : '') + (f.info ? '<div class="banner info">' + ic('info') + '<div>' + f.info + '</div></div>' : '');
     else if (f.tahun) h += htmlTahun(f, g);
     else h += htmlIsian(f, g);
   });
@@ -464,6 +571,7 @@ function pasangIsian() {
     if (x.tagName === 'BUTTON') x.onclick = function () { S.data.kel[n] = S.data.kel[n] || {}; S.data.kel[n][f] = x.dataset.v; berubah(true); };
     else x.oninput = function () { S.data.kel[n] = S.data.kel[n] || {}; S.data.kel[n][f] = x.value; berubah(false); };
   });
+  $$('[data-kota]', el).forEach(pasangKota);
   $$('[data-pilih]', el).forEach(function (b) { b.onclick = function () { $('#up_' + b.dataset.pilih).click(); }; });
   $$('[data-up]', el).forEach(function (inp) { inp.onchange = function () { if (inp.files && inp.files[0]) unggah(inp.dataset.up, inp.files[0]); inp.value = ''; }; });
   $$('[data-ke]', el).forEach(function (b) { b.onclick = function () { pindah(+b.dataset.ke); }; });
@@ -497,6 +605,7 @@ $('#kSimpan').onclick = function () {
     .catch(function (e) { toast(e.message, 'bad'); }).then(function () { b.disabled = false; });
 };
 $('#kLanjut').onclick = function () {
+  Object.keys(S.ketik).forEach(function (k) { if (!S.data[k]) { var t = kotaTepat(S.ketik[k]); if (t) { S.data[k] = t.n; S.data[k + 'Manual'] = 'false'; delete S.ketik[k]; } } });
   var g = periksaLangkah(S.langkah);
   if (Object.keys(g).length) {
     GALAT_TAMPIL = true; render(g);
@@ -561,23 +670,18 @@ function kirim() {
   });
 }
 function layar(id) { $$('.layar').forEach(function (s) { s.classList.toggle('on', s.id === id); }); $('#kaki').hidden = id !== 'lForm'; $('#kemajuan').hidden = id !== 'lForm'; window.scrollTo(0, 0); }
-function arahkanEmployee(detik) {
-  var n = detik, b = $('#hitungMundur');
-  var t = setInterval(function () { n--; if (b) b.textContent = n; if (n <= 0) { clearInterval(t); window.location.href = URL_EMPLOYEE; } }, 1000);
-}
 function tampilSelesai(nama) {
   $('#judul').textContent = 'Formulir terkirim'; $('#subjudul').textContent = 'Terima kasih';
   $('#lSelesai').innerHTML = '<div class="kartu pad" style="text-align:center"><div class="selesai-ikon">' + ic('centang') + '</div><h2 class="fh" style="font-size:21px">Terima kasih, ' + esc(nama) + '!</h2>' +
-    '<p class="muted" style="margin:8px 0 16px">Formulir Anda sudah diterima HRD dan CV Anda sudah dibuat. Langkah berikutnya: masuk <b>Portal Karyawan</b> dengan <b>NIK KTP</b> dan <b>ID Karyawan</b> untuk menandatangani PKWT.</p>' +
-    '<a class="btn utama penuh" href="' + URL_EMPLOYEE + '">Masuk Portal Karyawan</a><p class="kecil muted" style="margin-top:10px">Dialihkan otomatis dalam <b id="hitungMundur">8</b> detik.</p></div>';
-  layar('lSelesai'); arahkanEmployee(8);
+    '<p class="muted" style="margin:8px 0 16px">Formulir Anda sudah diterima HRD. Instruksi langkah berikutnya akan dikirimkan oleh HRD melalui <b>WhatsApp</b> ke nomor yang Anda daftarkan. Mohon pastikan nomor tersebut tetap aktif.</p>' +
+    '<div class="banner ok" style="text-align:left;margin:0">' + ic('centang') + '<div>Halaman ini sudah boleh ditutup.</div></div></div>';
+  layar('lSelesai');
 }
 function tampilSudahKirim(pesan, nama) {
   $('#judul').textContent = 'Formulir sudah dikirim'; $('#subjudul').textContent = 'ID ini sudah selesai mengisi formulir';
   $('#lSelesai').innerHTML = '<div class="kartu pad" style="text-align:center"><div class="selesai-ikon">' + ic('centang') + '</div><h2 class="fh" style="font-size:20px">' + (nama ? 'Halo, ' + esc(nama) + '. ' : '') + 'Formulir Anda sudah kami terima</h2>' +
-    '<p class="muted" style="margin:8px 0 16px">Link ini tidak bisa dipakai lagi. Silakan masuk <b>Portal Karyawan</b> dengan NIK KTP dan ID Karyawan. Perubahan data diajukan lewat menu Pengkinian Data di portal.</p>' +
-    '<a class="btn utama penuh" href="' + URL_EMPLOYEE + '">Masuk Portal Karyawan</a><p class="kecil muted" style="margin-top:10px">Dialihkan otomatis dalam <b id="hitungMundur">4</b> detik.</p></div>';
-  layar('lSelesai'); arahkanEmployee(4);
+    '<p class="muted" style="margin:8px 0 0">Formulir untuk ID ini sudah dikirim, sehingga link ini tidak dapat digunakan lagi. Instruksi selanjutnya akan dikirimkan oleh HRD melalui <b>WhatsApp</b>. Bila ada data yang perlu diperbaiki, silakan hubungi HRD.</p></div>';
+  layar('lSelesai');
 }
 
 function masuk(id) {
