@@ -1,7 +1,7 @@
 // Service worker Portal HRIS Karyawan (hrdcentral.cloud/goda/employee).
 // Hanya menyimpan "kerangka" halaman agar portal cepat terbuka dan bisa dipasang di HP.
 // Data karyawan TIDAK pernah disimpan di cache: semua panggilan API (POST ke Apps Script) dilewati.
-const CACHE = "hris-goda-v4.6";
+const CACHE = "hris-goda-v4.7";
 const KERANGKA = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "../config.js"];
 
 self.addEventListener("install", (e) => {
