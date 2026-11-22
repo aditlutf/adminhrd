@@ -574,7 +574,7 @@ body.ciut .panah-sub{display:none}
       <div class="nav-grup buka" id="grupNavKaryawan">
         <a href="#karyawan" data-hal="karyawan" id="navKaryawanUtama" class="nav-induk"><svg class="i" aria-hidden="true"><use href="#i-orang"></use></svg><span class="nav-teks">Karyawan</span><svg class="i s panah-sub" aria-hidden="true"><use href="#i-bawah"></use></svg></a>
         <div class="nav-sub" id="subKaryawan">
-          <a href="#karyawan" data-hal="karyawan" data-area="" class="sub-link aktif"><span class="titik-sub"></span>Semua Karyawan</a>
+          <a href="#karyawan" data-hal="karyawan" data-area="" class="sub-link aktif" id="subSemuaKaryawan"><span class="titik-sub"></span><span class="sub-teks">Semua Karyawan</span><span class="sub-cnt" id="cntSemuaKaryawan"></span></a>
           <div id="subDaftarArea"></div>
         </div>
       </div>
@@ -656,7 +656,7 @@ var HALAMAN = {
   onboarding: ['Onboarding Karyawan', 'WhatsApp info hari pertama: Hadirqu, laporan penjualan, grup promotor'],
   pengaturan: ['Pengaturan Portal', 'Tautan video, Hadirqu, form, dan grup di portal karyawan']
 };
-var S = { token: '', nama: '', data: null, hal: 'ringkasan', k: { cari: '', status: 'AKTIF', area: '', jenis: '', masalah: '', batas: 60 },
+var S = { token: '', nama: '', data: null, hal: 'ringkasan', k: { cari: '', status: 'AKTIF', area: '', jenis: '', masalah: '', batas: 60, perHal: 15, hal: 1 },
   pengajuan: null, pTab: 'welcome', pCari: '', pjTab: '', pjCari: '', gTab: 'belum', gCari: '', obTpl: null, obTab: 'belum', obCari: '', obBatas: 40, pengaturan: null, pengkinian: null, pkTab: 'MENUNGGU', waTpl: null, waTab: 'belum', waCari: '',
   sp: null, sinkron: null, aktivitas: null, aCari: '' };
 
@@ -919,7 +919,7 @@ function muatData() {
   return api('muat').then(function (d) {
     memuatTahap(90, 'Menyusun tampilan dashboard...');
     S.data = d; S.nama = d.admin || S.nama; $('#namaAdmin').textContent = S.nama;
-    perbaruiBadge(); renderHal(S.hal);
+    perbaruiBadge(); renderSubmenuKaryawan(); renderHal(S.hal);
     memuatSelesai();
   }).catch(function (e) {
     memuatBatal();
@@ -987,16 +987,25 @@ document.addEventListener('keydown', function (e) {
 function renderSubmenuKaryawan() {
   var el = $('#subDaftarArea');
   if (!el || !S.data || !S.data.karyawan) return;
+  var totalAktif = 0;
   var areaMap = {};
+  var standardAreas = (S.data.areaOpsi && S.data.areaOpsi.length) ? S.data.areaOpsi : [];
+  standardAreas.forEach(function (a) { areaMap[a] = 0; });
   S.data.karyawan.forEach(function (k) {
-    var a = (k.area || '').trim();
-    if (a) areaMap[a] = (areaMap[a] || 0) + 1;
+    if (k.status === 'AKTIF') {
+      totalAktif++;
+      var a = (k.area || '').trim();
+      if (a) areaMap[a] = (areaMap[a] || 0) + 1;
+    }
   });
-  var areas = Object.keys(areaMap).sort();
-  el.innerHTML = areas.map(function (a) {
+  if ($('#cntSemuaKaryawan')) $('#cntSemuaKaryawan').textContent = totalAktif || S.data.karyawan.length;
+  var daftarArea = Object.keys(areaMap).filter(function (a) { return areaMap[a] > 0; });
+  if (!daftarArea.length) daftarArea = Object.keys(areaMap);
+  daftarArea.sort(function (x, y) { return (areaMap[y] || 0) - (areaMap[x] || 0); });
+  el.innerHTML = daftarArea.map(function (a) {
     var aktif = S.k.area === a ? ' aktif' : '';
     return '<a href="#karyawan" data-hal="karyawan" data-area="' + esc(a) + '" class="sub-link' + aktif + '">' +
-      '<span class="titik-sub"></span><span class="sub-teks">' + esc(a) + '</span><span class="sub-cnt">' + areaMap[a] + '</span></a>';
+      '<span class="titik-sub"></span><span class="sub-teks">' + esc(a) + '</span><span class="sub-cnt">' + (areaMap[a] || 0) + '</span></a>';
   }).join('');
   $$('#subKaryawan .sub-link').forEach(function (a) {
     a.onclick = function (e) {
@@ -1059,10 +1068,10 @@ function renderRingkasan() {
   var el = $('#hal-ringkasan'); el.innerHTML = h;
   $$('[data-pergi]', el).forEach(function (b) { b.onclick = function (e) {
     e.preventDefault();
-    if (b.dataset.masalah !== undefined || b.dataset.status !== undefined) S.k = { cari: '', status: b.dataset.status !== undefined ? b.dataset.status : 'AKTIF', area: '', jenis: '', masalah: b.dataset.masalah || '', batas: 60 };
+    if (b.dataset.masalah !== undefined || b.dataset.status !== undefined) S.k = { cari: '', status: b.dataset.status !== undefined ? b.dataset.status : 'AKTIF', area: '', jenis: '', masalah: b.dataset.masalah || '', batas: 60, perHal: 15, hal: 1 };
     bukaHal(b.dataset.pergi);
   }; });
-  $$('.batang .b', el).forEach(function (b) { var pergi = function () { S.k = { cari: '', status: 'AKTIF', area: b.dataset.area, jenis: '', masalah: '', batas: 60 }; bukaHal('karyawan'); }; b.onclick = pergi; b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pergi(); } }; });
+  $$('.batang .b', el).forEach(function (b) { var pergi = function () { S.k = { cari: '', status: 'AKTIF', area: b.dataset.area, jenis: '', masalah: '', batas: 60, perHal: 15, hal: 1 }; bukaHal('karyawan'); }; b.onclick = pergi; b.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pergi(); } }; });
   if ($('#btnFormatSheet', el)) $('#btnFormatSheet', el).onclick = function () { var b = this; sibuk(b, true, 'Memformat sheet'); memuatMulai('Memformat 10 sheet Region, Gaji, Active Employee & Resign...', 'Memperbarui Template Sheet'); api('perbarui_tampilan').then(function () { memuatSelesai(); sibuk(b, false); toast('Template 10 sheet Region, Gaji, Active Employee & Resign berhasil diperbarui.'); }).catch(function (e) { memuatBatal(); sibuk(b, false); toast(e.message, 'bad'); }); };
 }
 function tugas(warna, ikon, judul, ket, n, hal, masalah) {
@@ -1086,6 +1095,7 @@ function saringKaryawan() {
 function tagStatus(o) { return o.status === 'AKTIF' ? '<span class="tag ok">Aktif</span>' : '<span class="tag bad">Resign</span>'; }
 function tagPkwt(o) { return o.pkwt ? '<span class="tag ok">' + ic('centang', 1) + 'Sudah TTD</span>' : (!o.gaji && o.status === 'AKTIF' ? '<span class="tag warn">Gaji kosong</span>' : '<span class="tag nv">Belum</span>'); }
 function renderKaryawan() {
+  renderSubmenuKaryawan();
   var el = $('#hal-karyawan');
   if (!$('#kCari', el)) {
     var areas = {}; S.data.karyawan.forEach(function (o) { areas[o.area || '(Tanpa area)'] = 1; });
@@ -1129,9 +1139,9 @@ function isiTabelKaryawan() {
   if ($('#kHit')) $('#kHit').textContent = angka(total) + ' orang';
 
   var per = S.k.perHal === 'maks' ? total : (+S.k.perHal || 15);
-  var maxHal = S.k.perHal === 'maks' ? 1 : Math.max(1, Math.ceil(total / per));
-  if (S.k.hal > maxHal) S.k.hal = maxHal;
-  if (S.k.hal < 1) S.k.hal = 1;
+  var maxHal = S.k.perHal === 'maks' ? 1 : Math.max(1, Math.ceil(total / (per || 1)));
+  S.k.hal = (+S.k.hal && +S.k.hal >= 1) ? Math.min(+S.k.hal, maxHal) : 1;
+  S.k.perHal = S.k.perHal === 'maks' ? 'maks' : per;
 
   var awalIdx = S.k.perHal === 'maks' ? 0 : (S.k.hal - 1) * per;
   var akhirIdx = S.k.perHal === 'maks' ? total : Math.min(total, awalIdx + per);
