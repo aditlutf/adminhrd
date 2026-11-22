@@ -416,18 +416,53 @@ pre.hasil{white-space:pre-wrap;font-family:var(--fb);font-size:13.5px;background
 .nav-induk{display:flex;align-items:center;gap:12px;cursor:pointer;position:relative}
 .panah-sub{margin-left:auto;width:15px;height:15px;transition:transform var(--cepat) var(--ease);opacity:.65}
 .nav-grup.buka .panah-sub{transform:rotate(180deg);opacity:1}
-.nav-sub{display:none;flex-direction:column;gap:2px;padding:4px 6px 6px 12px;max-height:220px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent;border-left:2px solid rgba(255,255,255,.08);margin:2px 0 6px 22px}
+.panah-sub{margin-left:auto;width:15px;height:15px;transition:transform .28s cubic-bezier(0.4,0,0.2,1);opacity:.65}
+.nav-grup.buka .panah-sub{transform:rotate(180deg);opacity:1}
+.nav-sub{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  max-height:0;
+  opacity:0;
+  overflow-y:hidden;
+  overflow-x:hidden;
+  padding:0 4px 0 6px;
+  margin:0 0 0 12px;
+  border-left:1.5px solid rgba(255,255,255,.1);
+  transition:max-height .3s cubic-bezier(0.4,0,0.2,1),opacity .22s ease,padding .22s ease,margin .22s ease;
+  pointer-events:none;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.18) transparent;
+}
 .nav-sub::-webkit-scrollbar{width:4px}
 .nav-sub::-webkit-scrollbar-track{background:transparent}
 .nav-sub::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px}
 .nav-sub::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.4)}
-.nav-grup.buka .nav-sub{display:flex}
-.sub-link{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;font-size:12px;color:var(--sisi-ink);text-decoration:none;min-height:28px;transition:background var(--cepat),color var(--cepat)}
+.nav-grup.buka .nav-sub{
+  max-height:260px;
+  opacity:1;
+  overflow-y:auto;
+  padding:3px 4px 5px 6px;
+  margin:2px 0 6px 12px;
+  pointer-events:auto;
+}
+.sub-link{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:5px 7px;
+  border-radius:6px;
+  font-size:12px;
+  color:var(--sisi-ink);
+  text-decoration:none;
+  min-height:28px;
+  transition:background var(--cepat),color var(--cepat);
+}
 .sub-link:hover{background:rgba(255,255,255,.08);color:#fff}
 .sub-link.aktif{background:rgba(255,136,1,.18);color:var(--orange);font-weight:700}
-.titik-sub{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.65;flex-shrink:0}
+.titik-sub{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75;flex-shrink:0}
 .sub-cnt{margin-left:auto;font-size:11px;opacity:.7;font-variant-numeric:tabular-nums}
-body.ciut .nav-sub{display:none !important}
+body.ciut .nav-sub{display:none !important;max-height:0 !important}
 body.ciut .panah-sub{display:none}
 
 .paginasi-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 var(--r) var(--r)}
@@ -581,7 +616,8 @@ body.ciut .panah-sub{display:none}
       <div class="nav-grup buka" id="grupNavKaryawan">
         <a href="#karyawan" data-hal="karyawan" id="navKaryawanUtama" class="nav-induk"><svg class="i" aria-hidden="true"><use href="#i-orang"></use></svg><span class="nav-teks">Karyawan</span><svg class="i s panah-sub" aria-hidden="true"><use href="#i-bawah"></use></svg></a>
         <div class="nav-sub" id="subKaryawan">
-          <a href="#karyawan" data-hal="karyawan" data-area="" class="sub-link aktif" id="subSemuaKaryawan"><span class="titik-sub"></span><span class="sub-teks">Semua Karyawan</span><span class="sub-cnt" id="cntSemuaKaryawan"></span></a>
+          <a href="#karyawan" data-hal="karyawan" data-area="" data-status="AKTIF" class="sub-link aktif" id="subSemuaKaryawan"><span class="titik-sub"></span><span class="sub-teks">Semua Karyawan</span><span class="sub-cnt" id="cntSemuaKaryawan"></span></a>
+          <a href="#karyawan" data-hal="karyawan" data-area="" data-status="RESIGN" class="sub-link" id="subResignKaryawan"><span class="titik-sub"></span><span class="sub-teks">Resign</span><span class="sub-cnt" id="cntResignKaryawan"></span></a>
           <div id="subDaftarArea"></div>
         </div>
       </div>
@@ -948,10 +984,7 @@ function bukaHal(nama, tanpaHash) {
     if (a.dataset.hal === nama) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   if (nama === 'karyawan') {
-    $('#grupNavKaryawan').classList.add('buka');
-    $$('#subKaryawan .sub-link').forEach(function (sl) {
-      sl.classList.toggle('aktif', (sl.dataset.area || '') === (S.k.area || ''));
-    });
+    perbaruiSubmenuAktif();
   }
   $$('.hal').forEach(function (h) { h.classList.toggle('on', h.id === 'hal-' + nama); });
   $('#judulHal').textContent = HALAMAN[nama][0]; $('#subHal').textContent = HALAMAN[nama][1];
@@ -999,6 +1032,7 @@ function renderSubmenuKaryawan() {
   var el = $('#subDaftarArea');
   if (!el || !S.data || !S.data.karyawan) return;
   var totalAktif = 0;
+  var totalResign = 0;
   var areaMap = {};
   var standardAreas = (S.data.areaOpsi && S.data.areaOpsi.length) ? S.data.areaOpsi : [];
   standardAreas.forEach(function (a) { areaMap[a] = 0; });
@@ -1007,28 +1041,59 @@ function renderSubmenuKaryawan() {
       totalAktif++;
       var a = (k.area || '').trim();
       if (a) areaMap[a] = (areaMap[a] || 0) + 1;
+    } else if (k.status === 'RESIGN') {
+      totalResign++;
     }
   });
   if ($('#cntSemuaKaryawan')) $('#cntSemuaKaryawan').textContent = totalAktif || S.data.karyawan.length;
+  if ($('#cntResignKaryawan')) $('#cntResignKaryawan').textContent = totalResign;
   var daftarArea = Object.keys(areaMap).filter(function (a) { return areaMap[a] > 0; });
   if (!daftarArea.length) daftarArea = Object.keys(areaMap);
   daftarArea.sort(function (x, y) { return (areaMap[y] || 0) - (areaMap[x] || 0); });
   el.innerHTML = daftarArea.map(function (a) {
-    var aktif = S.k.area === a ? ' aktif' : '';
+    var aktif = (S.k.status !== 'RESIGN' && S.k.area === a) ? ' aktif' : '';
     return '<a href="#karyawan" data-hal="karyawan" data-area="' + esc(a) + '" class="sub-link' + aktif + '">' +
       '<span class="titik-sub"></span><span class="sub-teks">' + esc(a) + '</span><span class="sub-cnt">' + (areaMap[a] || 0) + '</span></a>';
   }).join('');
+  perbaruiSubmenuAktif();
   $$('#subKaryawan .sub-link').forEach(function (a) {
     a.onclick = function (e) {
       e.preventDefault();
-      S.k.area = this.dataset.area || '';
+      var st = this.dataset.status;
+      if (st === 'RESIGN') {
+        S.k.status = 'RESIGN';
+        S.k.area = '';
+      } else if (st === 'AKTIF' || !this.dataset.area) {
+        S.k.status = 'AKTIF';
+        S.k.area = '';
+      } else {
+        S.k.status = 'AKTIF';
+        S.k.area = this.dataset.area || '';
+      }
       S.k.hal = 1;
-      $$('#subKaryawan .sub-link').forEach(function (l) { l.classList.remove('aktif'); });
-      this.classList.add('aktif');
+      perbaruiSubmenuAktif();
       if ($('#kArea')) $('#kArea').value = S.k.area;
+      if ($('#kStatus')) {
+        $$('#kStatus .chip').forEach(function (c) {
+          c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status));
+        });
+      }
+      $('#grupNavKaryawan').classList.add('buka');
       bukaHal('karyawan');
       isiTabelKaryawan();
     };
+  });
+}
+
+function perbaruiSubmenuAktif() {
+  $$('#subKaryawan .sub-link').forEach(function (l) {
+    if (l.id === 'subResignKaryawan') {
+      l.classList.toggle('aktif', S.k.status === 'RESIGN' && !S.k.area);
+    } else if (l.id === 'subSemuaKaryawan') {
+      l.classList.toggle('aktif', S.k.status !== 'RESIGN' && !S.k.area);
+    } else {
+      l.classList.toggle('aktif', S.k.status !== 'RESIGN' && (l.dataset.area || '') === S.k.area);
+    }
   });
 }
 
@@ -1118,17 +1183,17 @@ function renderKaryawan() {
       '<label class="sr" for="kMasalah">Saring</label><select class="input" id="kMasalah"><option value="">Semua kondisi</option><option value="belum">PKWT belum TTD</option><option value="sudah">PKWT sudah TTD</option><option value="gaji">PKWT tertahan (gaji kosong)</option><option value="nik">NIK KTP tidak sah</option></select>' +
       '<button class="btn tipis garis" type="button" id="kReset" hidden>Reset filter</button><span class="jumlah" id="kHit"></span></div><div class="kartu"><div class="tabel-bungkus" id="kTabel"></div><div class="lagi" id="kLagi"></div></div>';
     $('#kCari').oninput = tunda(function () { S.k.cari = this.value.trim(); S.k.hal = 1; isiTabelKaryawan(); }, 180);
-    $$('#kStatus .chip').forEach(function (c) { c.onclick = function () { S.k.status = c.dataset.v; S.k.hal = 1; isiTabelKaryawan(); }; });
+    $$('#kStatus .chip').forEach(function (c) { c.onclick = function () { S.k.status = c.dataset.v; S.k.hal = 1; perbaruiSubmenuAktif(); isiTabelKaryawan(); }; });
     $('#kArea').onchange = function () {
       S.k.area = this.value; S.k.hal = 1;
-      $$('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', (sl.dataset.area || '') === S.k.area); });
+      perbaruiSubmenuAktif();
       isiTabelKaryawan();
     };
     $('#kJenis').onchange = function () { S.k.jenis = this.value; S.k.hal = 1; isiTabelKaryawan(); };
     $('#kMasalah').onchange = function () { S.k.masalah = this.value; S.k.hal = 1; isiTabelKaryawan(); };
     $('#kReset').onclick = function () {
       S.k = { cari: '', status: 'AKTIF', area: '', jenis: '', masalah: '', perHal: 15, hal: 1 };
-      $$('#subKaryawan .sub-link').forEach(function (sl) { sl.classList.toggle('aktif', !sl.dataset.area); });
+      perbaruiSubmenuAktif();
       renderKaryawan();
     };
   }
@@ -1142,7 +1207,7 @@ function gulirKeTabel() {
 }
 
 function isiTabelKaryawan() {
-  $$('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
+  $$$('#kStatus .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.v === S.k.status)); });
   var daftar = saringKaryawan();
   var total = daftar.length;
   var adaFilter = !!(S.k.cari || S.k.status !== 'AKTIF' || S.k.area || S.k.jenis || S.k.masalah);
