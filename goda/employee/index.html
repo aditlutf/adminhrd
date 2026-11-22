@@ -413,14 +413,17 @@ function videoEmbed(url) {
 function muatVideoCadangan(el) {
   if (!el || el.dataset.coba) return;
   el.dataset.coba = '1';
-  if (S.videoBlobUrl) { el.src = S.videoBlobUrl; return; }
-  panggil('empApi', [S.token, 'video_pkwt', {}]).then(function (r) {
+  var jenis = el.dataset.jenis || 'pkwt';
+  var kunciBlob = jenis === 'mandiri' ? 'videoMandiriBlobUrl' : 'videoBlobUrl';
+  var aksiApi = jenis === 'mandiri' ? 'video_mandiri' : 'video_pkwt';
+  if (S[kunciBlob]) { el.src = S[kunciBlob]; return; }
+  panggil('empApi', [S.token, aksiApi, {}]).then(function (r) {
     if (r && r.ok && r.data && r.data.ok && r.data.dataUri) {
       var b64 = r.data.dataUri.split(',')[1] || r.data.dataUri;
       var bin = atob(b64), arr = new Uint8Array(bin.length);
       for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      S.videoBlobUrl = URL.createObjectURL(new Blob([arr], { type: 'video/mp4' }));
-      el.src = S.videoBlobUrl;
+      S[kunciBlob] = URL.createObjectURL(new Blob([arr], { type: 'video/mp4' }));
+      el.src = S[kunciBlob];
     } else if (el.nextElementSibling) {
       el.hidden = true; el.nextElementSibling.hidden = false;
     }
@@ -428,13 +431,18 @@ function muatVideoCadangan(el) {
     if (el.nextElementSibling) { el.hidden = true; el.nextElementSibling.hidden = false; }
   });
 }
-function videoHtml(url, judul) {
+function videoHtml(url, judul, jenisOverride) {
   var u = String(url || '');
   var e = videoEmbed(u);
-  if (/1fHMMtL2m0VYLfS_uLFmeLJIhPErCljaJ|video-pkwt/i.test(u)) {
-    var srcAwal = S.videoBlobUrl ? S.videoBlobUrl : 'video-pkwt.mp4';
+  var isPkwt = /1fHMMtL2m0VYLfS_uLFmeLJIhPErCljaJ|video-pkwt/i.test(u);
+  var isMandiri = jenisOverride === 'mandiri' || /video-mandiri/i.test(u) || (!u && /mandiri/i.test(String(judul || '')));
+  if (isPkwt || (isMandiri && !e)) {
+    var jn = isMandiri ? 'mandiri' : 'pkwt';
+    var fileMp4 = isMandiri ? 'video-mandiri.mp4' : 'video-pkwt.mp4';
+    var kBlob = isMandiri ? 'videoMandiriBlobUrl' : 'videoBlobUrl';
+    var srcAwal = S[kBlob] ? S[kBlob] : fileMp4;
     return '<div class="video video-hp">' +
-      '<video class="video-mp4" controls playsinline webkit-playsinline preload="metadata" src="' + esc(srcAwal) + '" title="' + esc(judul) + '" onerror="muatVideoCadangan(this)"></video>' +
+      '<video class="video-mp4" data-jenis="' + jn + '" controls playsinline webkit-playsinline preload="metadata" src="' + esc(srcAwal) + '" title="' + esc(judul) + '" onerror="muatVideoCadangan(this)"></video>' +
       (e ? '<div hidden style="position:relative;width:100%;aspect-ratio:9/16"><iframe src="' + esc(e) + '" title="' + esc(judul) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe></div>' : '') +
       '</div>';
   }
@@ -947,13 +955,24 @@ function renderInfo() {
   var el = $('#hal-info');
   if (!S.info) { el.innerHTML = memuat('Memuat info...'); api('info').then(function (d) { S.info = d; renderInfo(); }).catch(function (e) { el.innerHTML = galatHtml(e.message); }); return; }
   var k = S.info.konfig || {}, id = S.info.profil.id;
+  var vidMandiriUrl = k.videoMandiri || 'video-mandiri.mp4';
   el.innerHTML = '<div class="judul-bag" style="margin-top:4px">Rekening Bank Mandiri</div><div class="kartu pad">' +
-    '<p>Gaji karyawan Shelter x Goda <b>wajib</b> dibayarkan ke rekening <b>Bank Mandiri atas nama Anda sendiri</b>. Belum punya? Buka secara online lewat aplikasi <b>Livin’ by Mandiri</b>:</p>' +
-    '<ol class="langkah" style="margin-top:12px"><li>Unduh aplikasi Livin’ by Mandiri di Play Store atau App Store.</li><li>Pilih menu pembukaan rekening baru (Buka Rekening / Daftar).</li><li>Siapkan e-KTP asli, kamera, dan sinyal internet yang stabil.</li><li>Foto e-KTP dan swafoto sesuai petunjuk, lalu isi data diri persis seperti di KTP.</li><li>Pilih jenis tabungan, lalu ikuti verifikasi sampai rekening aktif.</li><li>Catat nomor rekening dan kirim lewat tombol di bawah ini.</li></ol>' +
-    '<p class="muted kecil" style="margin-top:10px">Langkah di aplikasi bisa sedikit berbeda sesuai versi terbaru.</p>' +
-    videoHtml(k.videoMandiri, 'Video tutorial membuka rekening Mandiri') +
-    (k.videoMandiri ? '<div style="margin-top:10px">' + tautan(k.videoMandiri, 'Buka video tutorial', 'garis penuh', 'tautan') + '</div>' : '') +
-    '<button class="btn oranye penuh" type="button" id="keRekening" style="margin-top:12px">' + ic('pena', 1) + 'Saya sudah punya rekening Mandiri</button></div>' +
+    '<p>Gaji karyawan Shelter x Goda <b>wajib</b> dibayarkan ke rekening <b>Bank Mandiri atas nama Anda sendiri</b>. Belum punya? Buka secara online lewat aplikasi <b>Livin’ by Mandiri</b> menggunakan kode resmi di bawah ini:</p>' +
+    '<div class="akun-hadirqu" style="margin-top:12px">' +
+      '<div><small>KODE REFERAL</small><div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:3px"><b id="kodeRefMandiri">MGM9GLVTV8</b><button type="button" class="btn tipis garis" style="min-height:28px;padding:0 9px;font-size:12px" data-salin="MGM9GLVTV8" data-lbl="Kode Referal Mandiri">' + ic('salin', 1) + 'Salin</button></div></div>' +
+      '<div><small>KODE CABANG</small><div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:3px"><b id="kodeCabMandiri">14023</b><button type="button" class="btn tipis garis" style="min-height:28px;padding:0 9px;font-size:12px" data-salin="14023" data-lbl="Kode Cabang Mandiri">' + ic('salin', 1) + 'Salin</button></div></div>' +
+    '</div>' +
+    '<ol class="langkah" style="margin-top:14px">' +
+      '<li>Unduh aplikasi <b>Livin’ by Mandiri</b> di Play Store atau App Store.</li>' +
+      '<li>Pilih menu pembukaan rekening baru (<b>Belum Punya Rekening Mandiri / Buka Tabungan</b>).</li>' +
+      '<li>Siapkan e-KTP asli, kamera, dan sinyal internet yang stabil.</li>' +
+      '<li>Foto e-KTP dan swafoto sesuai petunjuk, lalu isi data diri persis seperti di KTP.</li>' +
+      '<li>Masukkan <b>KODE REFERAL : <span class="mono">MGM9GLVTV8</span></b> dan <b>KODE CABANG : <span class="mono">14023</span></b> saat diminta di aplikasi, lalu ikuti verifikasi hingga rekening aktif.</li>' +
+      '<li>Catat nomor rekening dan screenshot M-Banking/Buku Tabungan, lalu ajukan lewat tombol di bawah ini.</li>' +
+    '</ol>' +
+    '<p class="muted kecil" style="margin-top:10px">Simak video panduan lengkap pembukaan rekening Bank Mandiri di bawah ini:</p>' +
+    videoHtml(vidMandiriUrl, 'Video tutorial membuka rekening Mandiri', 'mandiri') +
+    '<button class="btn oranye penuh" type="button" id="keRekening" style="margin-top:14px">' + ic('pena', 1) + 'Saya sudah punya rekening Mandiri</button></div>' +
     '<div class="judul-bag">Presensi Hadirqu</div><div class="kartu pad">' +
     '<p>Absen berangkat dan pulang memakai aplikasi <b>Hadirqu</b>.</p><div class="akun-hadirqu"><div><small>ID</small><b>' + esc(id) + '</b></div><div><small>Kata sandi</small><b>' + esc(id) + '</b></div></div>' +
     '<ol class="langkah" style="margin-top:14px"><li>Unduh Hadirqu lalu masuk dengan ID dan kata sandi di atas.</li><li>Registrasi absensi melalui logo kamera di bagian tengah bawah.</li><li>Absen berangkat dan pulang melalui logo kamera di tengah bawah.</li></ol>' +
@@ -962,6 +981,7 @@ function renderInfo() {
     '<ol class="langkah"><li>Buka form input data penjualan.</li><li>Pilih area promotor (Jawa / Luar Jawa).</li><li>Unggah foto KG, unit, dan CS untuk laporan harian.</li><li>Pastikan nama sesuai nama promotor.</li></ol>' +
     '<div style="display:grid;gap:10px;margin-top:14px">' + tautan(k.formPenjualan, 'Buka form input penjualan', 'oranye penuh', 'berkas') + tautan(k.grupWa, 'Gabung grup WhatsApp promotor', 'garis penuh', 'pesan') + '</div></div>' +
     (k.waHrd ? '<a class="btn garis penuh" style="margin-top:16px" target="_blank" rel="noopener" href="https:\/\/wa.me/' + esc(k.waHrd) + '">' + ic('pesan', 1) + 'Tanya HRD soal absensi atau penjualan</a>' : '');
+  $$('[data-salin]', el).forEach(function (b) { b.onclick = function () { salinTeks(b.dataset.salin, b.dataset.lbl); }; });
   $('#keRekening').onclick = function () { S.fokusKolom = 'NOREKENINGMANDIRI'; bukaHal('ajukan'); };
 }
 
