@@ -140,6 +140,9 @@ textarea.input{min-height:84px;resize:vertical}
 .proses{background:var(--surface);border-radius:18px;padding:24px;width:100%;max-width:360px;text-align:center;box-shadow:var(--shadow-2)}
 .proses .angka{font-family:var(--fh);font-size:34px;font-weight:700;color:var(--navy-3)}
 .proses .jalur{background:var(--surface-3)}
+@keyframes alirGaris{from{background-position:0 0}to{background-position:28px 0}}
+@keyframes alirGaris2{from{background-position:0 0,0 0}to{background-position:28px 0,0 0}}
+#pIsi{background-image:linear-gradient(135deg,rgba(255,255,255,.3) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.3) 50%,rgba(255,255,255,.3) 75%,transparent 75%,transparent);background-size:28px 28px;animation:alirGaris .8s linear infinite}
 .toast-wadah{position:fixed;left:50%;bottom:130px;transform:translateX(-50%);z-index:60;display:grid;gap:8px;width:min(92vw,420px)}
 .toast{background:#0F172E;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow-2);animation:muncul .2s var(--ease)}
 .toast.bad{background:var(--bad)}
@@ -200,7 +203,7 @@ textarea.input{min-height:84px;resize:vertical}
     <button class="btn utama" type="button" id="kLanjut">Lanjutkan<svg class="i s" aria-hidden="true"><use href="#i-kanan"></use></svg></button>
   </div>
 </div>
-<div class="tirai" id="tirai" hidden><div class="proses" role="status" aria-live="polite"><div class="angka" id="pAngka">0%</div><h2 class="fh" style="font-size:17px;margin-top:4px" id="pJudul">Mengirim formulir</h2><p class="muted kecil" id="pKet" style="margin:6px 0 12px">Jangan tutup halaman ini.</p><div class="jalur"><i id="pIsi"></i></div></div></div>
+<div class="tirai" id="tirai" hidden><div class="proses" role="status" aria-live="polite"><div class="angka" id="pAngka">0%</div><h2 class="fh" style="font-size:17px;margin-top:4px" id="pJudul">Mengirim formulir</h2><p class="muted kecil" id="pKet" style="margin:6px 0 12px">Jangan tutup halaman ini.</p><div class="jalur"><i id="pIsi"></i></div><p class="muted kecil" id="pWaktu" style="margin-top:10px;min-height:18px"></p></div></div>
 <div class="toast-wadah" id="toast" aria-live="polite"></div>
 
 <script>
@@ -665,9 +668,11 @@ function segarkanBerkas() {
     if (baru.length) { render(galatTampil()); toast(baru.join(', ') + ' sudah diunggahkan HRD.'); }
   }).catch(function () {});
 }
+function teksDurasi(ms) { var d = Math.max(0, Math.floor(ms / 1000)); return d < 60 ? d + ' dtk' : Math.floor(d / 60) + ' mnt ' + ('0' + (d % 60)).slice(-2) + ' dtk'; }
+function teksBerjalan(ms) { return ms < 3000 ? '' : 'Berjalan ' + teksDurasi(ms) + (ms > 20000 ? ' \u00b7 masih memproses, mohon tunggu' : ''); }
 function prosesMulai(judul, ket) {
-  var p = 0; $('#pJudul').textContent = judul; $('#pKet').textContent = ket || 'Jangan tutup halaman ini.'; $('#tirai').hidden = false;
-  clearInterval(_pT); _pT = setInterval(function () { p = p + Math.max(0.3, (95 - p) / 40); if (p > 95) p = 95; $('#pIsi').style.width = p + '%'; $('#pAngka').textContent = Math.round(p) + '%'; }, 200);
+  var p = 0, t0 = Date.now(); $('#pJudul').textContent = judul; $('#pKet').textContent = ket || 'Jangan tutup halaman ini.'; $('#tirai').hidden = false;
+  clearInterval(_pT); _pT = setInterval(function () { p = p + Math.max(0.3, (95 - p) / 40); if (p > 95) p = 95; $('#pIsi').style.width = p + '%'; $('#pAngka').textContent = Math.round(p) + '%'; if ($('#pWaktu')) $('#pWaktu').textContent = teksBerjalan(Date.now() - t0); }, 200);
 }
 function prosesSelesai() { clearInterval(_pT); $('#pIsi').style.width = '100%'; $('#pAngka').textContent = '100%'; setTimeout(function () { $('#tirai').hidden = true; }, 350); }
 function kirim() {
