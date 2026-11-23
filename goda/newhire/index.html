@@ -492,13 +492,13 @@ function htmlKeluarga(g) {
 function htmlSatuBerkas(j, g, wj) {
   var b = S.berkas[j] || {}, e = g['berkas_' + j];
   var gbr = b.pratinjau ? '<img alt="" src="' + b.pratinjau + '">' : ic(j === 'foto' ? 'orang' : 'berkas');
-  var ket = b.sibuk ? '<span class="putar" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"></span> Mengunggah...' : (b.ada ? 'Terunggah &middot; ' + esc(b.nama || '') : esc(BERKAS[j][1]));
+  var ket = b.sibuk ? '<span class="putar" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px"></span> Mengunggah...' : (b.ada ? (b.admin ? 'Diunggah HRD' : 'Terunggah') + ' &middot; ' + esc(b.nama || '') : esc(BERKAS[j][1]));
   return '<div class="field"><div class="berkas' + (b.ada ? ' ada' : '') + (e ? ' salah' : '') + '"><div class="gbr">' + gbr + '</div><div class="teks"><b>' + esc(BERKAS[j][0]) + (wj ? ' <span class="wajib" style="color:var(--bad)">*</span>' : ' <span class="opsional">opsional</span>') + '</b><span>' + ket + '</span></div>' +
     '<input type="file" id="up_' + j + '" data-up="' + j + '" accept="' + (j === 'foto' ? 'image/' + BINTANG : 'image/' + BINTANG + ',application/pdf') + '" hidden>' +
     '<button type="button" class="btn ' + (b.ada ? 'garis' : 'oranye') + '" data-pilih="' + j + '"' + (b.sibuk ? ' disabled' : '') + '>' + ic('unggah', 1) + (b.ada ? 'Ganti' : 'Pilih') + '</button></div>' + (e ? '<div class="galat-isian">' + esc(e) + '</div>' : '') + '</div>';
 }
 function htmlBerkas(g) {
-  return '<div class="banner info">' + ic('info') + '<div>Berkas tersimpan di Google Drive HRD (tidak dibagikan publik). Foto otomatis diperkecil agar unggah cepat dan pas di CV.</div></div>' +
+  return '<div class="banner info">' + ic('info') + '<div>Berkas tersimpan di Google Drive HRD (tidak dibagikan publik). Foto otomatis diperkecil agar unggah cepat dan pas di CV. <b>Kesulitan mengunggah?</b> Kirim foto berkas ke HRD lewat WhatsApp; setelah HRD mengunggahkannya, berkas otomatis muncul di sini.</div></div>' +
     BERKAS_UNGGAH.map(function (j) { return htmlSatuBerkas(j, g, true); }).join('');
 }
 function teksNilai(k) {
@@ -553,6 +553,7 @@ function render(g) {
   });
   if (i === 0 && S.data.konfirmasi === 'cocok') h = '<div class="banner ok">' + ic('centang') + '<div>Nama sudah dicocokkan dengan data HRD untuk ID <b class="mono">' + esc(S.id) + '</b>.</div></div>' + h;
   el.innerHTML = h;
+  if (S.segarBerkas !== i && (L.berkasLangkah || (L.isian || []).some(function (f) { return f.berkas; }))) { S.segarBerkas = i; segarkanBerkas(); }
   if (i === 0 && S.data.konfirmasi === 'cocok' && $('#f_nama')) $('#f_nama').readOnly = true;
   $('#kKembali').disabled = i === 0;
   $('#kLanjut').innerHTML = L.ringkasan ? ic('centang', 1) + 'Kirim Formulir' : 'Lanjutkan' + ic('kanan', 1);
@@ -652,6 +653,18 @@ function unggah(jenis, file) {
 }
 
 var _pT = null;
+function segarkanBerkas() {
+  if (!S.token) return;
+  api('berkas', {}).then(function (r) {
+    var baru = [];
+    Object.keys(r.berkas || {}).forEach(function (j) {
+      var s = r.berkas[j], b = S.berkas[j] || {};
+      if (b.sibuk) return;
+      if (!b.ada || b.nama !== s.nama) { S.berkas[j] = { ada: true, nama: s.nama, admin: s.admin, pratinjau: b.nama === s.nama ? b.pratinjau : '' }; if (s.admin) baru.push(BERKAS[j][0]); }
+    });
+    if (baru.length) { render(galatTampil()); toast(baru.join(', ') + ' sudah diunggahkan HRD.'); }
+  }).catch(function () {});
+}
 function prosesMulai(judul, ket) {
   var p = 0; $('#pJudul').textContent = judul; $('#pKet').textContent = ket || 'Jangan tutup halaman ini.'; $('#tirai').hidden = false;
   clearInterval(_pT); _pT = setInterval(function () { p = p + Math.max(0.3, (95 - p) / 40); if (p > 95) p = 95; $('#pIsi').style.width = p + '%'; $('#pAngka').textContent = Math.round(p) + '%'; }, 200);
@@ -663,17 +676,18 @@ function kirim() {
   api('kirim', { data: S.data }).then(function (r) {
     prosesSelesai(); S.sibukKirim = false;
     simpanLokal('nh_draf_' + S.id, null);
-    tampilSelesai(r.nama || S.data.nama);
+    tampilSelesai(r.nama || S.data.nama, r.ditahan);
   }).catch(function (e) {
     clearInterval(_pT); $('#tirai').hidden = true; S.sibukKirim = false;
     if (!$('#lSelesai').classList.contains('on')) toast(e.message, 'bad');
   });
 }
 function layar(id) { $$('.layar').forEach(function (s) { s.classList.toggle('on', s.id === id); }); $('#kaki').hidden = id !== 'lForm'; $('#kemajuan').hidden = id !== 'lForm'; window.scrollTo(0, 0); }
-function tampilSelesai(nama) {
+function tampilSelesai(nama, ditahan) {
   $('#judul').textContent = 'Formulir terkirim'; $('#subjudul').textContent = 'Terima kasih';
   $('#lSelesai').innerHTML = '<div class="kartu pad" style="text-align:center"><div class="selesai-ikon">' + ic('centang') + '</div><h2 class="fh" style="font-size:21px">Terima kasih, ' + esc(nama) + '!</h2>' +
     '<p class="muted" style="margin:8px 0 16px">Formulir Anda sudah diterima HRD. Instruksi langkah berikutnya akan dikirimkan oleh HRD melalui <b>WhatsApp</b> ke nomor yang Anda daftarkan. Mohon pastikan nomor tersebut tetap aktif.</p>' +
+    (ditahan ? '<div class="banner warn" style="text-align:left">' + ic('awas') + '<div>Nama yang Anda isi berbeda dengan data HRD untuk ID ini, jadi data Anda <b>dicek HRD terlebih dahulu</b> sebelum diproses. HRD akan menghubungi Anda bila ada yang perlu diperbaiki.</div></div>' : '') +
     '<div class="banner ok" style="text-align:left;margin:0">' + ic('centang') + '<div>Halaman ini sudah boleh ditutup.</div></div></div>';
   layar('lSelesai');
 }
@@ -695,7 +709,7 @@ function masuk(id) {
     try { history.replaceState(null, '', location.pathname + '?id=' + encodeURIComponent(S.id)); } catch (e) {}
     var lokal = null; try { lokal = JSON.parse(bacaLokal('nh_draf_' + S.id) || 'null'); } catch (e) {}
     var server = r.draf;
-    S.berkas = {}; if (server && server.berkas) Object.keys(server.berkas).forEach(function (j) { S.berkas[j] = { ada: true, nama: server.berkas[j].nama }; });
+    S.berkas = {}; if (server && server.berkas) Object.keys(server.berkas).forEach(function (j) { S.berkas[j] = { ada: true, nama: server.berkas[j].nama, admin: !!server.berkas[j].admin }; });
     var pakai = null;
     if (server && server.data && Object.keys(server.data).length) pakai = { data: server.data, langkah: server.langkah };
     if (lokal && lokal.data && (!pakai || (lokal.waktu || 0) > waktuServer(server && server.waktuUbah))) pakai = { data: lokal.data, langkah: lokal.langkah };
