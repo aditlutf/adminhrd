@@ -178,6 +178,9 @@ main{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
 .kam-bawah{padding:14px 16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 .kam-lok{display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:10px 12px;border-radius:var(--r);background:rgba(255,255,255,.08);margin-bottom:14px}
 .kam-lok.ok{background:rgba(15,123,62,.25);color:#B9F2CF}
+.kam-alamat{display:block;color:#fff;font-weight:600;margin-top:2px;line-height:1.35}
+.kam-alamat:empty{display:none}
+.alamat-absen{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:var(--teks-2);margin:-4px 0 12px;line-height:1.4}
 .kam-lok.galat{background:rgba(180,35,24,.3);color:#FFD0CB}
 .kam-lok.peringatan{background:rgba(138,83,0,.35);color:#FFE2AE}
 .kam-aksi{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -587,6 +590,7 @@ function renderBeranda() {
   h += '<div class="dua">' +
     '<div class="tile"><span class="lbl">' + ik('masuk', 'kecil') + 'Masuk</span><strong class="angka' + (sudahMasuk ? '' : ' kosong') + '">' + (sudahMasuk ? esc(a.masuk) : '--:--') + '</strong>' + stMasuk + '</div>' +
     '<div class="tile"><span class="lbl">' + ik('keluar', 'kecil') + 'Pulang</span><strong class="angka' + (sudahPulang ? '' : ' kosong') + '">' + (sudahPulang ? esc(a.pulang) : '--:--') + '</strong>' + stPulang + '</div></div>';
+  if (sudahMasuk && a.alamatMasuk) h += '<p class="alamat-absen">' + ik('pin', 'kecil') + '<span>Lokasi masuk: ' + esc(a.alamatMasuk) + '</span></p>';
 
   if (!d.dalamPeriode) h += '';
   else if (!sudahMasuk) h += '<button class="btn utama penuh besar" id="btnAbsen">' + ik('kamera') + 'Clock In</button>';
@@ -691,7 +695,19 @@ function salinCadangan(teks) {
   return ok;
 }
 
-var K = { jenis: 'MASUK', stream: null, foto: null, sumber: 'KAMERA', umur: 0, lok: null, lokGalat: '', watch: null };
+var K = { jenis: 'MASUK', stream: null, foto: null, sumber: 'KAMERA', umur: 0, lok: null, lokGalat: '', watch: null, alamat: '', alamatLok: null, alamatProses: false };
+function cariAlamat() {
+  if (!K.lok || K.alamatProses || K.lok.akurasi > 300) return;
+  if (K.alamatLok && jarakM(K.lok, K.alamatLok) < 40) return;
+  K.alamatProses = true;
+  var titik = { lat: K.lok.lat, lng: K.lok.lng };
+  api('alamat', titik).then(function (r) {
+    K.alamatProses = false;
+    K.alamatLok = titik;
+    K.alamat = (r && r.alamat) || '';
+    renderLokasi();
+  }).catch(function () { K.alamatProses = false; K.alamatLok = titik; });
+}
 function mulaiAbsen(jenis) {
   var d = S.data;
   if (jenis === 'PULANG') {
@@ -709,7 +725,7 @@ function mulaiAbsen(jenis) {
   bukaKamera(jenis);
 }
 function bukaKamera(jenis) {
-  K.jenis = jenis; K.foto = null; K.lok = null; K.lokGalat = '';
+  K.jenis = jenis; K.foto = null; K.lok = null; K.lokGalat = ''; K.alamat = ''; K.alamatLok = null;
   $('kamJudul').textContent = jenis === 'MASUK' ? 'Clock In' : 'Clock Out';
   $('kamera').hidden = false;
   document.body.classList.add('kunci');
@@ -770,6 +786,7 @@ function mulaiLokasi() {
     if (!K.lok || c.accuracy <= K.lok.akurasi || Date.now() - K.lok.waktu > 15000) K.lok = { lat: c.latitude, lng: c.longitude, akurasi: c.accuracy, waktu: Date.now() };
     K.lokGalat = '';
     renderLokasi();
+    cariAlamat();
   }, function (e) {
     if (K.lok) return;
     K.lokGalat = e.code === 1 ? 'Izin lokasi ditolak. Izinkan lokasi untuk situs ini lalu buka ulang kamera.' :
@@ -799,7 +816,7 @@ function renderLokasi() {
   var r = cekLokasi();
   var el = $('kamLokasi');
   el.className = 'kam-lok ' + r.kelas;
-  el.innerHTML = ik('pin') + '<span>' + r.teks + '</span>';
+  el.innerHTML = ik('pin') + '<span>' + r.teks + (K.lok ? '<span class="kam-alamat">' + (K.alamat ? esc(K.alamat) : (K.alamatProses ? 'Membaca alamat...' : '')) + '</span>' : '') + '</span>';
   perbaruiKirim();
 }
 function perbaruiKirim() {
@@ -828,6 +845,17 @@ function gambarKanvas(src, w, h, cermin) {
     waktuWatermark(),
     K.lok ? K.lok.lat.toFixed(6) + ', ' + K.lok.lng.toFixed(6) + '  (±' + Math.round(K.lok.akurasi) + ' m)' : 'Lokasi GPS tidak tersedia'
   ];
+  if (K.alamat) {
+    x.font = '500 ' + fs + 'px Montserrat, Arial, sans-serif';
+    var kata = K.alamat.split(' '), skrg = '', hasilBaris = [];
+    kata.forEach(function (k2) {
+      var coba = skrg ? skrg + ' ' + k2 : k2;
+      if (x.measureText(coba).width > cw - pad * 2 && skrg) { hasilBaris.push(skrg); skrg = k2; } else skrg = coba;
+    });
+    if (skrg) hasilBaris.push(skrg);
+    if (hasilBaris.length > 2) { hasilBaris = hasilBaris.slice(0, 2); hasilBaris[1] = hasilBaris[1].replace(/\s*\S*$/, '') + '…'; }
+    baris = baris.concat(hasilBaris);
+  }
   var tinggi = pad * 2 + lh * baris.length;
   x.fillStyle = 'rgba(0,6,82,0.78)';
   x.fillRect(0, ch - tinggi, cw, tinggi);
@@ -888,6 +916,7 @@ $('kamKirim').onclick = function () {
       (h.status === 'PULANG CEPAT' ? '<span class="chip warn">Pulang cepat</span>' : '<span class="chip ok">Durasi kerja ' + durasiTeks(h.durasi) + '</span>');
     dialog('<div class="sukses-ik">' + ik('centang') + '</div><h2 style="text-align:center">' + (jenis === 'MASUK' ? 'Clock in berhasil' : 'Clock out berhasil') + '</h2>' +
       '<div class="sukses-jam">' + esc(h.jam) + '</div><p style="text-align:center;margin:6px 0 16px">' + ket + '</p>' +
+      (h.alamat ? '<p class="alamat-absen" style="justify-content:center;text-align:center;margin:0 0 12px">' + ik('pin', 'kecil') + '<span>' + esc(h.alamat) + '</span></p>' : '') +
       (jenis === 'MASUK' ? '<p style="text-align:center">Jangan lupa catat kegiatan Anda hari ini.</p>' : '') +
       '<button class="btn utama penuh" id="dlgOk">Selesai</button>');
     $('dlgOk').onclick = tutupDialog;
