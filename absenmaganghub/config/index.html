@@ -312,7 +312,7 @@ tr.bisa-buka[aria-expanded="true"] td{background:var(--tint)}
 <!-- Lightbox foto -->
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lbJudul" hidden>
   <div class="lb-kotak">
-    <div class="lb-atas"><div><strong id="lbJudul">Foto absen</strong><span id="lbSub"></span></div><a class="btn garis kecil" id="lbUnduh" hidden><span data-ik="unduh"></span>Unduh HD</a><button class="ikon-btn" id="lbTutup" aria-label="Tutup foto"><span data-ik="x"></span></button></div>
+    <div class="lb-atas"><div><strong id="lbJudul">Foto absen</strong><span id="lbSub"></span></div><a class="btn garis kecil" id="lbUnduh" hidden><span data-ik="mata"></span>Lihat</a><button class="ikon-btn" id="lbTutup" aria-label="Tutup foto"><span data-ik="x"></span></button></div>
     <div class="lb-foto"><img id="lbImg" alt="" draggable="false"><div class="spin" id="lbSpin"></div></div>
     <div class="lb-info" id="lbInfo"></div>
   </div>
@@ -679,11 +679,11 @@ function bukaFoto(kunci, jenis) {
     $('lbImg').alt = 'Foto ' + (r.jenis === 'MASUK' ? 'clock in' : 'clock out') + ' ' + r.nama;
     $('lbSpin').hidden = true;
     $('lbJudul').textContent = r.nama;
-    $('lbSub').textContent = (r.jenis === 'MASUK' ? 'Clock in' : 'Clock out') + ' · ' + r.label + (r.hd ? ' · HD' : '');
+    $('lbSub').textContent = (r.jenis === 'MASUK' ? 'Clock in' : 'Clock out') + ' · ' + r.label;
     if (r.hd) {
       var u = $('lbUnduh');
       u.href = r.src;
-      u.download = r.nama + ' ' + r.tanggal + ' ' + (r.jenis === 'MASUK' ? 'clock in' : 'clock out') + ' HD.jpg';
+      u.download = r.nama + ' ' + r.tanggal + ' ' + (r.jenis === 'MASUK' ? 'clock in' : 'clock out') + '.jpg';
       u.hidden = false;
       u.onclick = function () { catat('UNDUH FOTO', { nama: r.nama, detail: u.download }); };
     }
