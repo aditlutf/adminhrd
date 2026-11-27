@@ -695,7 +695,7 @@ function salinCadangan(teks) {
   return ok;
 }
 
-var K = { jenis: 'MASUK', stream: null, foto: null, sumber: 'KAMERA', umur: 0, lok: null, lokGalat: '', watch: null, alamat: '', alamatLok: null, alamatProses: false };
+var K = { jenis: 'MASUK', stream: null, foto: null, fotoHd: null, sumber: 'KAMERA', umur: 0, lok: null, lokGalat: '', watch: null, alamat: '', alamatLok: null, alamatProses: false };
 function cariAlamat() {
   if (!K.lok || K.alamatProses || K.lok.akurasi > 300) return;
   if (K.alamatLok && jarakM(K.lok, K.alamatLok) < 40) return;
@@ -725,7 +725,7 @@ function mulaiAbsen(jenis) {
   bukaKamera(jenis);
 }
 function bukaKamera(jenis) {
-  K.jenis = jenis; K.foto = null; K.lok = null; K.lokGalat = ''; K.alamat = ''; K.alamatLok = null;
+  K.jenis = jenis; K.foto = null; K.fotoHd = null; K.lok = null; K.lokGalat = ''; K.alamat = ''; K.alamatLok = null;
   $('kamJudul').textContent = jenis === 'MASUK' ? 'Clock In' : 'Clock Out';
   $('kamera').hidden = false;
   document.body.classList.add('kunci');
@@ -746,7 +746,8 @@ function mulaiVideo() {
   $('kamPesan').hidden = true;
   $('kamCadangan').hidden = true;
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { kameraGagal('Browser ini tidak mendukung kamera langsung. Buka link absen di Chrome terbaru.'); return; }
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false }).then(function (st) {
+  var hd = S.data && S.data.mutuFoto === 'hd';
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: hd ? 2560 : 960 }, height: { ideal: hd ? 1920 : 1280 } }, audio: false }).then(function (st) {
     if ($('kamera').hidden) { st.getTracks().forEach(function (t) { t.stop(); }); return; }
     K.stream = st;
     var v = $('kamVideo');
@@ -830,8 +831,8 @@ function perbaruiKirim() {
 function waktuWatermark() {
   return FMT_TGL.format(sekarang()) + '  ' + jamTeks(sekarang()) + ' WIB';
 }
-function gambarKanvas(src, w, h, cermin) {
-  var s = Math.min(1, 960 / Math.max(w, h));
+function gambarKanvas(src, w, h, cermin, maks) {
+  var s = Math.min(1, (maks || 960) / Math.max(w, h));
   var cw = Math.round(w * s), ch = Math.round(h * s);
   var c = document.createElement('canvas');
   c.width = cw; c.height = ch;
@@ -876,9 +877,15 @@ function gambarKanvas(src, w, h, cermin) {
   x.fillText(label, cw - lw - pad * 0.6 + fl * 0.7, pad * 0.6 + fl * 0.45);
   return c;
 }
-function jadiFoto(c, sumber, umur) {
+function jadiFoto(c, sumber, umur, cHd) {
   var q = 0.82, url = c.toDataURL('image/jpeg', q);
   while (url.length > 560000 && q > 0.45) { q -= 0.08; url = c.toDataURL('image/jpeg', q); }
+  K.fotoHd = null;
+  if (cHd) {
+    var qh = 0.92, uh = cHd.toDataURL('image/jpeg', qh);
+    while (uh.length > 4500000 && qh > 0.6) { qh -= 0.08; uh = cHd.toDataURL('image/jpeg', qh); }
+    K.fotoHd = uh;
+  }
   K.foto = url; K.sumber = sumber; K.umur = umur || 0;
   $('kamHasil').src = url;
   hentikanVideo();
@@ -887,7 +894,8 @@ function jadiFoto(c, sumber, umur) {
 $('kamAmbil').onclick = function () {
   var v = $('kamVideo');
   if (!K.stream || !v.videoWidth) { toast('Kamera belum siap. Tunggu sebentar.', 'galat'); return; }
-  jadiFoto(gambarKanvas(v, v.videoWidth, v.videoHeight, true), 'KAMERA', 0);
+  var hd = S.data.mutuFoto === 'hd';
+  jadiFoto(gambarKanvas(v, v.videoWidth, v.videoHeight, true), 'KAMERA', 0, hd ? gambarKanvas(v, v.videoWidth, v.videoHeight, true, 2048) : null);
 };
 $('kamUlang').onclick = function () { K.foto = null; faseKamera('ambil'); mulaiVideo(); };
 $('kamFile').addEventListener('change', function () {
@@ -897,7 +905,9 @@ $('kamFile').addEventListener('change', function () {
   var umur = (Date.now() - f.lastModified) / 1000;
   if (!f.lastModified || umur > 180 || umur < -120) { toast('Foto harus diambil saat ini juga dengan kamera, bukan dari galeri.', 'galat'); return; }
   var url = URL.createObjectURL(f), img = new Image();
-  img.onload = function () { jadiFoto(gambarKanvas(img, img.naturalWidth, img.naturalHeight, false), 'FILE', umur); URL.revokeObjectURL(url); $('kamPesan').hidden = true; };
+  img.onload = function () {
+    var hd = S.data.mutuFoto === 'hd';
+    jadiFoto(gambarKanvas(img, img.naturalWidth, img.naturalHeight, false), 'FILE', umur, hd ? gambarKanvas(img, img.naturalWidth, img.naturalHeight, false, 2048) : null); URL.revokeObjectURL(url); $('kamPesan').hidden = true; };
   img.onerror = function () { toast('Foto tidak bisa dibaca. Coba lagi.', 'galat'); };
   img.src = url;
 });
@@ -907,7 +917,7 @@ $('kamKirim').onclick = function () {
   var jenis = K.jenis;
   sibuk(true, 'Mengirim absen...');
   api(jenis === 'MASUK' ? 'clockIn' : 'clockOut', {
-    foto: K.foto, lat: K.lok ? K.lok.lat : '', lng: K.lok ? K.lok.lng : '', akurasi: K.lok ? K.lok.akurasi : '',
+    foto: K.foto, fotoHd: K.fotoHd || '', lat: K.lok ? K.lok.lat : '', lng: K.lok ? K.lok.lng : '', akurasi: K.lok ? K.lok.akurasi : '',
     perangkat: S.perangkat, sumber: K.sumber, umurFoto: Math.round(K.umur)
   }).then(function (h) {
     sibuk(false);

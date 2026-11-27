@@ -221,7 +221,10 @@ tr.bisa-buka[aria-expanded="true"] td{background:var(--tint)}
 .lb-atas{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 18px;border-bottom:1px solid var(--garis)}
 .lb-atas strong{display:block;font-family:var(--judul);font-size:16px;color:var(--navy-2)}
 .lb-atas span{font-size:13px;color:var(--teks-2)}
-.lb-atas .ikon-btn{margin-left:auto}
+.lb-atas .ikon-btn{margin-left:4px}
+.lb-atas > div{margin-right:auto}
+.chip.hd{background:var(--navy);color:#fff}
+.tanda-hd{font-size:10px;font-weight:700;background:var(--navy);color:#fff;border-radius:4px;padding:1px 4px;margin-left:4px}
 .lb-foto{background:#0B0C2E;flex:1;min-height:240px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .lb-foto img{max-width:100%;max-height:68vh;display:block;-webkit-user-drag:none;user-select:none}
 .lb-info{padding:12px 18px;font-size:13px;color:var(--teks-2);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
@@ -309,7 +312,7 @@ tr.bisa-buka[aria-expanded="true"] td{background:var(--tint)}
 <!-- Lightbox foto -->
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lbJudul" hidden>
   <div class="lb-kotak">
-    <div class="lb-atas"><div><strong id="lbJudul">Foto absen</strong><span id="lbSub"></span></div><button class="ikon-btn" id="lbTutup" aria-label="Tutup foto"><span data-ik="x"></span></button></div>
+    <div class="lb-atas"><div><strong id="lbJudul">Foto absen</strong><span id="lbSub"></span></div><a class="btn garis kecil" id="lbUnduh" hidden><span data-ik="unduh"></span>Unduh HD</a><button class="ikon-btn" id="lbTutup" aria-label="Tutup foto"><span data-ik="x"></span></button></div>
     <div class="lb-foto"><img id="lbImg" alt="" draggable="false"><div class="spin" id="lbSpin"></div></div>
     <div class="lb-info" id="lbInfo"></div>
   </div>
@@ -598,8 +601,8 @@ function renderHarian() {
     if (a && a.latMasuk) lok.push(tautPeta(a.latMasuk, a.lngMasuk, 'Masuk', a.jarakMasuk, a.alamatMasuk));
     if (a && a.latPulang) lok.push(tautPeta(a.latPulang, a.lngPulang, 'Pulang', a.jarakPulang, a.alamatPulang));
     var foto = a && (a.fotoMasuk || a.fotoPulang) ? '<div class="foto-btns">' +
-      (a.fotoMasuk ? '<button class="btn garis kecil" data-foto="' + esc(a.kunci) + '" data-jenis="MASUK" aria-label="Lihat foto clock in ' + esc(b.nama) + '">' + ik('gambar', 'kecil') + 'Masuk</button>' : '') +
-      (a.fotoPulang ? '<button class="btn garis kecil" data-foto="' + esc(a.kunci) + '" data-jenis="PULANG" aria-label="Lihat foto clock out ' + esc(b.nama) + '">' + ik('gambar', 'kecil') + 'Pulang</button>' : '') + '</div>' : '<span class="redup">-</span>';
+      (a.fotoMasuk ? '<button class="btn garis kecil" data-foto="' + esc(a.kunci) + '" data-jenis="MASUK" aria-label="Lihat foto clock in ' + esc(b.nama) + '">' + ik('gambar', 'kecil') + 'Masuk' + (a.hdMasuk ? '<span class="tanda-hd">HD</span>' : '') + '</button>' : '') +
+      (a.fotoPulang ? '<button class="btn garis kecil" data-foto="' + esc(a.kunci) + '" data-jenis="PULANG" aria-label="Lihat foto clock out ' + esc(b.nama) + '">' + ik('gambar', 'kecil') + 'Pulang' + (a.hdPulang ? '<span class="tanda-hd">HD</span>' : '') + '</button>' : '') + '</div>' : '<span class="redup">-</span>';
     var keg = b.kegiatan.length ? '<button class="btn garis kecil" data-keg="' + i + '" aria-expanded="false">' + b.kegiatan.length + ' kegiatan</button>' : '<span class="redup">' + (a && a.masuk ? 'Belum diisi' : '-') + '</span>';
     var tanda = (a && a.tanda ? a.tanda.split(' | ').map(function (t) { return '<span>' + ik('awas', 'kecil') + esc(t) + '</span>'; }).join('') : '') +
       (a && a.catatan ? '<span style="background:var(--tint);color:var(--navy-2)">' + ik('pensil', 'kecil') + esc(a.catatan) + '</span>' : '');
@@ -662,6 +665,7 @@ function bukaFoto(kunci, jenis) {
   $('lbSpin').hidden = false;
   $('lbJudul').textContent = 'Memuat foto...';
   $('lbSub').textContent = '';
+  $('lbUnduh').hidden = true;
   $('lbInfo').innerHTML = '';
   $('lb').hidden = false;
   $('lbTutup').focus();
@@ -675,7 +679,14 @@ function bukaFoto(kunci, jenis) {
     $('lbImg').alt = 'Foto ' + (r.jenis === 'MASUK' ? 'clock in' : 'clock out') + ' ' + r.nama;
     $('lbSpin').hidden = true;
     $('lbJudul').textContent = r.nama;
-    $('lbSub').textContent = (r.jenis === 'MASUK' ? 'Clock in' : 'Clock out') + ' · ' + r.label;
+    $('lbSub').textContent = (r.jenis === 'MASUK' ? 'Clock in' : 'Clock out') + ' · ' + r.label + (r.hd ? ' · HD' : '');
+    if (r.hd) {
+      var u = $('lbUnduh');
+      u.href = r.src;
+      u.download = r.nama + ' ' + r.tanggal + ' ' + (r.jenis === 'MASUK' ? 'clock in' : 'clock out') + ' HD.jpg';
+      u.hidden = false;
+      u.onclick = function () { catat('UNDUH FOTO', { nama: r.nama, detail: u.download }); };
+    }
     $('lbInfo').innerHTML = '<span>' + ik('jam', 'kecil') + ' ' + esc(r.jam) + ' WIB</span>' +
       (r.lat ? '<a href="' + petaUrl(r.lat, r.lng) + '" target="_blank" rel="noopener" data-peta="Foto ' + (r.jenis === 'MASUK' ? 'masuk ' : 'pulang ') + esc(r.tanggal) + '" data-nama="' + esc(r.nama) + '">' +
         ik('pin', 'kecil') + ' ' + esc(r.lat) + ', ' + esc(r.lng) + '</a>' : '<span>Tanpa lokasi</span>') +
@@ -910,7 +921,8 @@ function renderPeserta() {
     '<div class="tabel-wrap"><table class="resp"><thead><tr><th>Peserta</th><th>NIK</th><th>WhatsApp</th><th>Penempatan</th><th>Periode magang</th><th>Status</th><th>PIN</th><th>Login terakhir</th>' + (isAdmin() ? '<th></th>' : '') + '</tr></thead><tbody>';
   if (!list.length) h += '<tr><td colspan="9" class="kosong penuh">' + (A.peserta.length ? 'Tidak ditemukan.' : 'Belum ada peserta. Tambahkan satu per satu atau impor sekaligus.') + '</td></tr>';
   list.forEach(function (p) {
-    var st = p.status === 'AKTIF' ? '<span class="chip ok">Aktif</span>' : p.status === 'UJI' ? '<span class="chip info">Uji coba</span>' : '<span class="chip">Nonaktif</span>';
+    var st = (p.status === 'AKTIF' ? '<span class="chip ok">Aktif</span>' : p.status === 'UJI' ? '<span class="chip info">Uji coba</span>' : '<span class="chip">Nonaktif</span>') +
+      (p.fotoHd ? ' <span class="chip hd" title="Foto HD aktif, hanya terlihat admin">Foto HD</span>' : '');
     h += '<tr><td data-l="Peserta" class="nama"><b>' + esc(p.nama) + '</b><small>' + esc(p.id) + '</small></td>' +
       '<td data-l="NIK">' + (p.nik ? '<small>' + esc(p.nik) + '</small>' : '<span class="chip warn">Belum diisi</span>') + '</td>' +
       '<td data-l="WhatsApp">' + (p.hp ? esc(p.hp) : '<span class="redup">-</span>') + '</td><td data-l="Penempatan">' + esc(p.penempatan || '-') + '</td>' +
@@ -946,12 +958,14 @@ function dialogPeserta(p) {
     '<div class="field"><label for="pStatus">Status</label><select class="input" id="pStatus"><option value="AKTIF"' + (p.status === 'AKTIF' ? ' selected' : '') + '>Aktif</option>' +
     '<option value="UJI"' + (p.status === 'UJI' ? ' selected' : '') + '>Uji coba (bisa login, tidak dihitung di rekap dan pengingat)</option>' +
     '<option value="NONAKTIF"' + (p.status === 'NONAKTIF' ? ' selected' : '') + '>Nonaktif (tidak bisa login)</option></select></div>' +
+    '<label class="saklar" for="pHd"><span><b>Foto HD</b><small>Foto absen peserta ini juga disimpan dalam resolusi tinggi (sampai 2048 px). Versi HD hanya bisa dilihat akun admin; BM tetap melihat foto biasa dan tidak tahu setelan ini.</small></span>' +
+    '<input type="checkbox" id="pHd"' + (p.fotoHd ? ' checked' : '') + '></label>' +
     '<p class="galat" id="pGalat" hidden></p><div class="aksi"><button class="btn garis" id="pBatal">Batal</button><button class="btn utama" id="pSimpan">Simpan</button></div>');
   $('pBatal').onclick = tutupDialog;
   $('pSimpan').onclick = function () {
     var btn = this;
     btn.disabled = true;
-    api('pesertaSimpan', { id: p.id || '', nama: $('pNama').value, nik: $('pNik').value, hp: $('pHp').value, penempatan: $('pPen').value, mulai: $('pMulai').value, selesai: $('pSelesai').value, status: $('pStatus').value })
+    api('pesertaSimpan', { id: p.id || '', nama: $('pNama').value, nik: $('pNik').value, hp: $('pHp').value, penempatan: $('pPen').value, mulai: $('pMulai').value, selesai: $('pSelesai').value, status: $('pStatus').value, fotoHd: $('pHd').checked })
       .then(function (r) { tutupDialog(); setelahPeserta(r); toast('Data peserta tersimpan.', 'ok'); })
       .catch(function (e) { btn.disabled = false; var g = $('pGalat'); g.innerHTML = ik('awas') + '<span>' + esc(e.message) + '</span>'; g.hidden = false; });
   };
@@ -1056,7 +1070,7 @@ var NAMA_HAL = { harian: 'Kehadiran Harian', rekap: 'Rekap Kehadiran', kegiatan:
 var LABEL_JENIS = {
   'BUKA PANEL': 'Membuka panel', 'HALAMAN': 'Di halaman', 'LIHAT KEHADIRAN HARIAN': 'Melihat kehadiran harian', 'LIHAT REKAP': 'Melihat rekap', 'LIHAT KEGIATAN': 'Melihat kegiatan',
   'LIHAT IZIN': 'Melihat izin', 'LIHAT DATA PESERTA': 'Melihat data peserta', 'LIHAT FOTO': 'Membuka foto', 'BUKA KEGIATAN': 'Membuka kegiatan peserta', 'BUKA PETA': 'Membuka peta lokasi',
-  'CARI': 'Mencari', 'FILTER': 'Memakai filter', 'UNDUH CSV': 'Mengunduh data', 'LOGOUT': 'Keluar', 'COBA AKSES ADMIN': 'Mencoba fungsi admin'
+  'CARI': 'Mencari', 'FILTER': 'Memakai filter', 'UNDUH CSV': 'Mengunduh data', 'UNDUH FOTO': 'Mengunduh foto HD', 'LOGOUT': 'Keluar', 'COBA AKSES ADMIN': 'Mencoba fungsi admin'
 };
 function labelJenis(j) { return LABEL_JENIS[j] || (j.charAt(0) + j.slice(1).toLowerCase()); }
 var SKALA = ['#DDE0FB', '#B4B9F4', '#868CEC', '#5A5FE3', '#2E2EC2'];
