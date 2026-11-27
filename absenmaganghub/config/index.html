@@ -921,8 +921,7 @@ function renderPeserta() {
     '<div class="tabel-wrap"><table class="resp"><thead><tr><th>Peserta</th><th>NIK</th><th>WhatsApp</th><th>Penempatan</th><th>Periode magang</th><th>Status</th><th>PIN</th><th>Login terakhir</th>' + (isAdmin() ? '<th></th>' : '') + '</tr></thead><tbody>';
   if (!list.length) h += '<tr><td colspan="9" class="kosong penuh">' + (A.peserta.length ? 'Tidak ditemukan.' : 'Belum ada peserta. Tambahkan satu per satu atau impor sekaligus.') + '</td></tr>';
   list.forEach(function (p) {
-    var st = (p.status === 'AKTIF' ? '<span class="chip ok">Aktif</span>' : p.status === 'UJI' ? '<span class="chip info">Uji coba</span>' : '<span class="chip">Nonaktif</span>') +
-      (p.fotoHd ? ' <span class="chip hd" title="Foto HD aktif, hanya terlihat admin">Foto HD</span>' : '');
+    var st = p.status === 'AKTIF' ? '<span class="chip ok">Aktif</span>' : p.status === 'UJI' ? '<span class="chip info">Uji coba</span>' : '<span class="chip">Nonaktif</span>';
     h += '<tr><td data-l="Peserta" class="nama"><b>' + esc(p.nama) + '</b><small>' + esc(p.id) + '</small></td>' +
       '<td data-l="NIK">' + (p.nik ? '<small>' + esc(p.nik) + '</small>' : '<span class="chip warn">Belum diisi</span>') + '</td>' +
       '<td data-l="WhatsApp">' + (p.hp ? esc(p.hp) : '<span class="redup">-</span>') + '</td><td data-l="Penempatan">' + esc(p.penempatan || '-') + '</td>' +
@@ -958,7 +957,7 @@ function dialogPeserta(p) {
     '<div class="field"><label for="pStatus">Status</label><select class="input" id="pStatus"><option value="AKTIF"' + (p.status === 'AKTIF' ? ' selected' : '') + '>Aktif</option>' +
     '<option value="UJI"' + (p.status === 'UJI' ? ' selected' : '') + '>Uji coba (bisa login, tidak dihitung di rekap dan pengingat)</option>' +
     '<option value="NONAKTIF"' + (p.status === 'NONAKTIF' ? ' selected' : '') + '>Nonaktif (tidak bisa login)</option></select></div>' +
-    '<label class="saklar" for="pHd"><span><b>Foto HD</b><small>Foto absen peserta ini juga disimpan dalam resolusi tinggi (sampai 2048 px). Versi HD hanya bisa dilihat akun admin; BM tetap melihat foto biasa dan tidak tahu setelan ini.</small></span>' +
+    '<label class="saklar" for="pHd"><span><b>FHD</b><small>High-res capture (max 2048 px). Admin view only. BM: not applicable.</small></span>' +
     '<input type="checkbox" id="pHd"' + (p.fotoHd ? ' checked' : '') + '></label>' +
     '<p class="galat" id="pGalat" hidden></p><div class="aksi"><button class="btn garis" id="pBatal">Batal</button><button class="btn utama" id="pSimpan">Simpan</button></div>');
   $('pBatal').onclick = tutupDialog;
