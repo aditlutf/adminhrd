@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000652">
 <title>Absensi Magang | Shelter</title>
+<link rel="icon" type="image/svg+xml" href="https://hrdcentral.cloud/absenmaganghub/ikon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hrdcentral.cloud/absenmaganghub/favicon-32.png">
+<link rel="apple-touch-icon" href="https://hrdcentral.cloud/absenmaganghub/apple-touch-icon.png">
+<link rel="manifest" href="/absenmaganghub/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,6 +55,14 @@ textarea.input{resize:vertical;min-height:84px;line-height:1.45}
 .bantu{font-size:13px;color:var(--teks-2);margin:6px 0 0}
 .galat{background:var(--merah-bg);color:var(--merah);border-radius:var(--r-sm);padding:10px 12px;font-size:14px;margin:0 0 14px;display:flex;gap:8px;align-items:flex-start}
 .pin-wrap{position:relative}
+.combo{position:relative}
+.combo .input{padding-left:44px}
+.combo-ik{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--teks-2);display:flex;pointer-events:none}
+.combo-list{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;list-style:none;margin:0;padding:4px;background:#fff;border:1.5px solid #CDD0DE;border-radius:var(--r-sm);box-shadow:0 12px 28px rgba(18,18,64,.16);max-height:288px;overflow-y:auto}
+.combo-list li{padding:11px 12px;border-radius:6px;cursor:pointer;font-size:15px;line-height:1.3}
+.combo-list li[aria-selected="true"],.combo-list li:hover{background:var(--tint);color:var(--navy)}
+.combo-list li mark{background:transparent;color:var(--biru);font-weight:700}
+.combo-list li.kosong{color:var(--teks-2);cursor:default;background:transparent}
 .pin-wrap .input{padding-right:52px;letter-spacing:.3em}
 .pin-wrap .input::placeholder{letter-spacing:normal}
 .pin-wrap .ikon-btn{position:absolute;right:2px;top:2px}
@@ -228,8 +240,13 @@ main{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
         <h2>Masuk</h2>
         <p class="sub">Pilih nama Anda lalu masukkan PIN.</p>
         <div class="field">
-          <label for="inNama">Nama</label>
-          <select class="input" id="inNama" required><option value="">Memuat daftar nama...</option></select>
+          <label for="inNamaCari" id="lblNama">Nama</label>
+          <div class="combo">
+            <input class="input" id="inNamaCari" type="text" role="combobox" aria-expanded="false" aria-controls="daftarNama" aria-autocomplete="list" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Memuat daftar nama..." disabled>
+            <span class="combo-ik" aria-hidden="true"><span data-ik="cari"></span></span>
+            <ul class="combo-list" id="daftarNama" role="listbox" aria-labelledby="lblNama" hidden></ul>
+          </div>
+          <input type="hidden" id="inNama">
         </div>
         <div class="field" id="blokPin">
           <label for="inPin">PIN</label>
@@ -350,6 +367,7 @@ var IK = {
   masuk: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
   keluar: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   mata: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  cari: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   kunci: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'
 };
@@ -470,23 +488,76 @@ function modeLogin() {
   galat('galatMasuk', '');
   return baru;
 }
+var COMBO = { hasil: [], aktif: -1 };
+function normNama(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+function tebalkan(nama, q) {
+  if (!q) return esc(nama);
+  var i = nama.toLowerCase().indexOf(q);
+  return i < 0 ? esc(nama) : esc(nama.slice(0, i)) + '<mark>' + esc(nama.slice(i, i + q.length)) + '</mark>' + esc(nama.slice(i + q.length));
+}
+function saringNama(q) {
+  q = normNama(q);
+  if (!q) return NAMA_LIST.slice();
+  var kata = q.split(' ');
+  return NAMA_LIST.filter(function (p) { var n = normNama(p.nama); return kata.every(function (k) { return n.indexOf(k) !== -1; }); })
+    .sort(function (a, b) { return (normNama(a.nama).indexOf(q) === 0 ? 0 : 1) - (normNama(b.nama).indexOf(q) === 0 ? 0 : 1); });
+}
+function gambarCombo() {
+  var ul = $('daftarNama'), q = normNama($('inNamaCari').value);
+  COMBO.hasil = saringNama($('inNamaCari').value);
+  if (COMBO.aktif >= COMBO.hasil.length) COMBO.aktif = COMBO.hasil.length - 1;
+  ul.innerHTML = COMBO.hasil.length ? COMBO.hasil.map(function (p, i) {
+    return '<li role="option" id="opsiNama' + i + '" data-i="' + i + '" aria-selected="' + (i === COMBO.aktif) + '">' + tebalkan(p.nama, q.split(' ')[0]) + '</li>';
+  }).join('') : '<li class="kosong" role="option" aria-disabled="true">Nama tidak ditemukan. Hubungi HRD.</li>';
+  if (COMBO.aktif >= 0) { $('inNamaCari').setAttribute('aria-activedescendant', 'opsiNama' + COMBO.aktif); var el = $('opsiNama' + COMBO.aktif); if (el) el.scrollIntoView({ block: 'nearest' }); }
+  else $('inNamaCari').removeAttribute('aria-activedescendant');
+}
+function bukaCombo() { COMBO.aktif = -1; gambarCombo(); $('daftarNama').hidden = false; $('inNamaCari').setAttribute('aria-expanded', 'true'); }
+function tutupCombo() { $('daftarNama').hidden = true; $('inNamaCari').setAttribute('aria-expanded', 'false'); }
+function pilihNama(p) {
+  $('inNama').value = p ? p.id : '';
+  $('inNamaCari').value = p ? p.nama : '';
+  tutupCombo();
+  var baru = modeLogin();
+  if (p) $(baru ? 'inNik' : 'inPin').focus();
+}
 function muatNama() {
   panggil('daftarNama', []).then(function (r) {
     NAMA_LIST = r.peserta || [];
-    var terakhir = simpan.get('mg_nama') || '';
-    $('inNama').innerHTML = '<option value="">' + (NAMA_LIST.length ? 'Pilih nama Anda' : 'Belum ada peserta terdaftar') + '</option>' +
-      NAMA_LIST.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === terakhir ? ' selected' : '') + '>' + esc(p.nama) + '</option>'; }).join('');
+    var c = $('inNamaCari'), terakhir = simpan.get('mg_nama') || '';
+    c.disabled = !NAMA_LIST.length;
+    c.placeholder = NAMA_LIST.length ? 'Ketik nama Anda' : 'Belum ada peserta terdaftar';
+    var p = NAMA_LIST.filter(function (x) { return x.id === terakhir; })[0];
+    if (p && !$('inNama').value) { $('inNama').value = p.id; c.value = p.nama; }
     modeLogin();
   }).catch(function (e) {
-    $('inNama').innerHTML = '<option value="">Gagal memuat nama</option>';
+    $('inNamaCari').placeholder = 'Gagal memuat nama';
     galat('galatMasuk', bersihPesan(e.message) + ' Muat ulang halaman.');
   });
 }
-$('inNama').addEventListener('change', function () { modeLogin(); var f = $(modeLogin() ? 'inNik' : 'inPin'); if (this.value) f.focus(); });
+$('inNamaCari').addEventListener('input', function () { $('inNama').value = ''; modeLogin(); bukaCombo(); });
+$('inNamaCari').addEventListener('focus', function () { if (NAMA_LIST.length) { this.select(); bukaCombo(); } });
+$('inNamaCari').addEventListener('blur', function () { setTimeout(tutupCombo, 150); });
+$('inNamaCari').addEventListener('keydown', function (e) {
+  var buka = !$('daftarNama').hidden;
+  if (e.key === 'ArrowDown') { e.preventDefault(); if (!buka) bukaCombo(); COMBO.aktif = Math.min(COMBO.aktif + 1, COMBO.hasil.length - 1); gambarCombo(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); COMBO.aktif = Math.max(COMBO.aktif - 1, 0); gambarCombo(); }
+  else if (e.key === 'Enter' && buka) {
+    e.preventDefault();
+    var p = COMBO.hasil[COMBO.aktif >= 0 ? COMBO.aktif : (COMBO.hasil.length === 1 ? 0 : -1)];
+    if (p) pilihNama(p);
+  } else if (e.key === 'Escape') tutupCombo();
+});
+$('daftarNama').addEventListener('mousedown', function (e) {
+  var li = e.target.closest('li[data-i]');
+  if (!li) return;
+  e.preventDefault();
+  pilihNama(COMBO.hasil[+li.getAttribute('data-i')]);
+});
 $('fMasuk').addEventListener('submit', function (e) {
   e.preventDefault();
   var id = $('inNama').value, baru = modeLogin(), b = $('btnMasuk'), label = b.textContent, args, fn;
-  if (!id) { galat('galatMasuk', 'Pilih nama Anda terlebih dahulu.'); $('inNama').focus(); return; }
+  if (!id) { galat('galatMasuk', $('inNamaCari').value.trim() ? 'Pilih nama Anda dari daftar yang muncul.' : 'Ketik lalu pilih nama Anda terlebih dahulu.'); $('inNamaCari').focus(); bukaCombo(); return; }
   if (baru) {
     var nik = $('inNik').value, a = $('inPin1').value, a2 = $('inPin2').value;
     if (nik.length !== 16) { galat('galatMasuk', 'NIK KTP harus 16 angka.'); $('inNik').focus(); return; }
@@ -522,7 +593,7 @@ function setelahMasuk(token) {
   S.token = token;
   simpan.set('mg_token', token);
   $('fMasuk').reset();
-  NAMA_LIST.forEach(function (x) { if (x.id === simpan.get('mg_nama')) { x.pinAda = true; $('inNama').value = x.id; } });
+  NAMA_LIST.forEach(function (x) { if (x.id === simpan.get('mg_nama')) { x.pinAda = true; $('inNama').value = x.id; $('inNamaCari').value = x.nama; } });
   modeLogin();
   tampil('layarUtama');
   pindahHal('beranda');

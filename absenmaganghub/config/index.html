@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#000652">
 <meta name="robots" content="noindex,nofollow">
 <title>Admin Absensi Magang | Shelter</title>
+<link rel="icon" type="image/svg+xml" href="https://hrdcentral.cloud/absenmaganghub/ikon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://hrdcentral.cloud/absenmaganghub/favicon-32.png">
+<link rel="apple-touch-icon" href="https://hrdcentral.cloud/absenmaganghub/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -224,6 +227,8 @@ tr.bisa-buka[aria-expanded="true"] td{background:var(--tint)}
 .lb-atas .ikon-btn{margin-left:4px}
 .lb-atas > div{margin-right:auto}
 .chip.hd{background:var(--navy);color:#fff}
+.sel-pin{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pin-tampil{font-family:ui-monospace,Consolas,monospace;font-size:16px;font-weight:700;letter-spacing:.25em;color:var(--navy);background:var(--tint);border-radius:6px;padding:4px 8px}
 .tanda-hd{font-size:10px;font-weight:700;background:var(--navy);color:#fff;border-radius:4px;padding:1px 4px;margin-left:4px}
 .lb-foto{background:#0B0C2E;flex:1;min-height:240px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 .lb-foto img{max-width:100%;max-height:68vh;display:block;-webkit-user-drag:none;user-select:none}
@@ -927,7 +932,9 @@ function renderPeserta() {
       '<td data-l="WhatsApp">' + (p.hp ? esc(p.hp) : '<span class="redup">-</span>') + '</td><td data-l="Penempatan">' + esc(p.penempatan || '-') + '</td>' +
       '<td data-l="Periode">' + (p.mulai ? tglPendek(p.mulai) + ' – ' + tglPendek(p.selesai) : '<span class="redup">-</span>') + '</td>' +
       '<td data-l="Status">' + st + '</td>' +
-      '<td data-l="PIN">' + (p.pinAda ? '<span class="chip info">Sudah dibuat</span>' : '<span class="chip warn">Belum login</span>') + '</td>' +
+      '<td data-l="PIN"><div class="sel-pin">' + (p.pinAda ? '<span class="chip info">Sudah dibuat</span>' : '<span class="chip warn">Belum login</span>') +
+        (isAdmin() && p.pinAda ? (p.pinTampil ? '<span id="pinv_' + esc(p.id) + '"><button class="btn garis kecil" data-pin="' + esc(p.id) + '" aria-label="Lihat PIN ' + esc(p.nama) + '">' + ik('mata', 'kecil') + 'Lihat</button></span>' :
+          '<small class="redup" title="PIN dibuat sebelum fitur lihat PIN. Reset PIN agar peserta membuat PIN baru yang bisa dilihat.">PIN lama, tidak bisa ditampilkan</small>') : '') + '</div></td>' +
       '<td data-l="Login"><small>' + esc(p.login ? p.login.replace(' | ', '\n') : '-').replace(/\n/g, '<br>') + '</small></td>' +
       (isAdmin() ? '<td data-l="Aksi"><div class="foto-btns"><button class="btn garis kecil" data-ubah="' + esc(p.id) + '">' + ik('pensil', 'kecil') + 'Ubah</button>' +
         (p.pinAda ? '<button class="btn garis kecil" data-reset="' + esc(p.id) + '">' + ik('kunci', 'kecil') + 'Reset PIN</button>' : '') + '</div></td>' : '') + '</tr>';
@@ -935,6 +942,17 @@ function renderPeserta() {
   h += '</tbody></table></div>';
   $('psIsi').innerHTML = h;
   $$('[data-ubah]').forEach(function (b) { b.onclick = function () { dialogPeserta(A.peserta.filter(function (p) { return p.id === b.getAttribute('data-ubah'); })[0]); }; });
+  $$('[data-pin]').forEach(function (b) {
+    b.onclick = function () {
+      var id = b.getAttribute('data-pin'), wadah = $('pinv_' + id);
+      b.disabled = true;
+      api('lihatPin', { id: id }).then(function (r) {
+        if (!r.ada) { b.disabled = false; toast(r.alasan, 'galat'); return; }
+        wadah.innerHTML = '<span class="pin-tampil" aria-label="PIN ' + esc(r.nama) + '">' + esc(r.pin) + '</span>';
+        setTimeout(function () { if (A.hal === 'peserta' && $('pinv_' + id)) renderPeserta(); }, 20000);
+      }).catch(function (e) { b.disabled = false; toast(e.message, 'galat'); });
+    };
+  });
   $$('[data-reset]').forEach(function (b) {
     b.onclick = function () {
       var p = A.peserta.filter(function (x) { return x.id === b.getAttribute('data-reset'); })[0];
@@ -1069,7 +1087,7 @@ var NAMA_HAL = { harian: 'Kehadiran Harian', rekap: 'Rekap Kehadiran', kegiatan:
 var LABEL_JENIS = {
   'BUKA PANEL': 'Membuka panel', 'HALAMAN': 'Di halaman', 'LIHAT KEHADIRAN HARIAN': 'Melihat kehadiran harian', 'LIHAT REKAP': 'Melihat rekap', 'LIHAT KEGIATAN': 'Melihat kegiatan',
   'LIHAT IZIN': 'Melihat izin', 'LIHAT DATA PESERTA': 'Melihat data peserta', 'LIHAT FOTO': 'Membuka foto', 'BUKA KEGIATAN': 'Membuka kegiatan peserta', 'BUKA PETA': 'Membuka peta lokasi',
-  'CARI': 'Mencari', 'FILTER': 'Memakai filter', 'UNDUH CSV': 'Mengunduh data', 'UNDUH FOTO': 'Mengunduh foto HD', 'LOGOUT': 'Keluar', 'COBA AKSES ADMIN': 'Mencoba fungsi admin'
+  'CARI': 'Mencari', 'FILTER': 'Memakai filter', 'UNDUH CSV': 'Mengunduh data', 'UNDUH FOTO': 'Mengunduh foto HD', 'LIHAT PIN': 'Melihat PIN', 'RESET PIN': 'Reset PIN', 'LOGOUT': 'Keluar', 'COBA AKSES ADMIN': 'Mencoba fungsi admin'
 };
 function labelJenis(j) { return LABEL_JENIS[j] || (j.charAt(0) + j.slice(1).toLowerCase()); }
 var SKALA = ['#DDE0FB', '#B4B9F4', '#868CEC', '#5A5FE3', '#2E2EC2'];
