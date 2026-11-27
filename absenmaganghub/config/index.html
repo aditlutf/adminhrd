@@ -1334,7 +1334,15 @@ function keluar(diam) {
   tampilMasuk();
 }
 $('btnKeluar').onclick = function () { konfirmasi('Keluar dari panel?', 'Anda perlu login lagi untuk membuka panel.', 'Keluar', 'bahaya').then(function (ya) { if (ya) keluar(false); }); };
-setInterval(function () { if (A.token && A.akun && document.visibilityState === 'visible') api('detak', jkStat()).catch(function () { }); }, 60000);
+setInterval(function () {
+  if (!A.token || !A.akun || document.visibilityState !== 'visible') return;
+  api('detak', jkStat()).then(function (r) {
+    if (!r || !r.hariIni || !A.muat || r.hariIni === A.muat.hariIni) return;
+    var lama = A.muat.hariIni;
+    A.muat.hariIni = r.hariIni;
+    if (A.tgl === lama) A.tgl = r.hariIni;
+  }).catch(function () { });
+}, 60000);
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   if (!$('lb').hidden) tutupFoto();

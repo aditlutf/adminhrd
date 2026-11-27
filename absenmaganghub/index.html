@@ -390,7 +390,7 @@ function idPerangkat() {
   }
   return x;
 }
-var S = { token: simpan.get('mg_token') || '', data: null, hal: 'beranda', offset: 0, bulan: '', riwayat: null, izin: null, hpPin: '', kegEdit: null, kegStatus: 'SELESAI', izinJenis: 'IZIN', perangkat: idPerangkat() };
+var S = { token: simpan.get('mg_token') || '', data: null, hal: 'beranda', offset: 0, bulan: '', riwayat: null, izin: null, hpPin: '', kegEdit: null, kegStatus: 'SELESAI', kegDraf: '', izinJenis: 'IZIN', perangkat: idPerangkat() };
 
 function panggil(fn, args) {
   if (!MODE_GAS) {
@@ -684,7 +684,7 @@ function renderBeranda() {
   var edit = S.kegEdit ? d.kegiatan.filter(function (k) { return k.kunci === S.kegEdit; })[0] : null;
   if (S.kegEdit && !edit) S.kegEdit = null;
   h += '<div class="pemisah"></div><form id="fKeg" novalidate><div class="field"><label for="kegTeks">' + (edit ? 'Ubah kegiatan' : 'Tambah kegiatan') + '</label>' +
-    '<textarea class="input" id="kegTeks" maxlength="1000" placeholder="Contoh: Menyusun rekap data pelamar posisi security minggu ini">' + (edit ? esc(edit.teks) : '') + '</textarea></div>' +
+    '<textarea class="input" id="kegTeks" maxlength="1000" placeholder="Contoh: Menyusun rekap data pelamar posisi security minggu ini">' + esc(edit ? edit.teks : S.kegDraf) + '</textarea></div>' +
     '<div class="label" id="lblStatus">Status</div><div class="segmen" role="group" aria-labelledby="lblStatus">' +
     '<button type="button" data-st="SELESAI" aria-pressed="' + (S.kegStatus === 'SELESAI') + '">Selesai</button>' +
     '<button type="button" data-st="PROSES" aria-pressed="' + (S.kegStatus === 'PROSES') + '">Masih proses</button></div>' +
@@ -726,6 +726,7 @@ function renderBeranda() {
       });
     };
   });
+  $('kegTeks').addEventListener('input', function () { if (!S.kegEdit) S.kegDraf = this.value; });
   if ($('kegBatal')) $('kegBatal').onclick = function () { S.kegEdit = null; S.kegStatus = 'SELESAI'; renderBeranda(); };
   $('fKeg').onsubmit = function (e) {
     e.preventDefault();
@@ -734,6 +735,7 @@ function renderBeranda() {
     var tb = $('kegSimpan');
     tb.disabled = true;
     api('kegiatanSimpan', { teks: teks, status: S.kegStatus, kunci: S.kegEdit || '' }).then(function (r2) {
+      if (!S.kegEdit) S.kegDraf = '';
       d.kegiatan = r2.kegiatan; S.kegEdit = null; S.kegStatus = 'SELESAI';
       renderBeranda();
       toast('Kegiatan tersimpan.', 'ok');
@@ -753,8 +755,15 @@ function salinKegiatan() {
   var teks = 'Kegiatan ' + d.labelTanggal + '\n' + d.kegiatan.map(function (k, i) { return (i + 1) + '. ' + k.teks + (k.status === 'PROSES' ? ' (masih proses)' : ''); }).join('\n');
   var selesai = function () { toast('Kegiatan disalin. Tempel ke logbook MagangHub.', 'ok'); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(teks).then(selesai).catch(function () { salinCadangan(teks) ? selesai() : toast('Gagal menyalin.', 'galat'); });
-  } else if (salinCadangan(teks)) selesai(); else toast('Gagal menyalin.', 'galat');
+    navigator.clipboard.writeText(teks).then(selesai).catch(function () { salinCadangan(teks) ? selesai() : salinManual(teks); });
+  } else if (salinCadangan(teks)) selesai(); else salinManual(teks);
+}
+function salinManual(teks) {
+  dialog('<h2>Salin kegiatan</h2><p>Browser tidak mengizinkan salin otomatis. Tekan lama teks di bawah, pilih <b>Pilih semua</b>, lalu <b>Salin</b>.</p>' +
+    '<textarea class="input" id="salinTeks" readonly style="min-height:160px;margin:8px 0 12px">' + esc(teks) + '</textarea><button class="btn utama penuh" id="salinTutup">Tutup</button>');
+  var t = $('salinTeks');
+  t.focus(); t.select();
+  $('salinTutup').onclick = tutupDialog;
 }
 function salinCadangan(teks) {
   var t = document.createElement('textarea');
